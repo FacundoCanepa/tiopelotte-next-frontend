@@ -9,7 +9,7 @@ const NuestraHistoria = () => {
     <AnimatedSection className="relative py-16 overflow-hidden">
       {/* Imagen de fondo decorativa */}
       <img
-        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/premium_photo_1661962560564_220abc8b6bf2_1795602fae.avif`}
+        src={`${process.env.NEXT_PUBLIC_MEDIA_URL}/premium_photo_1661962560564_220abc8b6bf2_f9f2261ff0.avif`}
         className="absolute inset-0 w-full h-full object-cover -z-20"
         alt="Decoración fondo"
       />

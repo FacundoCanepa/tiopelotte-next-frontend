@@ -9,7 +9,7 @@ const CommentsUser = () => {
     <AnimatedSection className="relative py-16 overflow-hidden">
       {/* Imagen de fondo decorativa */}
       <img
-        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/photo_1563599175592_c58dc214deff_72de742650.jpg`}
+        src={`${process.env.NEXT_PUBLIC_MEDIA_URL}/photo_1465911817134_741b5e473a1b_732b198613.avif`}
         className="absolute inset-0 w-full h-full object-cover  -z-20"
         alt="Decoración fondo"
       />
@@ -40,7 +40,7 @@ const CommentsUser = () => {
               className="flex items-start gap-4 bg-white/20 p-4 rounded-xl backdrop-blur-sm"
             >
               <img
-                src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${review.avatar}`}
+                src={`${process.env.NEXT_PUBLIC_MEDIA_URL}${review.avatar}`}
                 alt={review.name}
                 className="w-12 h-12 rounded-full object-cover border-2 border-black/90"
               />

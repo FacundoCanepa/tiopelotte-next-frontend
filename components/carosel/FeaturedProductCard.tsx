@@ -33,12 +33,15 @@ const DessertProductCard = ({ product }: Props) => {
             ${expanded ? "h-[22rem]" : ""}
             md:cursor-default md:transition-none`}
           onClick={handleImageClick}
-        >
-          <img
-            src={`${process.env.NEXT_PUBLIC_BACKEND_URL}${product.img?.[0]?.url}`}
-            alt={product.productName}
-            className="w-full h-full object-cover rounded-xl transition-all duration-300"
-          />
+                >
+   <img
+  src={`${product.img?.[0]?.url}`}
+  alt={product.productName}
+  className="w-full h-full object-cover object-center transition-transform duration-300"
+/>
+
+
+
           {/* Ícono de zoom solo en mobile */}
           <div className="absolute top-2 right-2 md:hidden">
             {expanded ? (

@@ -7,7 +7,7 @@ const Ubicacion = () => {
     <AnimatedSection className="relative py-16 overflow-hidden">
       {/* Imagen de fondo decorativa */}
       <img
-        src={`${process.env.NEXT_PUBLIC_BACKEND_URL}/uploads/photo_1563599175592_c58dc214deff_72de742650.jpg`}
+        src={`${process.env.NEXT_PUBLIC_MEDIA_URL}/photo_1723473620176_8d26dc6314cf_803f81fe52.jpg`}
         className="absolute inset-0 w-full h-full object-cover -z-20"
         alt="Decoración fondo"
       />

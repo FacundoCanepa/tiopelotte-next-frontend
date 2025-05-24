@@ -4,14 +4,15 @@ export type ProductType = {
   slug: string;
   description: string;
   descriptionCorta: string | null;
-  img: {
-    data: {
-      id: number;
-      attributes: {
-        url: string;
-      };
-    }[];
-  } | null;
+img: {
+  data: {
+    id: number;
+    attributes: {
+      url: string;
+    };
+  }[];
+} | null;
+
   unidadMedida: string;
   taste: string;
   price: number;

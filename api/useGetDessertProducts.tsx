@@ -1,33 +1,24 @@
 import { useEffect, useState } from "react";
 import { ProductType } from "@/types/product";
 
-export const useGetDessertProducts = () => {
+export function useGetDessertProducts() {
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products?populate=*&filters[category][slug][$eq]=postres&filters[active][$eq]=true`;
   const [result, setResult] = useState<ProductType[] | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const getProducts = async () => {
-      const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products?populate=*&filters[category][slug][$eq]=postres&filters[active][$eq]=true`;
-
+    (async () => {
       try {
         const res = await fetch(url);
-        const data = await res.json();
-
-        // Acá ya no se usa item.attributes, porque tus productos vienen planos
-        const mappedData = data.data; 
-
-        setResult(mappedData);
-      } catch (err) {
-        console.error("❌ Error al obtener los productos:", err);
-        setError(true);
-      } finally {
+        const json = await res.json();
+        setResult(json.data);
         setLoading(false);
+      } catch (err: any) {
+        setError(err.message || "Error al cargar los postres");
       }
-    };
+    })();
+  }, [url]);
 
-    getProducts();
-  }, []);
-
-  return { result, loading, error };
-};
+  return { loading, result, error };
+}

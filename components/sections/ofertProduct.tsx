@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useGetOfferProducts } from "@/api/useGetOfertProducts";
 import { ResponseType } from "@/types/response";
 import {
@@ -14,10 +15,10 @@ import { ProductType } from "@/types/product";
 import AnimatedSection from "../ui/AnimatedWrapper";
 import FeaturedProductCard from "../carosel/FeaturedProductCard";
 
-const ofertProduct = () => {
+const OfferProduct = () => {
   const { error, loading, result }: ResponseType = useGetOfferProducts();
+  const router = useRouter();
 
-  // Clase dinámica para justificar los ítems dependiendo de la cantidad
   const justifyClass =
     result && result.length <= 4 ? "justify-around" : "justify-start";
 
@@ -26,15 +27,20 @@ const ofertProduct = () => {
       <div className="max-w-5xl md:max-w-full py-4 mx-auto sm:py-8 sm:px-12">
         <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-10 pb-4">
           <div className="text-center">
-<h3 className="font-garamond text-[4vh] md:text-[6vh] italic tracking-wide">
- ¡Precio amigo, sabor de casa!
-</h3>
-<p className="text-stone-600 italic font-garamond text-lg mt-1">
-Promos que ni el Tío pudo ignorar.
-</p>
-<div className="inline-block mt-3 bg-[#FFD966] text-[#8B4513] font-semibold px-4 py-1 rounded-full shadow-sm text-sm sm:text-base md:text-lg uppercase tracking-wide">
-  ¡Sabor a precio justo!
-</div>
+            <h3 className="font-garamond text-[4vh] md:text-[6vh] italic tracking-wide">
+              ¡Precio amigo, sabor de casa!
+            </h3>
+            <p className="text-stone-600 italic font-garamond text-lg mt-1">
+              Promos que ni el Tío pudo ignorar.
+            </p>
+<button
+  onClick={() => router.push("/productos")}
+  className="mt-4 bg-[#6B8E23] text-white px-4 py-2 rounded-full font-semibold text-sm sm:text-base transition-transform transform duration-300 hover:scale-105 cursor-pointer"
+>
+  Ver más productos
+</button>
+
+
 
           </div>
         </div>
@@ -44,7 +50,9 @@ Promos que ni el Tío pudo ignorar.
             className={`ml-0 flex ${justifyClass} gap-4 overflow-visible`}
           >
             {loading && <SkeletonSchema grid={4} />}
-            {result !== null &&
+            {!loading &&
+              !error &&
+              result !== null &&
               result.map((product: ProductType) => (
                 <CarouselItem
                   key={product.id}
@@ -62,4 +70,5 @@ Promos que ni el Tío pudo ignorar.
     </AnimatedSection>
   );
 };
-export default ofertProduct;
+
+export default OfferProduct;

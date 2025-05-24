@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useGetDessertProducts } from "@/api/useGetDessertProducts";
 import { ResponseType } from "@/types/response";
 import {
@@ -14,10 +15,10 @@ import { ProductType } from "@/types/product";
 import AnimatedSection from "../ui/AnimatedWrapper";
 import FeaturedProductCard from "../carosel/FeaturedProductCard";
 
-const dessertProducts = () => {
+const DessertProducts = () => {
   const { error, loading, result }: ResponseType = useGetDessertProducts();
+  const router = useRouter();
 
-  // Clase dinámica para justificar los ítems dependiendo de la cantidad
   const justifyClass =
     result && result.length <= 4 ? "justify-around" : "justify-start";
 
@@ -27,14 +28,18 @@ const dessertProducts = () => {
         <div className="max-w-6xl mx-auto px-4 sm:px-8 pt-10 pb-4">
           <div className="text-center">
             <h3 className="font-garamond text-[4vh] md:text-[6vh] italic tracking-wide">
-            Dulzura artesanal
-          </h3>
-          <p className="text-stone-600 italic font-garamond text-lg mt-1">
-            Postres caseros para cerrar con una sonrisa.
-          </p>
-          <div className="inline-block mt-3 bg-[#FFD966] text-[#8B4513] font-semibold px-4 py-1 rounded-full shadow-sm text-xs sm:text-sm uppercase tracking-wide">
-            ¡Endulzate el día!
-          </div>
+              Dulzura artesanal
+            </h3>
+            <p className="text-stone-600 italic font-garamond text-lg mt-1">
+              Postres caseros para cerrar con una sonrisa.
+            </p>
+
+<button
+  onClick={() => router.push("/productos")}
+  className="mt-4 bg-[#6B8E23] text-white px-4 py-2 rounded-full font-semibold text-sm sm:text-base transition-transform transform duration-300 hover:scale-105 cursor-pointer"
+>
+  Ver más productos
+</button>
 
           </div>
         </div>
@@ -44,7 +49,9 @@ const dessertProducts = () => {
             className={`ml-0 flex ${justifyClass} gap-4 overflow-visible`}
           >
             {loading && <SkeletonSchema grid={4} />}
-            {result !== null &&
+            {!loading &&
+              !error &&
+              result !== null &&
               result.map((product: ProductType) => (
                 <CarouselItem
                   key={product.id}
@@ -63,4 +70,4 @@ const dessertProducts = () => {
   );
 };
 
-export default dessertProducts;
+export default DessertProducts;

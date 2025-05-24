@@ -9,7 +9,8 @@ export default function Navbar() {
   const { isOpen, toggleMenu, closeMenu } = useToggleMenu();
 
   return (
-    <header className="w-full flex items-center justify-between py-3 md:py-0 md:pl-5 md:pr-5 shadow-md relative z-50 navbar-secondary">
+   <header className="sticky top-0 left-0 w-full flex items-center justify-between py-3 md:py-0 md:pl-5 md:pr-5 shadow-md z-50 navbar-secondary bg-white/90 backdrop-blur-sm">
+
       <div className="hidden md:flex size-[6vw]">
         <img src="/favicon.ico" alt="Tio Pelotte Icon" />
       </div>
