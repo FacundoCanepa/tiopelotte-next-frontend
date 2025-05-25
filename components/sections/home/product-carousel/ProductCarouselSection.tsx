@@ -5,7 +5,7 @@ import ProductCarousel from "@/components/ui/ProductCarousel";
 import SkeletonCarousel from "@/components/ui/skeletonSchema";
 import { useRouter } from "next/navigation";
 import type { ProductType } from "@/types/product";
-import Button from "../../ui/Button";
+import Button from "@/components/ui/Button";
 
 interface ProductState {
   loading: boolean;

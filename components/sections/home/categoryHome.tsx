@@ -1,6 +1,6 @@
 "use client";
 
-import SkeletonCategory from "../ui/SkeletonCategory"; 
+import SkeletonCategory from "../../ui/SkeletonCategory"; 
 import { useGetCategory } from "@/components/hook/useGetCategory";
 import { ResponseType } from "@/types/response";
 import { useState } from "react";

@@ -2,7 +2,7 @@
 
 import { googleReviews } from "@/types/comments";
 import { Star } from "lucide-react";
-import AnimatedSection from "../ui/AnimatedWrapper";
+import AnimatedSection from "../../ui/AnimatedWrapper";
 
 const CommentsUser = () => {
   return (

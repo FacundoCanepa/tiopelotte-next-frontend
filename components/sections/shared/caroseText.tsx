@@ -5,10 +5,10 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-} from "../ui/carousel";
-import { Card, CardContent } from "../ui/card";
+} from "@/components/ui/carousel";
+import { Card, CardContent } from "@/components/ui/card";
 import Autoplay from "embla-carousel-autoplay";
-import Button from "../ui/Button";
+import Button from "@/components/ui/Button";
 import { motion } from "framer-motion";
 
 export const datacaroseltop = [

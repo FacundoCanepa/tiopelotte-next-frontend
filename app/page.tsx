@@ -4,13 +4,13 @@ import { useGetFeaturedProducts } from "@/components/hook/useGetFeaturedProducts
 import { useGetOfferProducts } from "@/components/hook/useGetOfertProducts";
 import { useGetDessertProducts } from "@/components/hook/useGetDessertProducts";
 
-import CaroseText from "@/components/sections/caroseText";
-import ProductCarouselSection from "@/components/sections/product-carousel/ProductCarouselSection";
-import NuestraHistoria from "@/components/sections/nuestraHistoria";
-import Ubicacion from "@/components/sections/ubicacion";
-import CommentsUser from "@/components/sections/commentsUsers";
-import CategoryHome from "@/components/sections/categoryHome";
-import RedesSociales from "@/components/sections/redesSociales";
+import CaroseText from "@/components/sections/shared/caroseText";
+import ProductCarouselSection from "@/components/sections/home/product-carousel/ProductCarouselSection";
+import NuestraHistoria from "@/components/sections/home/nuestraHistoria";
+import Ubicacion from "@/components/sections/home/ubicacion";
+import CommentsUser from "@/components/sections/home/commentsUsers";
+import CategoryHome from "@/components/sections/home/categoryHome";
+import RedesSociales from "@/components/sections/home/redesSociales";
 
 export default function Home() {
   const featuredProducts = useGetFeaturedProducts();

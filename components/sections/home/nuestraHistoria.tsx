@@ -1,8 +1,8 @@
 "use client";
 
-import AnimatedSection from "../ui/AnimatedWrapper";
+import AnimatedSection from "../../ui/AnimatedWrapper";
 import { useRouter } from "next/navigation";
-import Button from "../ui/Button";
+import Button from "../../ui/Button";
 
 const NuestraHistoria = () => {
   const router = useRouter();

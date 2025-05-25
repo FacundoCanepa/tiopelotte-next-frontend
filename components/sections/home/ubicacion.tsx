@@ -1,7 +1,7 @@
 "use client";
 
-import AnimatedSection from "../ui/AnimatedWrapper";
-import Button from "../ui/Button";
+import AnimatedSection from "../../ui/AnimatedWrapper";
+import Button from "../../ui/Button";
 import { useRouter } from "next/navigation";
 
 const Ubicacion = () => {
