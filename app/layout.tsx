@@ -3,6 +3,7 @@ import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import { islandMoments, ebGaramond } from "@/lib/fonts/fonts";
 import Footer from "@/components/layout/footer";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
 
 export const metadata: Metadata = {
   title: "Tio pelotte",
@@ -19,6 +20,7 @@ export default function RootLayout({
       <body className={`${islandMoments.variable} ${ebGaramond.variable} antialiased `}>
         <Navbar/>
         {children}
+        <WhatsAppButton />
         <Footer/>
       </body>
     </html>

@@ -1,8 +1,12 @@
 "use client";
 
 import AnimatedSection from "../ui/AnimatedWrapper";
+import Button from "../ui/Button";
+import { useRouter } from "next/navigation";
 
 const Ubicacion = () => {
+  const router = useRouter();
+
   return (
     <AnimatedSection className="relative py-16 overflow-hidden">
       {/* Imagen de fondo decorativa */}
@@ -13,7 +17,7 @@ const Ubicacion = () => {
       />
 
       {/* Capa de color encima de la imagen */}
-      <div className="absolute inset-0 bg-[#FBE0C2] opacity-50  -z-10" />
+      <div className="absolute inset-0 bg-[#FBE0C2] opacity-50 -z-10" />
 
       {/* SVG arriba */}
       <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0] z-10">
@@ -33,16 +37,18 @@ const Ubicacion = () => {
       {/* Contenido */}
       <section className="py-10 px-4 relative z-10">
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 items-center text-center md:text-left">
-          <div className="md:bg-white/20 md:shadow-md  md:p-10 md:rounded-lg md:backdrop-blur-sm">
-            <h2 className="text-2xl md:text-3xl font-semibold font-garamond italic tracking-wide mb-2">
+          <div className="md:bg-white/20 md:shadow-md md:p-10 md:rounded-lg md:backdrop-blur-sm">
+            <h2 className="font-garamond italic text-3xl md:text-5xl tracking-wide mb-3">
               Visítanos
             </h2>
-            <p className="text-sm md:text-base text-stone-700 mb-6 font-garamond">
+
+            <p className="text-stone-700 font-garamond italic text-sm md:text-base leading-relaxed mb-6">
               Te esperamos en nuestra tienda para disfrutar de nuestras
               <br className="hidden md:inline" />
               pastas frescas, hechas con tradición y dedicación.
             </p>
-            <p className="text-sm text-stone-700 font-garamond leading-relaxed">
+
+            <p className="text-stone-700 font-garamond italic text-sm md:text-base leading-relaxed">
               <strong>Dirección:</strong> Calle 197 y 44, La Plata, Buenos Aires.
               <br />
               <strong>Horarios:</strong>
@@ -53,6 +59,10 @@ const Ubicacion = () => {
               <br />
               Lunes: cerrado <em>(excepto los días 29)</em>
             </p>
+
+            <Button className="mt-6" onClick={() => router.push("/contacto")}>
+              Cómo llegar
+            </Button>
           </div>
 
           <div className="flex justify-center md:justify-end">
