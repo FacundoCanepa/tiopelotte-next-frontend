@@ -60,7 +60,7 @@ const Ubicacion = () => {
               Lunes: cerrado <em>(excepto los días 29)</em>
             </p>
 
-            <Button className="mt-6" onClick={() => router.push("/contacto")}>
+            <Button className="mt-6" onClick={() => router.push("/ubicacion")}>
               Cómo llegar
             </Button>
           </div>

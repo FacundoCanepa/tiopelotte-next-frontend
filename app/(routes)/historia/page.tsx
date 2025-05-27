@@ -1,5 +1,5 @@
 "use client";
-import HistoriaSection from "@/components/sections/historia/HistoriaSection";
+import HistoriaSection from "./components/HistoriaSection";
 
 export default function HistoriaPage() {
   return(

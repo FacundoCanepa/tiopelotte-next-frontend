@@ -11,7 +11,7 @@ export const historiaData = [
       "/photo_1465911817134_741b5e473a1b_732b198613.avif",
       "/photo_1465911817134_741b5e473a1b_732b198613.avif",
     ],
-    iconColor: "#6B8E23",
+    iconColor: "#D16A45",
   },
   {
     year: "2012",
@@ -23,7 +23,7 @@ export const historiaData = [
       "/photo_1465911817134_741b5e473a1b_732b198613.avif",
       "/photo_1465911817134_741b5e473a1b_732b198613.avif",
     ],
-    iconColor: "#FFD966",
+    iconColor: "#D16A45",
   },
   {
     year: "2016",
