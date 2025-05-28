@@ -16,7 +16,7 @@ interface MenuListProps {
 
 const links = [
   { text: "Inicio", href: "/", icon: Home },
-  { text: "Productos", href: "/products", icon: ShoppingBag },
+  { text: "Productos", href: "/productos", icon: ShoppingBag },
   { text: "Ubicación", href: "/ubicacion", icon: MapPin },
   { text: "Ofertas", href: "/ofertas", icon: Percent },
   { text: "Nuestra historia", href: "/historia", icon: ScrollText },
