@@ -31,7 +31,7 @@ const Footer = () => {
           <ul className="flex flex-col gap-1 items-center md:items-end">
             <li className="cursor-pointer select-none md:hover:underline underline md:no-underline" onClick={() => router.push("/historia")}>Sobre nosotros</li>
             <li className="cursor-pointer select-none md:hover:underline underline md:no-underline" onClick={() => router.push("/ubicacion")}>Contacto</li>
-            <li className="cursor-pointer select-none md:hover:underline underline md:no-underline" onClick={() => router.push("/products")}>Productos</li>
+            <li className="cursor-pointer select-none md:hover:underline underline md:no-underline" onClick={() => router.push("/productos")}>Productos</li>
           </ul>
           </div>
 

@@ -1,24 +1,24 @@
-
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
+import { Category } from "@/types/category" // agregá esto si no estaba
 
 export function useGetCategory() {
-  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categories?populate=*`;
-  const [result, setResult] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categories?populate=*`
+  const [result, setResult] = useState<Category[]>([]) // cambio clave
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
-    (async () => {
+    ;(async () => {
       try {
-        const res = await fetch(url);
-        const json = await res.json();
-        setResult(json.data);
-        setLoading(false);
+        const res = await fetch(url)
+        const json = await res.json()
+        setResult(json.data)
+        setLoading(false)
       } catch (error: any) {
-        setError(error.message || "Error desconocido");
+        setError(error.message || "Error desconocido")
       }
-    })();
-  }, [url]);
+    })()
+  }, [url])
 
-  return { loading, result, error };
+  return { loading, result, error }
 }

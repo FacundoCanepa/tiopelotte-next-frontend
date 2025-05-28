@@ -18,7 +18,7 @@ const links = [
   { text: "Inicio", href: "/", icon: Home },
   { text: "Productos", href: "/productos", icon: ShoppingBag },
   { text: "Ubicación", href: "/ubicacion", icon: MapPin },
-  { text: "Ofertas", href: "/ofertas", icon: Percent },
+  { text: "Ofertas", href: "/productos", icon: Percent },
   { text: "Nuestra historia", href: "/historia", icon: ScrollText },
 ];
 

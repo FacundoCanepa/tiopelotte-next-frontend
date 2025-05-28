@@ -1,55 +1,46 @@
 "use client"
 
-import { useState } from "react"
-import { useGetProductsBy } from "@/components/hook/useGetProductsBy"
-import { ProductType } from "@/types/product"
+import { useFilteredProducts } from "@/components/hook/useFilteredProducts"
 import AnimatedSection from "@/components/ui/AnimatedWrapper"
 import ProductGridCard from "./ProductGridCard"
-import ProductosFilters from "./ProductosFilters"
+import ProductosFilters from "../filters/ProductosFilters"
 import { SlidersHorizontal, ArrowUpDown } from "lucide-react"
-
-const PRODUCTS_PER_PAGE = 12
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 const ProductosSection = () => {
-  const [category, setCategory] = useState("")
-  const [search, setSearch] = useState("")
-  const [minPrice, setMinPrice] = useState("")
-  const [maxPrice, setMaxPrice] = useState("")
-  const [onlyOffers, setOnlyOffers] = useState(false)
-  const [sortOrder, setSortOrder] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
+  const {
+    products,
+    filters,
+    setFilters,
+    currentPage,
+    setPage,
+    totalPages,
+    loading,
+  } = useFilteredProducts()
+
+  const { category, search, priceRange, onlyOffers, sort, unidad } = filters
+  const [minPrice, maxPrice] = priceRange
+
   const [showMobileFilters, setShowMobileFilters] = useState(false)
 
-  const start = (currentPage - 1) * PRODUCTS_PER_PAGE
-
-  const filters: Record<string, any> = {
-    "filters[active][$eq]": true,
-    "pagination[start]": start,
-    "pagination[limit]": PRODUCTS_PER_PAGE,
-    populate: "*",
-    ...(category ? { "filters[category][slug][$eq]": category } : {}),
-    ...(search ? { "filters[productName][$containsi]": search } : {}),
-    ...(minPrice ? { "filters[price][$gte]": minPrice } : {}),
-    ...(maxPrice ? { "filters[price][$lte]": maxPrice } : {}),
-    ...(onlyOffers ? { "filters[isOffer][$eq]": true } : {}),
-    ...(sortOrder ? { sort: `price:${sortOrder}` } : {}),
-  }
-
-  const { products, total, loading } = useGetProductsBy(filters)
-  const totalPages = Math.ceil(total / PRODUCTS_PER_PAGE)
-
   const toggleSortOrder = () => {
-    setSortOrder((prev) => (prev === "asc" ? "desc" : "asc"))
+    setFilters((f) => ({
+      ...f,
+      sort: f.sort === "priceDesc" ? "priceAsc" : "priceDesc",
+    }))
   }
 
   const handleClearFilters = () => {
-    setCategory("")
-    setSearch("")
-    setMinPrice("")
-    setMaxPrice("")
-    setOnlyOffers(false)
-    setSortOrder("")
-    setCurrentPage(1)
+    setFilters({
+      search: "",
+      category: "",
+      sort: "",
+      onlyOffers: false,
+      unidad: "",
+      priceRange: ["", ""],
+    })
+    setPage(1)
   }
 
   return (
@@ -71,9 +62,8 @@ const ProductosSection = () => {
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFF4E3] text-[#8B4513] shadow-sm border border-[#E6D2B5] active:scale-95 transition-all"
         >
           <ArrowUpDown size={18} />
-          {sortOrder === "desc" ? "Mayor precio" : "Menor precio"}
+          {sort === "priceDesc" ? "Mayor precio" : "Menor precio"}
         </button>
-
         <button
           onClick={() => setShowMobileFilters((prev) => !prev)}
           className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#FFF4E3] text-[#8B4513] shadow-sm border border-[#E6D2B5] active:scale-95 transition-all"
@@ -82,31 +72,41 @@ const ProductosSection = () => {
         </button>
       </div>
 
-      {/* FILTROS MOBILE */}
-      {showMobileFilters && (
-        <div className="block md:hidden mb-8">
-          <ProductosFilters
-            selected={category}
-            setSelected={setCategory}
-            search={search}
-            setSearch={setSearch}
-            minPrice={minPrice}
-            setMinPrice={setMinPrice}
-            maxPrice={maxPrice}
-            setMaxPrice={setMaxPrice}
-            onlyOffers={onlyOffers}
-            setOnlyOffers={setOnlyOffers}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
-          />
-          <button
-            onClick={handleClearFilters}
-            className="mt-4 w-full px-4 py-2 rounded-xl bg-[#FFD966] text-[#8B4513] hover:bg-[#F5C741] transition-all shadow-sm font-semibold text-sm cursor-pointer "
+      {/* FILTROS MOBILE CON ANIMACIÓN */}
+      <AnimatePresence>
+        {showMobileFilters && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.3, ease: "easeInOut" }}
+            className="block md:hidden mb-8"
           >
-            Limpiar filtros
-          </button>
-        </div>
-      )}
+            <ProductosFilters
+              selected={category}
+              setSelected={(val) => setFilters((f) => ({ ...f, category: val }))}
+              search={search}
+              setSearch={(val) => setFilters((f) => ({ ...f, search: val }))}
+              minPrice={minPrice ? minPrice.toString() : ""}
+              setMinPrice={(val) => setFilters((f) => ({ ...f, priceRange: [val, f.priceRange[1]] }))}
+              maxPrice={maxPrice ? maxPrice.toString() : ""}
+              setMaxPrice={(val) => setFilters((f) => ({ ...f, priceRange: [f.priceRange[0], val] }))}
+              onlyOffers={onlyOffers}
+              setOnlyOffers={(val) => setFilters((f) => ({ ...f, onlyOffers: val }))}
+              sortOrder={sort === "priceAsc" ? "asc" : sort === "priceDesc" ? "desc" : ""}
+              setSortOrder={(val) => setFilters((f) => ({ ...f, sort: val === "asc" ? "priceAsc" : val === "desc" ? "priceDesc" : "" }))}
+              unidad={unidad}
+              setUnidad={(val) => setFilters((f) => ({ ...f, unidad: val }))}
+            />
+            <button
+              onClick={handleClearFilters}
+              className="mt-4 w-full px-4 py-2 rounded-xl bg-[#FFD966] text-[#8B4513] hover:bg-[#F5C741] transition-all shadow-sm font-semibold text-sm"
+            >
+              Limpiar filtros
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* LAYOUT GENERAL */}
       <div className="flex flex-col md:flex-row gap-6">
@@ -114,17 +114,19 @@ const ProductosSection = () => {
         <aside className="hidden md:block w-full md:max-w-xs">
           <ProductosFilters
             selected={category}
-            setSelected={setCategory}
+            setSelected={(val) => setFilters((f) => ({ ...f, category: val }))}
             search={search}
-            setSearch={setSearch}
-            minPrice={minPrice}
-            setMinPrice={setMinPrice}
-            maxPrice={maxPrice}
-            setMaxPrice={setMaxPrice}
+            setSearch={(val) => setFilters((f) => ({ ...f, search: val }))}
+            minPrice={minPrice ? minPrice.toString() : ""}
+            setMinPrice={(val) => setFilters((f) => ({ ...f, priceRange: [val, f.priceRange[1]] }))}
+            maxPrice={maxPrice ? maxPrice.toString() : ""}
+            setMaxPrice={(val) => setFilters((f) => ({ ...f, priceRange: [f.priceRange[0], val] }))}
             onlyOffers={onlyOffers}
-            setOnlyOffers={setOnlyOffers}
-            sortOrder={sortOrder}
-            setSortOrder={setSortOrder}
+            setOnlyOffers={(val) => setFilters((f) => ({ ...f, onlyOffers: val }))}
+            sortOrder={sort === "priceAsc" ? "asc" : sort === "priceDesc" ? "desc" : ""}
+            setSortOrder={(val) => setFilters((f) => ({ ...f, sort: val === "asc" ? "priceAsc" : val === "desc" ? "priceDesc" : "" }))}
+            unidad={unidad}
+            setUnidad={(val) => setFilters((f) => ({ ...f, unidad: val }))}
           />
           <button
             onClick={handleClearFilters}
@@ -158,7 +160,7 @@ const ProductosSection = () => {
           ) : (
             <>
               <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-                {products.map((product: ProductType) => (
+                {products.map((product) => (
                   <ProductGridCard key={product.id} product={product} />
                 ))}
               </div>
@@ -166,7 +168,7 @@ const ProductosSection = () => {
               {/* PAGINACIÓN */}
               <div className="flex justify-center mt-12 gap-2 text-sm font-medium text-[#8B4513] flex-wrap">
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+                  onClick={() => setPage(Math.max(currentPage - 1, 1))}
                   disabled={currentPage === 1}
                   className="px-3 py-1 rounded disabled:text-stone-300 cursor-pointer"
                 >
@@ -176,7 +178,7 @@ const ProductosSection = () => {
                 {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
                   <button
                     key={num}
-                    onClick={() => setCurrentPage(num)}
+                    onClick={() => setPage(num)}
                     className={`px-3 py-1 rounded transition-all duration-200 cursor-pointer ${
                       currentPage === num
                         ? "bg-[#FFD966] text-[#8B4513] font-bold shadow-sm"
@@ -188,7 +190,7 @@ const ProductosSection = () => {
                 ))}
 
                 <button
-                  onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
+                  onClick={() => setPage(Math.min(currentPage + 1, totalPages))}
                   disabled={currentPage === totalPages}
                   className="px-3 py-1 rounded disabled:text-stone-300 cursor-pointer"
                 >
