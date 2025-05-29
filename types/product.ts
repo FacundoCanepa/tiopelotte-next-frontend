@@ -4,14 +4,17 @@ export type ProductType = {
   slug: string;
   description: string;
   descriptionCorta: string | null;
-img: {
-  data: {
+
+  img: {
     id: number;
-    attributes: {
-      url: string;
-    };
-  }[];
-} | null;
+    url: string;
+  }[]; // imagen principal (usás array plano)
+
+  img_carousel?: {
+    id: number;
+    url: string;
+    alternativeText?: string;
+  }[]; // carrusel como array directo
 
   unidadMedida: string;
   taste: string;
@@ -19,6 +22,7 @@ img: {
   active: boolean;
   isFeatured: boolean | null;
   isOffer: boolean | null;
+
   category: {
     id: number;
     categoryNames: string;
