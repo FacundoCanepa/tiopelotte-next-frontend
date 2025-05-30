@@ -46,31 +46,42 @@ const ProductImageCarousel = ({ images, productName }: Props) => {
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      <div className="relative w-full overflow-hidden rounded-xl shadow-md bg-[#FBE6D4] aspect-[4/3]">
-        <div className="flex h-full" style={slideStyle}>
-          {images.map((img) => (
-            <img
-              key={img.id}
-              src={img.url}
-              alt={img.alternativeText || productName}
-              className="w-full h-full flex-shrink-0 object-cover object-center"
-            />
-          ))}
-        </div>
+<div
+  className="relative w-full aspect-[4/3] p-[6px] rounded-[28px] bg-[#FBE6D4]"
+  style={{
+    backgroundImage:
+      "radial-gradient(circle, #8B4513 0%, #8B4513 30%, #FBE6D4 100%)",
+  }}
+>
+  <div className="rounded-[20px] overflow-hidden w-full h-full bg-[#FBE6D4] shadow-md">
+    <div className="flex h-full" style={slideStyle}>
+      {images.map((img) => (
+        <img
+          key={img.id}
+          src={img.url}
+          alt={img.alternativeText || productName}
+          className="w-full h-full flex-shrink-0 object-cover object-center"
+        />
+      ))}
+    </div>
 
-        <button
-          onClick={prev}
-          className="absolute top-1/2 left-3 transform -translate-y-1/2 bg-white/70 backdrop-blur-sm rounded-full p-2 shadow hover:scale-110 transition cursor-pointer"
-        >
-          <ChevronLeft className="w-5 h-5 text-[#8B4513]" />
-        </button>
-        <button
-          onClick={next}
-          className="absolute top-1/2 right-3 transform -translate-y-1/2 bg-white/70 backdrop-blur-sm rounded-full p-2 shadow hover:scale-110 transition cursor-pointer"
-        >
-          <ChevronRight className="w-5 h-5 text-[#8B4513]" />
-        </button>
-      </div>
+    <button
+      onClick={prev}
+      className="absolute top-1/2 left-3 transform -translate-y-1/2 bg-white/70 backdrop-blur-sm rounded-full p-2 shadow hover:scale-110 transition cursor-pointer z-20"
+    >
+      <ChevronLeft className="w-5 h-5 text-[#8B4513]" />
+    </button>
+    <button
+      onClick={next}
+      className="absolute top-1/2 right-3 transform -translate-y-1/2 bg-white/70 backdrop-blur-sm rounded-full p-2 shadow hover:scale-110 transition cursor-pointer z-20"
+    >
+      <ChevronRight className="w-5 h-5 text-[#8B4513]" />
+    </button>
+  </div>
+</div>
+
+
+
 
       <div className="flex gap-2 overflow-x-auto overflow-y-hidden">
         {images.map((img, index) => (

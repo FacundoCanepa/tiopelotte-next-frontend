@@ -8,13 +8,13 @@ export type ProductType = {
   img: {
     id: number;
     url: string;
-  }[]; // imagen principal (usás array plano)
+  }[];
 
   img_carousel?: {
     id: number;
     url: string;
     alternativeText?: string;
-  }[]; // carrusel como array directo
+  }[];
 
   unidadMedida: string;
   taste: string;
@@ -28,4 +28,14 @@ export type ProductType = {
     categoryNames: string;
     slug: string;
   };
+
+  ingredientes?: {
+    ingredienteName: string;
+  }[];
+
+  porciones?: string;
+
+  tiempoEstimado?: string;
+
+  stock?: number;
 };
