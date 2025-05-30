@@ -2,16 +2,8 @@
 
 import { useGetSimilarProducts } from "@/components/hook/useSimilarProducts";
 import { ProductType } from "@/types/product";
-import SimilarProductCard from "./SimilarProductCard";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
-} from "@/components/ui/carousel";
-import Autoplay from "embla-carousel-autoplay";
-import { Sparkles } from "lucide-react";
+import SimilarProductCarouselWrapper from "./SimilarProductCarouselWrapper";
+import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Props {
   product: ProductType;
@@ -26,44 +18,36 @@ const SimilarProductsCarousel = ({ product }: Props) => {
     excludeProductId: productId,
   });
 
-  if (loading) return <p className="text-center text-[#8B4513]">Cargando productos similares...</p>;
-  if (error) return <p className="text-center text-red-600">Error: {error}</p>;
-  if (!similarProducts?.length) return <p className="text-center text-[#8B4513]">No hay productos similares.</p>;
+  if (loading)
+    return (
+      <p className="text-center text-[#8B4513]">Cargando productos similares...</p>
+    );
+  if (error)
+    return <p className="text-center text-red-600">Error: {error}</p>;
+  if (!similarProducts?.length)
+    return (
+      <p className="text-center text-[#8B4513]">No hay productos similares.</p>
+    );
 
   return (
-    <section className="bg-[#FBE6D4] py-14 px-4">
-      <div className="flex items-center justify-center mb-8 gap-2">
-        <Sparkles className="w-6 h-6 text-[#D16A45]" />
-        <h2 className="text-3xl sm:text-4xl font-garamond italic text-[#D16A45]">
+    <section className="w-full max-w-[90rem] mx-auto py-12 px-4">
+      <div className="text-center mb-6">
+        <h3 className="font-garamond text-3xl md:text-5xl italic text-[#8B4513] flex items-center justify-center gap-2">
+          <Sparkles className="w-6 h-6 text-[#FFD966]" />
           También te pueden gustar
-        </h2>
-        <Sparkles className="w-6 h-6 text-[#D16A45]" />
+        </h3>
       </div>
 
-      <div className="relative max-w-6xl mx-auto">
-        <Carousel
-          opts={{
-            align: "start",
-            slidesToScroll: 1,
-            loop: true,
-            containScroll: "trimSnaps",
-          }}
-          plugins={[Autoplay({ delay: 4000, stopOnInteraction: false })]}
-        >
-          <CarouselContent className="gap-4">
-            {similarProducts.map((product) => (
-              <CarouselItem
-                key={product.id}
-                className="px-2 w-[95%] sm:w-1/2 md:w-1/3 lg:w-1/4"
-              >
-                <SimilarProductCard product={product} />
-              </CarouselItem>
-            ))}
-          </CarouselContent>
+      {/* Carrusel */}
+      <SimilarProductCarouselWrapper products={similarProducts} />
 
-          <CarouselPrevious className="hidden lg:flex -left-6" />
-          <CarouselNext className="hidden lg:flex -right-6" />
-        </Carousel>
+      {/* Indicador visual mobile: deslizar */}
+      <div className="sm:hidden flex items-center justify-center gap-2 mt-6 animate-pulse">
+        <ChevronLeft className="w-6 h-6 text-[#8B4513]" />
+        <span className="text-base font-semibold text-[#8B4513]">
+          Deslizá para ver más productos
+        </span>
+        <ChevronRight className="w-6 h-6 text-[#8B4513]" />
       </div>
     </section>
   );
