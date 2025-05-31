@@ -9,15 +9,17 @@ import { useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
 const ProductosSection = () => {
-  const {
-    products,
-    filters,
-    setFilters,
-    currentPage,
-    setPage,
-    totalPages,
-    loading,
-  } = useFilteredProducts()
+const {
+  products,
+  totalFiltered,
+  filters,
+  setFilters,
+  currentPage,
+  setPage,
+  totalPages,
+  loading,
+} = useFilteredProducts()
+
 
   const { category, search, priceRange, onlyOffers, sort, unidad } = filters
   const [minPrice, maxPrice] = priceRange
@@ -53,6 +55,10 @@ const ProductosSection = () => {
         <p className="text-stone-500 italic font-garamond text-base sm:text-lg">
           Filtrá y descubrí las pastas que más se ajustan a vos
         </p>
+        <p className="text-[#8B4513]/70 text-sm mt-2">
+          {totalFiltered} productos encontrados
+        </p>
+
       </div>
 
       {/* BOTONES MOBILE */}
@@ -88,13 +94,24 @@ const ProductosSection = () => {
               search={search}
               setSearch={(val) => setFilters((f) => ({ ...f, search: val }))}
               minPrice={minPrice ? minPrice.toString() : ""}
-              setMinPrice={(val) => setFilters((f) => ({ ...f, priceRange: [val, f.priceRange[1]] }))}
+              setMinPrice={(val) =>
+                setFilters((f) => ({ ...f, priceRange: [val, f.priceRange[1]] }))
+              }
               maxPrice={maxPrice ? maxPrice.toString() : ""}
-              setMaxPrice={(val) => setFilters((f) => ({ ...f, priceRange: [f.priceRange[0], val] }))}
+              setMaxPrice={(val) =>
+                setFilters((f) => ({ ...f, priceRange: [f.priceRange[0], val] }))
+              }
               onlyOffers={onlyOffers}
               setOnlyOffers={(val) => setFilters((f) => ({ ...f, onlyOffers: val }))}
-              sortOrder={sort === "priceAsc" ? "asc" : sort === "priceDesc" ? "desc" : ""}
-              setSortOrder={(val) => setFilters((f) => ({ ...f, sort: val === "asc" ? "priceAsc" : val === "desc" ? "priceDesc" : "" }))}
+              sortOrder={
+                sort === "priceAsc" ? "asc" : sort === "priceDesc" ? "desc" : ""
+              }
+              setSortOrder={(val) =>
+                setFilters((f) => ({
+                  ...f,
+                  sort: val === "asc" ? "priceAsc" : val === "desc" ? "priceDesc" : "",
+                }))
+              }
               unidad={unidad}
               setUnidad={(val) => setFilters((f) => ({ ...f, unidad: val }))}
             />
@@ -118,13 +135,24 @@ const ProductosSection = () => {
             search={search}
             setSearch={(val) => setFilters((f) => ({ ...f, search: val }))}
             minPrice={minPrice ? minPrice.toString() : ""}
-            setMinPrice={(val) => setFilters((f) => ({ ...f, priceRange: [val, f.priceRange[1]] }))}
+            setMinPrice={(val) =>
+              setFilters((f) => ({ ...f, priceRange: [val, f.priceRange[1]] }))
+            }
             maxPrice={maxPrice ? maxPrice.toString() : ""}
-            setMaxPrice={(val) => setFilters((f) => ({ ...f, priceRange: [f.priceRange[0], val] }))}
+            setMaxPrice={(val) =>
+              setFilters((f) => ({ ...f, priceRange: [f.priceRange[0], val] }))
+            }
             onlyOffers={onlyOffers}
             setOnlyOffers={(val) => setFilters((f) => ({ ...f, onlyOffers: val }))}
-            sortOrder={sort === "priceAsc" ? "asc" : sort === "priceDesc" ? "desc" : ""}
-            setSortOrder={(val) => setFilters((f) => ({ ...f, sort: val === "asc" ? "priceAsc" : val === "desc" ? "priceDesc" : "" }))}
+            sortOrder={
+              sort === "priceAsc" ? "asc" : sort === "priceDesc" ? "desc" : ""
+            }
+            setSortOrder={(val) =>
+              setFilters((f) => ({
+                ...f,
+                sort: val === "asc" ? "priceAsc" : val === "desc" ? "priceDesc" : "",
+              }))
+            }
             unidad={unidad}
             setUnidad={(val) => setFilters((f) => ({ ...f, unidad: val }))}
           />
@@ -140,13 +168,19 @@ const ProductosSection = () => {
         <section className="flex-1">
           {loading ? (
             <div className="flex flex-col items-center justify-center min-h-[40vh] text-[#8B4513] text-center animate-pulse">
-              <span className="text-2xl font-garamond italic">Cargando productos...</span>
-              <p className="text-sm mt-2 text-stone-500">Un momento, el Tío Pelotte los está preparando 🍝</p>
+              <span className="text-2xl font-garamond italic">
+                Cargando productos...
+              </span>
+              <p className="text-sm mt-2 text-stone-500">
+                Un momento, el Tío Pelotte los está preparando 🍝
+              </p>
             </div>
           ) : products.length === 0 ? (
             <div className="flex flex-col items-center justify-center text-center bg-[#FFF4E3] border border-[#EAD9C1] text-[#8B4513] rounded-xl p-6 shadow-sm mt-6 animate-fade-in min-h-[40vh]">
               <div className="text-5xl mb-3">🍝</div>
-              <h3 className="text-2xl font-garamond italic mb-2">No encontramos productos</h3>
+              <h3 className="text-2xl font-garamond italic mb-2">
+                No encontramos productos
+              </h3>
               <p className="text-sm text-stone-600 max-w-md">
                 Probá cambiar los filtros o buscar otro tipo de pasta. ¡Seguro tenemos algo que te va a encantar!
               </p>

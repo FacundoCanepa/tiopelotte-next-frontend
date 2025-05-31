@@ -76,6 +76,7 @@ export function useFilteredProducts() {
 
   return {
     products: paginated,
+    totalFiltered: filtered.length,
     filters,
     setFilters,
     categories,

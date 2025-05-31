@@ -12,10 +12,6 @@ const ProductosHeader = ({ total, filters, setFilters, categories, layout = "ver
 
   return (
     <div className="flex flex-col gap-6">
-      <h2 className="text-xl font-semibold text-[#8B4513]">
-        Mostrando {total} productos
-      </h2>
-
       <div className={wrapperClasses}>
         <SearchInput
           value={filters.search}

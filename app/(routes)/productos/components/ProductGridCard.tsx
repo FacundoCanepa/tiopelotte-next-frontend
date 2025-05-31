@@ -52,7 +52,13 @@ const ProductGridCard = ({ product }: Props) => {
   return (
     <Card className="bg-[#FFF4E3] border-none rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 h-full">
       <CardContent className="flex flex-col justify-between h-full p-4">
-        <div className="overflow-hidden rounded-xl h-[21rem] md:h-48 w-full">
+        <div className="relative overflow-hidden rounded-xl h-[21rem] md:h-48 w-full">
+          {/* TAG OFERTA SOBRE LA IMAGEN */}
+          {product.isOffer && (
+            <span className="absolute top-2 left-2 bg-[#FFD966] text-[#8B4513] text-[11px] font-bold px-2 py-1 rounded-full shadow z-10">
+              OFERTA
+            </span>
+          )}
           <img
             src={product.img?.[0]?.url || "/placeholder.jpg"}
             alt={product.productName}
@@ -63,11 +69,12 @@ const ProductGridCard = ({ product }: Props) => {
 
         <div className="flex flex-col flex-grow justify-between gap-2 mt-4">
           <div className="flex flex-col gap-1">
-            <h3 className="text-lg font-garamond italic text-[#8B4513]">
+            <h3 className= " line-clamp-1 text-lg font-garamond italic text-[#8B4513]">
               {product.productName}
             </h3>
 
-            <p className="text-sm text-stone-600">{product.description}</p>
+          <p className="text-sm text-stone-600 line-clamp-2">{product.description}</p>
+
 
             <span className="text-[#D16A45] font-semibold text-base">
               ${product.price.toLocaleString("es-AR")}
