@@ -1,37 +1,45 @@
-"use client"
+"use client";
 
-import { useFilteredProducts } from "@/components/hook/useFilteredProducts"
-import AnimatedSection from "@/components/ui/AnimatedWrapper"
-import ProductGridCard from "./ProductGridCard"
-import ProductosFilters from "../filters/ProductosFilters"
-import { SlidersHorizontal, ArrowUpDown } from "lucide-react"
-import { useState } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { useFilteredProducts } from "@/components/hook/useFilteredProducts";
+import AnimatedSection from "@/components/ui/AnimatedWrapper";
+import ProductGridCard from "./ProductGridCard";
+import ProductosFilters from "../filters/ProductosFilters";
+import { SlidersHorizontal, ArrowUpDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { useSearchParams } from "next/navigation";
 
 const ProductosSection = () => {
-const {
-  products,
-  totalFiltered,
-  filters,
-  setFilters,
-  currentPage,
-  setPage,
-  totalPages,
-  loading,
-} = useFilteredProducts()
+  const {
+    products,
+    totalFiltered,
+    filters,
+    setFilters,
+    currentPage,
+    setPage,
+    totalPages,
+    loading,
+  } = useFilteredProducts();
 
+  const { category, search, priceRange, onlyOffers, sort, unidad } = filters;
+  const [minPrice, maxPrice] = priceRange;
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
-  const { category, search, priceRange, onlyOffers, sort, unidad } = filters
-  const [minPrice, maxPrice] = priceRange
+  const searchParams = useSearchParams();
 
-  const [showMobileFilters, setShowMobileFilters] = useState(false)
+  useEffect(() => {
+    const categoryFromUrl = searchParams.get("category");
+    if (categoryFromUrl) {
+      setFilters((prev) => ({ ...prev, category: categoryFromUrl }));
+    }
+  }, [searchParams, setFilters]);
 
   const toggleSortOrder = () => {
     setFilters((f) => ({
       ...f,
       sort: f.sort === "priceDesc" ? "priceAsc" : "priceDesc",
-    }))
-  }
+    }));
+  };
 
   const handleClearFilters = () => {
     setFilters({
@@ -41,13 +49,12 @@ const {
       onlyOffers: false,
       unidad: "",
       priceRange: ["", ""],
-    })
-    setPage(1)
-  }
+    });
+    setPage(1);
+  };
 
   return (
     <AnimatedSection className="bg-[#FBE6D4] px-2 sm:px-6 md:px-10 py-20 max-w-screen-2xl mx-auto">
-      {/* TÍTULO */}
       <div className="text-center mb-12 md:col-span-2">
         <h2 className="text-[#8B4513] text-3xl sm:text-4xl font-garamond italic">
           Nuestra selección de productos
@@ -58,10 +65,8 @@ const {
         <p className="text-[#8B4513]/70 text-sm mt-2">
           {totalFiltered} productos encontrados
         </p>
-
       </div>
 
-      {/* BOTONES MOBILE */}
       <div className="flex justify-between gap-2 mb-4 md:hidden">
         <button
           onClick={toggleSortOrder}
@@ -78,7 +83,6 @@ const {
         </button>
       </div>
 
-      {/* FILTROS MOBILE CON ANIMACIÓN */}
       <AnimatePresence>
         {showMobileFilters && (
           <motion.div
@@ -125,9 +129,7 @@ const {
         )}
       </AnimatePresence>
 
-      {/* LAYOUT GENERAL */}
       <div className="flex flex-col md:flex-row gap-6">
-        {/* ASIDE FILTROS EN DESKTOP */}
         <aside className="hidden md:block w-full md:max-w-xs">
           <ProductosFilters
             selected={category}
@@ -164,7 +166,6 @@ const {
           </button>
         </aside>
 
-        {/* SECCIÓN DE PRODUCTOS */}
         <section className="flex-1">
           {loading ? (
             <div className="flex flex-col items-center justify-center min-h-[40vh] text-[#8B4513] text-center animate-pulse">
@@ -199,7 +200,6 @@ const {
                 ))}
               </div>
 
-              {/* PAGINACIÓN */}
               <div className="flex justify-center mt-12 gap-2 text-sm font-medium text-[#8B4513] flex-wrap">
                 <button
                   onClick={() => setPage(Math.max(currentPage - 1, 1))}
@@ -236,7 +236,7 @@ const {
         </section>
       </div>
     </AnimatedSection>
-  )
-}
+  );
+};
 
-export default ProductosSection
+export default ProductosSection;

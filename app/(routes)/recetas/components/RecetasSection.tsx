@@ -2,7 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useGetRecipes } from "@/components/hook/useGetRecipes";
-import Button from "@/components/ui/Button"
+import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { Loader } from "lucide-react";
 import Image from "next/image";
@@ -11,7 +11,7 @@ const RecetasSection = () => {
   const { recipes, loading } = useGetRecipes();
 
   return (
-    <section className="relative py-20 px-4 md:px-10">
+    <section className="relative py-20 px-4 md:px-10 ">
       <div className="max-w-7xl mx-auto">
         <h2 className="text-center text-3xl md:text-5xl font-bold text-[#8B4513] mb-8">
           Recetas con amor

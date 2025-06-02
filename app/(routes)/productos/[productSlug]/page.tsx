@@ -32,5 +32,5 @@ export default function Page() {
     );
   }
 
- return <ProductDetail product={product} />;
+  return <ProductDetail product={product} />;
 }

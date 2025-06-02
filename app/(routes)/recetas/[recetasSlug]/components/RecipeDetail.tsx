@@ -31,7 +31,6 @@ export default function RecipeDetail({ slug }: Props) {
         }
 
         const attrs = data;
-
         setReceta({
           id: data.id,
           titulo: attrs.titulo,
@@ -41,12 +40,14 @@ export default function RecipeDetail({ slug }: Props) {
           porciones: attrs.porciones,
           preparacion: attrs.preparacion,
           img: attrs.img || null,
-          products: attrs.products?.map((prod: any) => ({
-            id: prod.id,
-            productName: prod.productName,
-            slug: prod.slug,
-            img: prod.img || [],
-          })) || [],
+          products:
+            attrs.products?.map((prod: any) => ({
+              id: prod.id,
+              productName: prod.productName,
+              slug: prod.slug,
+              price: prod.price,
+              img: prod.img || [],
+            })) || [],
         });
       } catch (err: any) {
         console.error("❌ Error al cargar receta:", err.message);
@@ -77,8 +78,7 @@ export default function RecipeDetail({ slug }: Props) {
     );
 
   return (
-    <section className="px-6 py-16 lg:px-32 max-w-screen-2xl mx-auto text-[#5C3D2E]">
-      {/* Título */}
+    <section className="px-6 py-16 lg:px-32 max-w-screen-xl mx-auto text-[#5C3D2E]">
       <motion.h1
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -88,39 +88,40 @@ export default function RecipeDetail({ slug }: Props) {
         {receta.titulo}
       </motion.h1>
 
-      {/* Imagen */}
-      {receta.img?.url && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.3, duration: 0.5 }}
-          className="relative w-full h-[280px] md:h-[500px] mb-10 rounded-xl overflow-hidden shadow-xl"
-        >
-          <Image
-            src={receta.img.url}
-            alt={receta.titulo}
-            fill
-            className="object-cover object-center"
-          />
-        </motion.div>
-      )}
+      <div className="grid lg:grid-cols-2 gap-10 items-center mb-14">
+        {receta.img?.url && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.3, duration: 0.5 }}
+            className="relative h-[300px] w-full rounded-xl overflow-hidden shadow-xl"
+          >
+            <Image
+              src={receta.img.url}
+              alt={receta.titulo}
+              fill
+              className="object-cover object-center"
+            />
+          </motion.div>
+        )}
 
-      {/* Descripción */}
-      <div className="text-center mb-10 max-w-3xl mx-auto">
-        <p className="text-lg sm:text-xl leading-relaxed italic">{receta.descripcion}</p>
-        <div className="flex justify-center gap-8 mt-4 text-[#8B4513] text-base font-medium">
-          <span>⏱ <strong>Tiempo:</strong> {receta.tiempo}</span>
-          <span>🍽 <strong>Porciones:</strong> {receta.porciones}</span>
+        <div className="space-y-4">
+          <p className="text-lg sm:text-xl leading-relaxed italic text-[#6B4E2F]">
+            {receta.descripcion}
+          </p>
+          <div className="flex flex-wrap gap-6 mt-4 text-[#8B4513] text-base font-medium">
+            <span>⏱ <strong>Tiempo:</strong> {receta.tiempo}</span>
+            <span>🍽 <strong>Porciones:</strong> {receta.porciones}</span>
+          </div>
         </div>
       </div>
 
-      {/* Preparación */}
       {receta.preparacion && (
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="bg-[#FFF3E0] px-6 py-10 sm:px-10 sm:py-12 rounded-2xl shadow-2xl mb-16"
+          className="bg-[#FFF3E0] border-l-4 border-[#D16A45] px-6 py-10 sm:px-10 sm:py-12 rounded-2xl shadow-inner mb-16"
         >
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-[#8B4513]">
             🧑‍🍳 Preparación paso a paso
@@ -131,7 +132,6 @@ export default function RecipeDetail({ slug }: Props) {
         </motion.div>
       )}
 
-      {/* Productos relacionados */}
       {receta.products.length > 0 && (
         <div className="mt-10">
           <h3 className="text-2xl sm:text-3xl font-bold text-center mb-10 text-[#8B4513]">
@@ -142,10 +142,10 @@ export default function RecipeDetail({ slug }: Props) {
               <Link
                 key={product.id}
                 href={`/productos/${product.slug}`}
-                className="group bg-white rounded-2xl p-5 shadow-md hover:shadow-xl transition duration-300"
+                className="group rounded-2xl shadow-xl transition duration-300 overflow-hidden bg-[#FFF4E8] border border-[#F0D6C0] hover:shadow-2xl"
               >
                 {product.img[0]?.url && (
-                  <div className="relative h-44 w-full mb-4 rounded-xl overflow-hidden">
+                  <div className="relative h-44 w-full overflow-hidden">
                     <Image
                       src={product.img[0].url}
                       alt={product.productName}
@@ -154,14 +154,30 @@ export default function RecipeDetail({ slug }: Props) {
                     />
                   </div>
                 )}
-                <p className="text-lg font-semibold text-center group-hover:text-[#D16A45] transition">
-                  {product.productName}
-                </p>
+                <div className="p-4 text-center">
+                  <p className="text-lg font-semibold text-[#8B4513] group-hover:text-[#D16A45] transition">
+                    {product.productName}
+                  </p>
+                  {product.price !== undefined && (
+                    <p className="text-sm text-[#5C3D2E] mt-1">
+                      ${product.price?.toLocaleString("es-AR")}
+                    </p>
+                  )}
+                </div>
               </Link>
             ))}
           </div>
         </div>
       )}
+
+      <div className="mt-20 text-center">
+        <Link
+          href="/recetas"
+          className="inline-block text-[#8B4513] underline hover:text-[#D16A45] transition"
+        >
+          ← Volver a recetas
+        </Link>
+      </div>
     </section>
   );
 }

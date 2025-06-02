@@ -14,12 +14,12 @@ const CategoryHome = () => {
   const handleClick = (categoryId: string, slug: string) => {
     if (window.innerWidth < 1024) {
       if (expandedId === categoryId) {
-        router.push(`/category/${slug}`);
+        router.push(`/productos?category=${slug}`);
       } else {
         setExpandedId(categoryId);
       }
     } else {
-      router.push(`/category/${slug}`);
+      router.push(`/productos?category=${slug}`);
     }
   };
 

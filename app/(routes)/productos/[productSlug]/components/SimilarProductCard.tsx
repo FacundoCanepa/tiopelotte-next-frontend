@@ -38,7 +38,7 @@ const SimilarProductCard = ({ product }: { product: ProductType }) => {
         </div>
 
         <div className="text-[#8B4513] font-semibold text-base">
-          ${product.precio}
+          ${product.price}
         </div>
 
         <Link
