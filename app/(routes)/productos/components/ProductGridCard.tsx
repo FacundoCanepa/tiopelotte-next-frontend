@@ -5,7 +5,7 @@ import { useState } from "react"
 import { ProductType } from "@/types/product"
 import { Card, CardContent } from "@/components/ui/card"
 import Button from "@/components/ui/Button"
-import { useCart } from "@/context/CartContext"
+import { useCartStore } from "@/store/cart-store"
 
 interface Props {
   product: ProductType
@@ -13,7 +13,7 @@ interface Props {
 
 const ProductGridCard = ({ product }: Props) => {
   const router = useRouter()
-  const { addToCart } = useCart()
+  const addToCart = useCartStore((state) => state.addToCart)
 
   if (!product?.productName) return null
 

@@ -6,8 +6,7 @@ import Footer from "@/components/layout/footer";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import ScrollToTop from "@/components/ui/ScrollToTop";
 import 'leaflet/dist/leaflet.css';
-
-import { CartProvider } from "@/context/CartContext"; 
+import CartFloatButton from "@/components/ui/CartFloatButton";
 
 export const metadata: Metadata = {
   title: "Tio pelotte",
@@ -22,13 +21,13 @@ export default function RootLayout({
   return (
     <html lang="es">
       <body className={`${islandMoments.variable} ${ebGaramond.variable} antialiased`}>
-        <CartProvider> 
-          <Navbar />
-          <ScrollToTop />
-          {children}
-          <WhatsAppButton />
-          <Footer />
-        </CartProvider>
+        <Navbar />
+        <ScrollToTop />
+        {children}
+        <CartFloatButton />
+
+        <WhatsAppButton />
+        <Footer />
       </body>
     </html>
   );
