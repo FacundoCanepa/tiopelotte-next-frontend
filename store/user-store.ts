@@ -1,23 +1,37 @@
-// store/user-store.ts
-
 import { create } from "zustand";
 
 type User = {
-  id: number;
-  username: string;
   email: string;
+  username: string;
+  jwt: string;
 };
 
-type UserState = {
+type UserStore = {
   user: User | null;
-  jwt: string | null;
-  setUser: (user: User, jwt: string) => void;
+  setUser: (user: User) => void;
   logout: () => void;
+  checkLocalUser: () => void;
 };
 
-export const useUserStore = create<UserState>((set) => ({
+export const useUserStore = create<UserStore>((set) => ({
   user: null,
-  jwt: null,
-  setUser: (user, jwt) => set({ user, jwt }),
-  logout: () => set({ user: null, jwt: null }),
+  setUser: (user) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    set({ user });
+  },
+  logout: () => {
+    localStorage.removeItem("user");
+    set({ user: null });
+  },
+  checkLocalUser: () => {
+    const saved = localStorage.getItem("user");
+    if (saved) {
+      try {
+        const user = JSON.parse(saved);
+        set({ user });
+      } catch {
+        localStorage.removeItem("user");
+      }
+    }
+  },
 }));
