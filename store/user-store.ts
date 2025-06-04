@@ -1,37 +1,39 @@
-import { create } from "zustand";
+"use client";
 
-type User = {
-  email: string;
-  username: string;
-  jwt: string;
-};
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
+import { UserType } from "@/types/user";
 
 type UserStore = {
-  user: User | null;
-  setUser: (user: User) => void;
+  user: UserType | null;
+  jwt: string | null;
+  setUser: (user: UserType, jwt: string) => void;
   logout: () => void;
-  checkLocalUser: () => void;
+  checkLocalUser: () => boolean;
 };
 
-export const useUserStore = create<UserStore>((set) => ({
-  user: null,
-  setUser: (user) => {
-    localStorage.setItem("user", JSON.stringify(user));
-    set({ user });
-  },
-  logout: () => {
-    localStorage.removeItem("user");
-    set({ user: null });
-  },
-  checkLocalUser: () => {
-    const saved = localStorage.getItem("user");
-    if (saved) {
-      try {
-        const user = JSON.parse(saved);
-        set({ user });
-      } catch {
-        localStorage.removeItem("user");
-      }
+export const useUserStore = create<UserStore>()(
+  persist(
+    (set, get) => ({
+      user: null,
+      jwt: null,
+      setUser: (user, jwt) => {
+        console.log("👤 Seteando user:", user);
+        console.log("🔐 Seteando jwt:", jwt);
+        set({ user, jwt });
+      },
+      logout: () => {
+        console.log("👋 Cerrando sesión");
+        set({ user: null, jwt: null });
+      },
+      checkLocalUser: () => {
+        const { user, jwt } = get();
+        return !!user && !!jwt;
+      },
+    }),
+    {
+      name: "user-storage",
+      partialize: (state) => ({ user: state.user, jwt: state.jwt }),
     }
-  },
-}));
+  )
+);

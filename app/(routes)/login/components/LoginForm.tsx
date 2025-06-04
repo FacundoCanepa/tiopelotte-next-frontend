@@ -33,7 +33,12 @@ export default function LoginForm() {
         throw new Error(data.error?.message || "Error al iniciar sesión");
       }
 
-      setUser(data.user, data.jwt);
+      // ✅ Corregido: guardar user + jwt en un solo objeto
+      setUser({
+        ...data.user,
+        jwt: data.jwt,
+      });
+
       router.push("/");
     } catch (err: any) {
       setError(err.message);
@@ -85,16 +90,15 @@ export default function LoginForm() {
         {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Iniciar sesión"}
       </Button>
 
-<p className="text-sm text-center mt-6 text-stone-600">
-  ¿No tenés cuenta?{" "}
-  <Link
-    href="/register"
-    className="underline cursor-pointer text-[#8B4513] hover:text-[#D16A45] transition-colors"
-  >
-    Registrate
-  </Link>
-</p>
-
+      <p className="text-sm text-center mt-6 text-stone-600">
+        ¿No tenés cuenta?{" "}
+        <Link
+          href="/register"
+          className="underline cursor-pointer text-[#8B4513] hover:text-[#D16A45] transition-colors"
+        >
+          Registrate
+        </Link>
+      </p>
     </form>
   );
 }
