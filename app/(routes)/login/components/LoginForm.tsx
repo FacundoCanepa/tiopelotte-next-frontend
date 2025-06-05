@@ -3,102 +3,100 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Mail, Lock } from "lucide-react";
-import Button from "@/components/ui/Button";
 import { useUserStore } from "@/store/user-store";
-import Link from "next/link";
 
 export default function LoginForm() {
   const router = useRouter();
-  const setUser = useUserStore((state) => state.setUser);
+  const { setUser } = useUserStore();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleLogin = async () => {
     setLoading(true);
     setError("");
 
     try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/local`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier: email, password }),
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/local`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ identifier: email, password }),
+        }
+      );
 
       const data = await res.json();
 
       if (!res.ok) {
-        throw new Error(data.error?.message || "Error al iniciar sesión");
+        console.error("❌ Error en login:", data);
+        setError(data?.error?.message || "Error al iniciar sesión.");
+        return;
       }
 
-      // ✅ Corregido: guardar user + jwt en un solo objeto
-      setUser({
-        ...data.user,
-        jwt: data.jwt,
-      });
+      console.log("✅ Login exitoso:", data.user);
+      console.log("🔐 JWT recibido:", data.jwt);
 
-      router.push("/");
+      setUser(data.user, data.jwt); // ✅ Aseguramos que pase el jwt correctamente
+      router.push("/perfil");
     } catch (err: any) {
-      setError(err.message);
+      console.error("💥 Error de red:", err);
+      setError("Error de red. Intentá de nuevo.");
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <form
-      onSubmit={handleLogin}
-      className="bg-white shadow-lg rounded-xl p-8 w-full max-w-md border border-[#E0E0E0]"
-    >
-      <h2 className="text-2xl font-garamond text-[#8B4513] mb-6 text-center">Iniciar sesión</h2>
+    <div className="max-w-md w-full p-6 bg-white rounded-2xl shadow-md space-y-6">
+      <h2 className="text-2xl font-semibold text-center text-[#8B4513]">
+        Iniciar sesión
+      </h2>
 
-      {error && <p className="text-red-600 text-sm mb-4 text-center">{error}</p>}
+      <div className="space-y-4">
+        <div className="flex items-center gap-2 border-b border-gray-300">
+          <Mail className="w-5 h-5 text-gray-500" />
+          <input
+            type="email"
+            placeholder="Email"
+            className="w-full py-2 outline-none"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+          />
+        </div>
 
-      <label className="block mb-4">
-        <span className="text-[#5A3E1B] text-sm font-semibold flex items-center gap-2">
-          <Mail size={16} /> Email
-        </span>
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-[#ccc] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
-          required
-        />
-      </label>
+        <div className="flex items-center gap-2 border-b border-gray-300">
+          <Lock className="w-5 h-5 text-gray-500" />
+          <input
+            type="password"
+            placeholder="Contraseña"
+            className="w-full py-2 outline-none"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+        </div>
+      </div>
 
-      <label className="block mb-6">
-        <span className="text-[#5A3E1B] text-sm font-semibold flex items-center gap-2">
-          <Lock size={16} /> Contraseña
-        </span>
-        <input
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="mt-1 block w-full rounded-md border border-[#ccc] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[#FFD966]"
-          required
-        />
-      </label>
+      {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-      <Button
-        type="submit"
-        className="w-full bg-[#FFD966] text-[#5A3E1B] hover:bg-[#f5c741]"
+      <button
+        onClick={handleLogin}
+        className="w-full py-2 bg-[#8B4513] text-white rounded-lg hover:bg-[#6e3911] transition-colors flex justify-center items-center"
         disabled={loading}
       >
-        {loading ? <Loader2 className="animate-spin w-4 h-4" /> : "Iniciar sesión"}
-      </Button>
+        {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Ingresar"}
+      </button>
 
-      <p className="text-sm text-center mt-6 text-stone-600">
+      <p className="text-sm text-center">
         ¿No tenés cuenta?{" "}
-        <Link
-          href="/register"
-          className="underline cursor-pointer text-[#8B4513] hover:text-[#D16A45] transition-colors"
+        <span
+          onClick={() => router.push("/register")}
+          className="underline cursor-pointer text-[#8B4513]"
         >
           Registrate
-        </Link>
+        </span>
       </p>
-    </form>
+    </div>
   );
 }

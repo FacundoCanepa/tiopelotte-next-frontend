@@ -3,45 +3,44 @@
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/user-store";
 import { useCartStore } from "@/store/cart-store";
-import { Loader2 } from "lucide-react";
 import { PedidoType } from "@/types/pedido";
+import { Button } from "@/components/ui/Button"; // ¡asegúrate que el casing sea correcto!
 
 export default function ComprasRecientes() {
-  const { user, jwt } = useUserStore();
+  const user = useUserStore((state) => state.user);
+  const jwt = useUserStore((state) => state.jwt);
   const addToCart = useCartStore((state) => state.addToCart);
   const [pedidos, setPedidos] = useState<PedidoType[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchPedidos = async () => {
-      if (!jwt || !user) {
+      if (!user || !jwt) {
         console.warn("⛔ Usuario no logueado o sin JWT.");
         return;
       }
 
-      console.log("🔐 JWT detectado:", jwt);
-
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos?populate=*`, {
-          headers: {
-            Authorization: `Bearer ${jwt}`,
-          },
-        });
-
-        const json = await res.json();
-        console.log("📦 Respuesta completa:", json);
-
-        const allPedidos = json.data as PedidoType[];
-        const pedidosDelUsuario = allPedidos.filter((pedido) =>
-          pedido.attributes.user?.some((u) => u.id === user.id)
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos?populate[user]=true&populate[items]=true`,
+          {
+            headers: {
+              Authorization: `Bearer ${jwt}`,
+            },
+          }
         );
 
-        setPedidos(pedidosDelUsuario);
-        if (pedidosDelUsuario.length === 0) {
-          console.warn("⚠️ Usuario sin pedidos registrados.");
-        }
-      } catch (err) {
-        console.error("💥 Error al traer pedidos:", err);
+        const json = await res.json();
+        console.log("📦 Respuesta pedidos:", json);
+
+        const userPedidos = json.data.filter((pedido: any) => {
+          console.log("🧾 Pedido individual:", pedido);
+          return pedido.user?.id === user.id;
+        });
+
+        setPedidos(userPedidos);
+      } catch (error) {
+        console.error("💥 Error al traer pedidos:", error);
       } finally {
         setLoading(false);
       }
@@ -50,64 +49,76 @@ export default function ComprasRecientes() {
     fetchPedidos();
   }, [user, jwt]);
 
-  const volverAgregarAlCarrito = async (pedido: PedidoType) => {
-    for (const item of pedido.attributes.items) {
-      try {
+  const handleReorder = async (items: any[]) => {
+    try {
+      for (const item of items) {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/${item.productId}?populate=*`
         );
         const json = await res.json();
         const product = json.data;
+
         if (!product) {
-          console.warn("⚠️ Producto no encontrado:", item.productId);
+          console.warn(`❌ Producto no encontrado con ID ${item.productId}`);
           continue;
         }
 
-        addToCart(product, item.quantity);
-        console.log(`✅ Agregado al carrito: ${product.attributes.productName}`);
-      } catch (err) {
-        console.error("❌ Error agregando al carrito:", err);
+        addToCart({
+          id: product.id,
+          img: product.img?.url || "",
+          slug: product.slug,
+          productName: product.productName,
+          price: item.unitPrice,
+          unidadMedida: item.unidadMedida,
+          quantity: item.quantity,
+        });
+
+        console.log(`✅ Agregado al carrito: ${product.productName}`);
       }
+    } catch (err) {
+      console.error("💥 Error en reorder:", err);
     }
   };
 
-  if (loading) {
-    return (
-      <div className="text-center mt-10">
-        <Loader2 className="animate-spin mx-auto text-[#8B4513]" />
-      </div>
-    );
-  }
+  if (loading) return <p className="text-sm mt-2">Cargando tus pedidos...</p>;
+  if (!pedidos.length) return <p className="text-sm mt-2">No hay compras previas.</p>;
 
   return (
-    <section className="space-y-6">
-      <h2 className="text-xl font-semibold mb-4">Compras recientes</h2>
+    <section className="mt-4 space-y-6">
+      <h2 className="text-lg font-semibold">Compras recientes</h2>
 
-      {pedidos.length === 0 ? (
-        <p className="text-gray-600">Todavía no realizaste compras 🍝</p>
-      ) : (
-        pedidos.map((pedido) => (
-          <div key={pedido.id} className="p-4 rounded-xl bg-white shadow-sm border">
-            <h3 className="font-bold text-[#8B4513] mb-2">Compra del {new Date(pedido.attributes.createdAt).toLocaleDateString()}</h3>
-            <ul className="text-sm text-gray-700 mb-2 space-y-1">
-              {pedido.attributes.items.map((item, i) => (
-                <li key={i}>
-                  {item.quantity} × {item.productName} – ${item.unitPrice}
-                </li>
-              ))}
-            </ul>
-            <p className="text-sm text-gray-600">
-              Total: <strong>${pedido.attributes.total}</strong>
-            </p>
-            <button
-              onClick={() => volverAgregarAlCarrito(pedido)}
-              className="mt-3 px-4 py-2 bg-[#D16A45] text-white rounded hover:bg-[#b24f33] transition"
-            >
-              Volver a agregar al carrito
-            </button>
+      {pedidos.map((pedido) => (
+        <div key={pedido.id} className="border rounded-xl p-4 bg-white shadow-md">
+          <p className="text-sm font-medium">Pedido #{pedido.id}</p>
+          <p className="text-xs text-gray-500">Zona: {pedido.zona} – Total: ${pedido.total}</p>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 mt-2">
+            {pedido.items.map((item, idx) => (
+              <div
+                key={idx}
+                className="flex flex-col items-center border rounded p-2 text-center bg-[#fdf7f2]"
+              >
+                <img
+                  src={item.img}
+                  alt={item.productName}
+                  className="w-16 h-16 object-cover rounded"
+                />
+                <p className="text-xs mt-1">{item.productName}</p>
+                <p className="text-xs text-gray-600">
+                  {item.quantity} {item.unidadMedida}
+                </p>
+              </div>
+            ))}
           </div>
-        ))
-      )}
+
+          <Button
+            className="mt-3 w-full"
+            onClick={() => handleReorder(pedido.items)}
+          >
+            Volver a pedir
+          </Button>
+        </div>
+      ))}
     </section>
   );
 }

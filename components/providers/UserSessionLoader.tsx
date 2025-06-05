@@ -4,9 +4,12 @@ import { useEffect } from "react";
 import { useUserStore } from "@/store/user-store";
 
 export default function UserSessionLoader() {
+  const checkLocalUser = useUserStore((state) => state.checkLocalUser);
+
   useEffect(() => {
-    useUserStore.getState().checkLocalUser();
-  }, []);
+    console.log("📦 Ejecutando checkLocalUser...");
+    checkLocalUser();
+  }, [checkLocalUser]);
 
   return null;
 }
