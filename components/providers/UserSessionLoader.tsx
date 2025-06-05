@@ -16,9 +16,13 @@ export default function UserSessionLoader() {
     }
 
     if (userStr) {
-      const user = JSON.parse(userStr);
-      console.log("👤 Restaurando user:", user);
-      setUser(user);
+      try {
+        const user = JSON.parse(userStr);
+        console.log("👤 Restaurando user:", user);
+        setUser(user);
+      } catch (err) {
+        console.error("Error al parsear usuario almacenado", err);
+      }
     }
   }, []);
 

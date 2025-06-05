@@ -9,6 +9,7 @@ import { useUserStore } from "@/store/user-store";
 export default function RegisterForm() {
   const router = useRouter();
   const setUser = useUserStore((state) => state.setUser);
+  const setJwt = useUserStore((state) => state.setJwt);
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -33,7 +34,10 @@ export default function RegisterForm() {
         throw new Error(data.error?.message || "Error al registrarse");
       }
 
-      setUser(data.user, data.jwt);
+      localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("jwt", data.jwt);
+      setUser(data.user);
+      setJwt(data.jwt);
       router.push("/");
     } catch (err: any) {
       setError(err.message);

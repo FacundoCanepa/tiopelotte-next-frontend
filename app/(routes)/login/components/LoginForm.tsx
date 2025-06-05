@@ -7,7 +7,8 @@ import { useUserStore } from "@/store/user-store";
 
 export default function LoginForm() {
   const router = useRouter();
-  const { setUser } = useUserStore();
+  const setUser = useUserStore((state) => state.setUser);
+  const setJwt = useUserStore((state) => state.setJwt);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -38,7 +39,10 @@ export default function LoginForm() {
       console.log("✅ Login exitoso:", data.user);
       console.log("🔐 JWT recibido:", data.jwt);
 
-      setUser(data.user, data.jwt); // ✅ Aseguramos que pase el jwt correctamente
+       localStorage.setItem("user", JSON.stringify(data.user));
+      localStorage.setItem("jwt", data.jwt);
+      setUser(data.user);
+      setJwt(data.jwt);// ✅ Aseguramos que pase el jwt correctamente
       router.push("/perfil");
     } catch (err: any) {
       console.error("💥 Error de red:", err);

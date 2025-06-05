@@ -18,7 +18,21 @@ interface UserState {
 export const useUserStore = create<UserState>((set) => ({
   user: null,
   jwt: null,
-  setUser: (user) => set({ user }),
-  setJwt: (jwt) => set({ jwt }),
-  clearUser: () => set({ user: null, jwt: null }),
+  setUser: (user) => {
+    if (user) {
+      localStorage.setItem("user", JSON.stringify(user));
+    }
+    set({ user });
+  },
+  setJwt: (jwt) => {
+    if (jwt) {
+      localStorage.setItem("jwt", jwt);
+    }
+    set({ jwt });
+  },
+  clearUser: () => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("jwt");
+    set({ user: null, jwt: null });
+  },
 }));

@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useUserStore } from "@/store/user-store";
 import { Loader2 } from "lucide-react";
+import { repeatOrder, RepeatItem } from "@/lib/orders";
 
-type PedidoItem = {
+type PedidoItem = RepeatItem & {
   productName: string;
-  quantity: number;
 };
 
 type Pedido = {
@@ -30,6 +30,9 @@ export default function ComprasRecientes() {
         setLoading(false);
         return;
       }
+
+      setLoading(true);
+      setError("");
 
       try {
         const res = await fetch(
@@ -97,8 +100,16 @@ export default function ComprasRecientes() {
       </ul>
 
       <p className="text-sm text-gray-500">
-        Estado: <span className="font-medium">{pedido.estado}</span> — Total: ${pedido.total}
+        Estado: <span className="font-medium">{pedido.estado}</span> — Total: $
+        {pedido.total}
       </p>
+
+      <button
+        onClick={() => repeatOrder(pedido.items)}
+        className="mt-3 w-full bg-[#FFD966] text-[#5A3E1B] py-2 rounded hover:bg-[#f5c741]"
+      >
+        Volver a pedir
+      </button>
     </div>
   );
 }
