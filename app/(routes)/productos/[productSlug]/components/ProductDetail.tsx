@@ -21,7 +21,6 @@ interface Props {
 }
 
 const ProductDetail = ({ product }: Props) => {
-  console.log("🧩 PRODUCTO en ProductDetail.tsx:", product);
 
   const unidad = product.unidadMedida?.trim().toLowerCase();
   const isKg = unidad === "kg";
@@ -55,11 +54,6 @@ const ProductDetail = ({ product }: Props) => {
   };
 
   const carouselImages = product?.img_carousel ?? product?.img ?? [];
-
-  console.log("🖼 carouselImages:", carouselImages);
-  console.log("🏷 unidad:", unidad);
-  console.log("🧂 ingredientes:", product.ingredientes);
-  console.log("📦 categoría:", product.category);
 
   return (
     <section className="bg-[#FBE6D4] text-[#8B4513]">

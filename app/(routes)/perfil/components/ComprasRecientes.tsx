@@ -36,7 +36,7 @@ export default function ComprasRecientes() {
 
       try {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me?populate=pedido.items`,
+            `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/me?populate[pedido][populate]=items`,
           {
             headers: {
               Authorization: `Bearer ${jwt}`,
@@ -52,7 +52,6 @@ export default function ComprasRecientes() {
         const userPedido = json?.pedido;
 
         if (!userPedido || !userPedido.items?.length) {
-          console.log("⚠️ No hay items en el pedido.");
           setPedido(null);
         } else {
           setPedido(userPedido);
@@ -77,14 +76,11 @@ export default function ComprasRecientes() {
     );
   }
 
-  if (error || !pedido) {
-    return (
-      <p className="text-sm text-gray-500">
-        No se encontró ningún pedido reciente.
-      </p>
-    );
+  if (error) {
+    return <p className="text-sm text-red-600">{error}</p>;
   }
 
+  if (!pedido) {
   return (
     <div className="bg-white p-4 rounded-xl shadow mt-4">
       <h3 className="text-lg font-semibold text-[#8B4513] mb-2">

@@ -20,7 +20,6 @@ export function useGetSimilarProducts({ categorySlug, excludeProductId }: Props)
 
         const json = await res.json();
 
-        console.log("🧪 Datos crudos desde Strapi:", json.data);
 
         const productos: ProductType[] = json.data?.map((producto: any) => ({
           id: producto.id,
@@ -46,8 +45,6 @@ export function useGetSimilarProducts({ categorySlug, excludeProductId }: Props)
             mainImage: { url: "" },
           },
         }));
-
-        console.log("✅ Productos similares parseados:", productos);
 
         setSimilarProducts(productos);
         setError(null);

@@ -36,9 +36,6 @@ export default function LoginForm() {
         return;
       }
 
-      console.log("✅ Login exitoso:", data.user);
-      console.log("🔐 JWT recibido:", data.jwt);
-
        localStorage.setItem("user", JSON.stringify(data.user));
       localStorage.setItem("jwt", data.jwt);
       setUser(data.user);

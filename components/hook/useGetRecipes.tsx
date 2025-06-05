@@ -20,7 +20,6 @@ export function useGetRecipes() {
         if (!res.ok) throw new Error(`Error HTTP ${res.status}`);
 
         const json = await res.json();
-        console.log("📦 JSON crudo de recetas:", json);
 
         if (!Array.isArray(json.data)) {
           throw new Error("La propiedad 'data' no es un array");
