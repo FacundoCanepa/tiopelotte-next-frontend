@@ -8,6 +8,7 @@ import type { ProductType } from "@/types/product";
 import Button from "@/components/ui/Button";
 
 interface ProductState {
+  
   loading: boolean;
   result: ProductType[] | null;
   error: string;

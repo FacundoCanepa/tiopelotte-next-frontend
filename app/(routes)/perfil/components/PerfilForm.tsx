@@ -1,25 +1,29 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUserStore } from "@/store/user-store";
-import { Loader2, MapPin, Phone, Home } from "lucide-react";
+import { Loader2, Phone, Home, Truck, Landmark } from "lucide-react";
+import ZonaSelect from "./ZonaSelect";
+import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
 
-type FormData = {
+// Tipado del formulario
+interface FormData {
   telefono: string;
   direccion: string;
-  localidad: string;
-};
+  zona: string;
+  referencias: string;
+}
 
-type Props = {
+interface Props {
   userId: number;
   jwt: string;
-};
+}
 
 export default function PerfilForm({ userId, jwt }: Props) {
   const [formData, setFormData] = useState<FormData>({
     telefono: "",
     direccion: "",
-    localidad: "",
+    zona: "",
+    referencias: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -36,7 +40,8 @@ export default function PerfilForm({ userId, jwt }: Props) {
         setFormData({
           telefono: data.telefono || "",
           direccion: data.direccion || "",
-          localidad: data.localidad || "",
+          zona: data.zona || "",
+          referencias: data.referencias || "",
         });
       } catch (error) {
         console.error("Error al obtener perfil:", error);
@@ -48,7 +53,7 @@ export default function PerfilForm({ userId, jwt }: Props) {
     fetchUser();
   }, [jwt]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
@@ -77,6 +82,8 @@ export default function PerfilForm({ userId, jwt }: Props) {
     }
   };
 
+  const zonaSeleccionada = zonas.find((z) => z.nombre === formData.zona);
+
   if (loading) {
     return (
       <div className="p-4 text-center">
@@ -86,52 +93,84 @@ export default function PerfilForm({ userId, jwt }: Props) {
   }
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="flex items-center gap-3 border rounded px-3 py-2">
-        <Phone className="w-5 h-5 text-gray-600" />
-        <input
-          type="text"
-          name="telefono"
-          value={formData.telefono}
-          onChange={handleChange}
-          placeholder="Teléfono"
-          className="w-full outline-none bg-transparent"
-        />
-      </div>
+    <form
+      onSubmit={handleSubmit}
+      className="space-y-6 bg-white/60 border border-[#FFD966] rounded-2xl shadow p-6 backdrop-blur"
+    >
+      <InputField
+        icon={<Phone className="w-5 h-5 text-[#8B4513]" />}
+        name="telefono"
+        value={formData.telefono}
+        onChange={handleChange}
+        placeholder="Teléfono"
+      />
 
-      <div className="flex items-center gap-3 border rounded px-3 py-2">
-        <Home className="w-5 h-5 text-gray-600" />
-        <input
-          type="text"
-          name="direccion"
-          value={formData.direccion}
-          onChange={handleChange}
-          placeholder="Dirección"
-          className="w-full outline-none bg-transparent"
-        />
-      </div>
+      <InputField
+        icon={<Home className="w-5 h-5 text-[#8B4513]" />}
+        name="direccion"
+        value={formData.direccion}
+        onChange={handleChange}
+        placeholder="Dirección"
+      />
 
-      <div className="flex items-center gap-3 border rounded px-3 py-2">
-        <MapPin className="w-5 h-5 text-gray-600" />
-        <input
-          type="text"
-          name="localidad"
-          value={formData.localidad}
+      <ZonaSelect
+        value={formData.zona}
+        onChange={(value) => setFormData({ ...formData, zona: value })}
+      />
+
+      {zonaSeleccionada && (
+        <div className="flex items-center gap-2 text-sm text-gray-700 px-1">
+          <Truck size={18} />
+          Costo de envío a {zonaSeleccionada.nombre}:{" "}
+          <span className="font-semibold">{zonaSeleccionada.precio}</span>
+        </div>
+      )}
+
+      <div className="flex items-start gap-3 border rounded px-3 py-2 bg-white/80 focus-within:ring-2 focus-within:ring-[#FFD966]">
+        <Landmark className="w-5 h-5 text-[#8B4513] mt-1" />
+        <textarea
+          name="referencias"
+          value={formData.referencias}
           onChange={handleChange}
-          placeholder="Localidad"
-          className="w-full outline-none bg-transparent"
+          placeholder="Referencias del domicilio (ej: portón negro, timbre roto...)"
+          rows={3}
+          className="w-full outline-none bg-transparent resize-none"
         />
       </div>
 
       <button
         type="submit"
         disabled={saving}
-        className="w-full bg-black text-white py-2 rounded hover:opacity-90 transition"
+        className="w-full bg-[#8B4513] text-white py-2 rounded hover:opacity-90 transition cursor-pointer "
       >
         {saving ? "Guardando..." : "Guardar cambios"}
       </button>
 
       {message && <p className="text-center text-sm mt-2">{message}</p>}
     </form>
+  );
+}
+
+interface InputFieldProps {
+  icon: React.ReactNode;
+  name: string;
+  value: string;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+}
+
+function InputField({ icon, name, value, onChange, placeholder }: InputFieldProps) {
+  return (
+    <div className="flex items-center gap-3 border rounded px-3 py-2 bg-white/80 focus-within:ring-2 focus-within:ring-[#FFD966]">
+      {icon}
+      <input
+        type="text"
+        name={name}
+        value={value}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full outline-none bg-transparent"
+      />
+    </div>
   );
 }
