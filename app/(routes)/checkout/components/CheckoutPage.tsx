@@ -5,6 +5,9 @@ import { useUserStore } from "@/store/user-store";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
+import ZonaSelect from "../../perfil/components/ZonaSelect";
+import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
+import { Truck } from "lucide-react";
 
 const formatQuantity = (qty: number, unidad: string) => {
   const u = unidad?.trim().toLowerCase();
@@ -22,10 +25,17 @@ export default function CheckoutPage() {
   const user = useUserStore((state) => state.user);
 
   const [nombre, setNombre] = useState(user?.username || "");
-  const [telefono, setTelefono] = useState("");
-  const [zona, setZona] = useState("");
-  const [direccion, setDireccion] = useState("");
-  const [referencias, setReferencias] = useState("");
+  const [telefono, setTelefono] = useState(user?.telefono || "");
+  const [zona, setZona] = useState(user?.zona || "");
+  const [direccion, setDireccion] = useState(user?.direccion || "");
+  const [referencias, setReferencias] = useState(user?.referencias || "");
+
+  const zonaSeleccionada = zonas.find((z) => z.nombre === zona);
+  const costoEnvio = zonaSeleccionada
+    ? parseInt(zonaSeleccionada.precio.replace(/[$.]/g, ""))
+    : 0;
+  const totalProductos = getTotalPrice();
+  const totalConEnvio = totalProductos + costoEnvio;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,8 +82,18 @@ export default function CheckoutPage() {
       </div>
 
       <p className="text-lg font-semibold text-right text-[#5A3E1B]">
-        Total: ${getTotalPrice().toLocaleString("es-AR")}
+        Total: ${totalProductos.toLocaleString("es-AR")}
       </p>
+      {zonaSeleccionada && (
+        <p className="text-lg font-semibold text-right text-[#5A3E1B]">
+          Envío: {zonaSeleccionada.precio}
+        </p>
+      )}
+      {zonaSeleccionada && (
+        <p className="text-lg font-semibold text-right text-[#5A3E1B]">
+          Total con envío: ${totalConEnvio.toLocaleString("es-AR")}
+        </p>
+      )}
 
       <form
         onSubmit={handleSubmit}
@@ -107,13 +127,16 @@ export default function CheckoutPage() {
           <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
             Zona
           </label>
-          <input
-            type="text"
-            required
-            value={zona}
-            onChange={(e) => setZona(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm"
-          />
+          <ZonaSelect value={zona} onChange={setZona} />
+          {zonaSeleccionada && (
+            <div className="flex items-center gap-2 text-sm text-gray-700 mt-1">
+              <Truck size={18} />
+              Costo de envío:
+              <span className="font-semibold ml-1">
+                {zonaSeleccionada.precio}
+              </span>
+            </div>
+          )}
         </div>
         <div>
           <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">

@@ -5,7 +5,10 @@ type UserType = {
   id: number;
   email: string;
   username: string;
-  // cualquier otro campo que uses
+  telefono?: string;
+  zona?: string;
+  direccion?: string;
+  referencias?: string;
 };
 
 interface UserState {

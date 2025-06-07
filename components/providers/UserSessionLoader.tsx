@@ -7,19 +7,20 @@ export default function UserSessionLoader() {
   useUserStore();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
-    const storedJwt = localStorage.getItem("jwt");
-
-    if (storedUser) {
+    const data = localStorage.getItem("user-storage");
+    if (data) {
       try {
-        useUserStore.getState().setUser(JSON.parse(storedUser));
+        const parsed = JSON.parse(data);
+        const state = parsed.state ?? parsed;
+        if (state.user) {
+          useUserStore.getState().setUser(state.user);
+        }
+        if (state.jwt) {
+          useUserStore.getState().setJwt(state.jwt);
+        }
       } catch (error) {
         console.error("Failed to parse stored user", error);
       }
-    }
-
-    if (storedJwt) {
-      useUserStore.getState().setJwt(storedJwt);
     }
   }, []);
 

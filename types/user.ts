@@ -5,5 +5,9 @@ export type UserType = {
   username: string;
   email: string;
   jwt: string;
+  telefono?: string;
+  zona?: string;
+  direccion?: string;
+  referencias?: string;
   pedidos?: PedidoType[];
 };
