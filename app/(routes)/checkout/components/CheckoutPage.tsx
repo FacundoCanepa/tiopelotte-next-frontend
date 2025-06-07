@@ -5,17 +5,12 @@ import { useUserStore } from "@/store/user-store";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
-import ZonaSelect from "../../perfil/components/ZonaSelect";
+import CheckoutProductsList from "./CheckoutProductsList";
+import CheckoutResumen from "./CheckoutResumen";
+import CheckoutDeliverySelector from "./CheckoutDeliverySelector";
+import CheckoutForm from "./CheckoutForm";
+import CheckoutSubmitButton from "./CheckoutSubmitButton";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
-import { Truck } from "lucide-react";
-
-const formatQuantity = (qty: number, unidad: string) => {
-  const u = unidad?.trim().toLowerCase();
-  if (u === "kg") return qty >= 1 ? `${qty} Kg` : `${qty * 1000} gr`;
-  if (u === "unidad") return `${qty} Unidad`;
-  if (u === "planchas") return `${qty} Planchas`;
-  return `${qty}`;
-};
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -24,9 +19,7 @@ export default function CheckoutPage() {
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
   const user = useUserStore((state) => state.user);
 
-  const [tipoEntrega, setTipoEntrega] = useState<"domicilio" | "local">(
-    "domicilio"
-  );
+  const [tipoEntrega, setTipoEntrega] = useState<"domicilio" | "local">("domicilio");
   const [nombre, setNombre] = useState(user?.username || "");
   const [telefono, setTelefono] = useState(user?.telefono || "");
   const [zona, setZona] = useState(user?.zona || "");
@@ -52,7 +45,6 @@ export default function CheckoutPage() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // Aquí se podría enviar la orden al backend
     clearCart();
     router.push("/perfil");
   };
@@ -61,8 +53,10 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen py-20 px-6 text-center text-[#8B4513]">
         <h2 className="text-3xl font-garamond italic">Tu carrito está vacío 🧺</h2>
-        <Button onClick={() => router.push("/productos")}
-          className="mt-6 bg-[#FFD966] hover:bg-[#e6c753] text-[#5A3E1B]">
+        <Button
+          onClick={() => router.push("/productos")}
+          className="mt-6 bg-[#FFD966] hover:bg-[#e6c753] text-[#5A3E1B]"
+        >
           Ver productos
         </Button>
       </div>
@@ -75,36 +69,9 @@ export default function CheckoutPage() {
         Confirmá tu pedido
       </h1>
 
-      <div className="space-y-4">
-        {cart.map((item) => (
-          <div
-            key={item.product.id}
-            className="flex justify-between items-center bg-white/40 rounded-xl p-4 border border-[#E0E0E0]"
-          >
-            <span className="text-[#5A3E1B] font-garamond">
-              {item.product.productName}
-            </span>
-            <span className="text-sm">
-              {formatQuantity(item.quantity, item.product.unidadMedida)}
-            </span>
-            <span className="font-semibold text-[#5A3E1B]">
-              ${(item.product.price * item.quantity).toLocaleString("es-AR")}
-            </span>
-          </div>
-        ))}
-      </div>
+      <CheckoutProductsList />
 
-      <div className="space-y-1 text-right">
-        <p className="text-lg font-semibold text-[#5A3E1B]">
-          Subtotal: ${totalProductos.toLocaleString("es-AR")}
-        </p>
-        <p className="text-lg font-semibold text-[#5A3E1B]">
-          Costo de envío: {costoEnvio ? `$${costoEnvio.toLocaleString("es-AR")}` : "$0"}
-        </p>
-        <p className="text-lg font-semibold text-[#5A3E1B]">
-          Total: ${totalGeneral.toLocaleString("es-AR")}
-        </p>
-      </div>
+      <CheckoutResumen subtotal={totalProductos} envio={costoEnvio} total={totalGeneral} />
 
       <form
         onSubmit={handleSubmit}
@@ -134,80 +101,20 @@ export default function CheckoutPage() {
             className="w-full border rounded-md px-3 py-2 text-sm"
           />
         </div>
-        <div>
-          <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
-            Método de entrega
-          </label>
-          <div className="flex gap-4 text-sm">
-            <label className="flex items-center gap-1">
-              <input
-                type="radio"
-                value="domicilio"
-                checked={tipoEntrega === "domicilio"}
-                onChange={() => setTipoEntrega("domicilio")}
-                className="accent-[#8B4513]"
-              />
-              Entrega a domicilio
-            </label>
-            <label className="flex items-center gap-1">
-              <input
-                type="radio"
-                value="local"
-                checked={tipoEntrega === "local"}
-                onChange={() => setTipoEntrega("local")}
-                className="accent-[#8B4513]"
-              />
-              Retiro en el local
-            </label>
-          </div>
-        </div>
-        {tipoEntrega === "domicilio" && (
-          <>
-            <div>
-              <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
-                Zona
-              </label>
-              <ZonaSelect value={zona} onChange={setZona} />
-              {zonaSeleccionada && (
-                <div className="flex items-center gap-2 text-sm text-gray-700 mt-1">
-                  <Truck size={18} />
-                  Costo de envío:
-                  <span className="font-semibold ml-1">
-                    {zonaSeleccionada.precio}
-                  </span>
-                </div>
-              )}
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
-                Dirección
-              </label>
-              <input
-                type="text"
-                required
-                value={direccion}
-                onChange={(e) => setDireccion(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
-                Referencias (opcional)
-              </label>
-              <textarea
-                value={referencias}
-                onChange={(e) => setReferencias(e.target.value)}
-                className="w-full border rounded-md px-3 py-2 text-sm"
-              />
-            </div>
-          </>
-        )}
-        <Button
-          type="submit"
-          className="w-full bg-[#FFD966] text-[#5A3E1B] hover:bg-[#f5c741]"
-        >
-          Confirmar pedido
-        </Button>
+
+        <CheckoutDeliverySelector tipoEntrega={tipoEntrega} setTipoEntrega={setTipoEntrega} />
+
+        <CheckoutForm
+          tipoEntrega={tipoEntrega}
+          zona={zona}
+          setZona={setZona}
+          direccion={direccion}
+          setDireccion={setDireccion}
+          referencias={referencias}
+          setReferencias={setReferencias}
+        />
+
+        <CheckoutSubmitButton />
       </form>
     </div>
   );
