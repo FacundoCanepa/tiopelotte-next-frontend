@@ -2,7 +2,7 @@
 
 import { useCartStore } from "@/store/cart-store";
 import { useUserStore } from "@/store/user-store";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import ZonaSelect from "../../perfil/components/ZonaSelect";
@@ -24,18 +24,31 @@ export default function CheckoutPage() {
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
   const user = useUserStore((state) => state.user);
 
+  const [tipoEntrega, setTipoEntrega] = useState<"domicilio" | "local">(
+    "domicilio"
+  );
   const [nombre, setNombre] = useState(user?.username || "");
   const [telefono, setTelefono] = useState(user?.telefono || "");
   const [zona, setZona] = useState(user?.zona || "");
   const [direccion, setDireccion] = useState(user?.direccion || "");
   const [referencias, setReferencias] = useState(user?.referencias || "");
 
-  const zonaSeleccionada = zonas.find((z) => z.nombre === zona);
+  useEffect(() => {
+    if (!user) return;
+    setNombre(user.username ?? "");
+    setTelefono(user.telefono ?? "");
+    setZona(user.zona ?? "");
+    setDireccion(user.direccion ?? "");
+    setReferencias(user.referencias ?? "");
+  }, [user]);
+
+  const zonaSeleccionada =
+    tipoEntrega === "domicilio" ? zonas.find((z) => z.nombre === zona) : null;
   const costoEnvio = zonaSeleccionada
     ? parseInt(zonaSeleccionada.precio.replace(/[$.]/g, ""))
     : 0;
   const totalProductos = getTotalPrice();
-  const totalConEnvio = totalProductos + costoEnvio;
+  const totalGeneral = totalProductos + costoEnvio;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -81,19 +94,17 @@ export default function CheckoutPage() {
         ))}
       </div>
 
-      <p className="text-lg font-semibold text-right text-[#5A3E1B]">
-        Total: ${totalProductos.toLocaleString("es-AR")}
-      </p>
-      {zonaSeleccionada && (
-        <p className="text-lg font-semibold text-right text-[#5A3E1B]">
-          Envío: {zonaSeleccionada.precio}
+      <div className="space-y-1 text-right">
+        <p className="text-lg font-semibold text-[#5A3E1B]">
+          Subtotal: ${totalProductos.toLocaleString("es-AR")}
         </p>
-      )}
-      {zonaSeleccionada && (
-        <p className="text-lg font-semibold text-right text-[#5A3E1B]">
-          Total con envío: ${totalConEnvio.toLocaleString("es-AR")}
+        <p className="text-lg font-semibold text-[#5A3E1B]">
+          Costo de envío: {costoEnvio ? `$${costoEnvio.toLocaleString("es-AR")}` : "$0"}
         </p>
-      )}
+        <p className="text-lg font-semibold text-[#5A3E1B]">
+          Total: ${totalGeneral.toLocaleString("es-AR")}
+        </p>
+      </div>
 
       <form
         onSubmit={handleSubmit}
@@ -125,41 +136,72 @@ export default function CheckoutPage() {
         </div>
         <div>
           <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
-            Zona
+            Método de entrega
           </label>
-          <ZonaSelect value={zona} onChange={setZona} />
-          {zonaSeleccionada && (
-            <div className="flex items-center gap-2 text-sm text-gray-700 mt-1">
-              <Truck size={18} />
-              Costo de envío:
-              <span className="font-semibold ml-1">
-                {zonaSeleccionada.precio}
-              </span>
+          <div className="flex gap-4 text-sm">
+            <label className="flex items-center gap-1">
+              <input
+                type="radio"
+                value="domicilio"
+                checked={tipoEntrega === "domicilio"}
+                onChange={() => setTipoEntrega("domicilio")}
+                className="accent-[#8B4513]"
+              />
+              Entrega a domicilio
+            </label>
+            <label className="flex items-center gap-1">
+              <input
+                type="radio"
+                value="local"
+                checked={tipoEntrega === "local"}
+                onChange={() => setTipoEntrega("local")}
+                className="accent-[#8B4513]"
+              />
+              Retiro en el local
+            </label>
+          </div>
+        </div>
+        {tipoEntrega === "domicilio" && (
+          <>
+            <div>
+              <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
+                Zona
+              </label>
+              <ZonaSelect value={zona} onChange={setZona} />
+              {zonaSeleccionada && (
+                <div className="flex items-center gap-2 text-sm text-gray-700 mt-1">
+                  <Truck size={18} />
+                  Costo de envío:
+                  <span className="font-semibold ml-1">
+                    {zonaSeleccionada.precio}
+                  </span>
+                </div>
+              )}
             </div>
-          )}
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
-            Dirección
-          </label>
-          <input
-            type="text"
-            required
-            value={direccion}
-            onChange={(e) => setDireccion(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
-            Referencias (opcional)
-          </label>
-          <textarea
-            value={referencias}
-            onChange={(e) => setReferencias(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm"
-          />
-        </div>
+            <div>
+              <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
+                Dirección
+              </label>
+              <input
+                type="text"
+                required
+                value={direccion}
+                onChange={(e) => setDireccion(e.target.value)}
+                className="w-full border rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
+                Referencias (opcional)
+              </label>
+              <textarea
+                value={referencias}
+                onChange={(e) => setReferencias(e.target.value)}
+                className="w-full border rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+          </>
+        )}
         <Button
           type="submit"
           className="w-full bg-[#FFD966] text-[#5A3E1B] hover:bg-[#f5c741]"
