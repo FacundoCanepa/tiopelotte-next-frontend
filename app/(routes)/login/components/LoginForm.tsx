@@ -36,10 +36,8 @@ export default function LoginForm() {
         return;
       }
 
-       localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("jwt", data.jwt);
       setUser(data.user);
-      setJwt(data.jwt);// ✅ Aseguramos que pase el jwt correctamente
+      setJwt(data.jwt);
       router.push("/perfil");
     } catch (err: any) {
       console.error("💥 Error de red:", err);

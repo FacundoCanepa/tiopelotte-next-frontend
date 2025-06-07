@@ -34,8 +34,6 @@ export default function RegisterForm() {
         throw new Error(data.error?.message || "Error al registrarse");
       }
 
-      localStorage.setItem("user", JSON.stringify(data.user));
-      localStorage.setItem("jwt", data.jwt);
       setUser(data.user);
       setJwt(data.jwt);
       router.push("/");
