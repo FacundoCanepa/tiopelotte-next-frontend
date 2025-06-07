@@ -23,7 +23,7 @@ export async function enviarPedido({
     productName: item.product.productName,
     quantity: item.quantity,
     unitPrice: item.product.price,
-  }));
+    }));
 
   const payload = {
     data: {
@@ -49,3 +49,16 @@ export async function enviarPedido({
         body: JSON.stringify(payload),
       }
     );
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      throw new Error(data?.error || "Error al crear el pedido");
+    }
+
+    return data;
+  } catch (error) {
+    console.error("Error enviando pedido:", error);
+    throw error;
+  }
+}

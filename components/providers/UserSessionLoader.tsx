@@ -22,6 +22,7 @@ export default function UserSessionLoader() {
         console.error("Failed to parse stored user", error);
       }
     }
+    useUserStore.getState().setIsSessionChecked(true);
   }, []);
 
   return null;
