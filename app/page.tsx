@@ -12,6 +12,7 @@ import CommentsUser from "@/components/sections/home/commentsUsers";
 import CategoryHome from "@/components/sections/home/categoryHome";
 import RedesSociales from "@/components/sections/home/redesSociales";
 
+
 export default function Home() {
   const featuredProducts = useGetFeaturedProducts();
   const offerProducts = useGetOfferProducts();

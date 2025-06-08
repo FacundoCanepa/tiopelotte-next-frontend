@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { zonas } from "./zonas"; // asegurate que esta ruta sea correcta
+import { zonas } from "./zonas"; 
 
 const DeliveryMap = () => {
   const [isClient, setIsClient] = useState(false);

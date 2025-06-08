@@ -4,6 +4,8 @@ import Navbar from "@/components/layout/navbar";
 import { islandMoments, ebGaramond } from "@/lib/fonts/fonts";
 import Footer from "@/components/layout/footer";
 import UserSessionLoader from "@/components/providers/UserSessionLoader";
+import WhatsAppButton from "@/components/ui/WhatsAppButton"
+import CartFloatButton from "@/components/ui/CartFloatButton"
 
 export const metadata: Metadata = {
   title: "Tio pelotte",
@@ -22,6 +24,8 @@ export default function RootLayout({
           <Navbar />
           {children}
           <Footer />
+          <CartFloatButton/>
+          <WhatsAppButton/>
       </body>
     </html>
   );

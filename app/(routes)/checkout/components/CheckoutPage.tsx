@@ -10,6 +10,7 @@ import CheckoutResumen from "./CheckoutResumen";
 import CheckoutDeliverySelector from "./CheckoutDeliverySelector";
 import CheckoutForm from "./CheckoutForm";
 import CheckoutSubmitButton from "./CheckoutSubmitButton";
+import CheckoutDeliveryMap from "./CheckoutDeliveryMap";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
 
 export default function CheckoutPage() {
@@ -71,7 +72,11 @@ export default function CheckoutPage() {
 
       <CheckoutProductsList />
 
-      <CheckoutResumen subtotal={totalProductos} envio={costoEnvio} total={totalGeneral} />
+      <CheckoutResumen
+        subtotal={totalProductos}
+        envio={costoEnvio}
+        total={totalGeneral}
+      />
 
       <form
         onSubmit={handleSubmit}
@@ -102,17 +107,32 @@ export default function CheckoutPage() {
           />
         </div>
 
-        <CheckoutDeliverySelector tipoEntrega={tipoEntrega} setTipoEntrega={setTipoEntrega} />
-
-        <CheckoutForm
+        <CheckoutDeliverySelector
           tipoEntrega={tipoEntrega}
-          zona={zona}
-          setZona={setZona}
-          direccion={direccion}
-          setDireccion={setDireccion}
-          referencias={referencias}
-          setReferencias={setReferencias}
+          setTipoEntrega={setTipoEntrega}
         />
+
+        {tipoEntrega === "domicilio" ? (
+          <CheckoutDeliveryMap
+            tipoEntrega={tipoEntrega}
+            zona={zona}
+            setZona={setZona}
+            direccion={direccion}
+            setDireccion={setDireccion}
+            referencias={referencias}
+            setReferencias={setReferencias}
+          />
+        ) : (
+          <CheckoutForm
+            tipoEntrega={tipoEntrega}
+            zona={zona}
+            setZona={setZona}
+            direccion={direccion}
+            setDireccion={setDireccion}
+            referencias={referencias}
+            setReferencias={setReferencias}
+          />
+        )}
 
         <CheckoutSubmitButton />
       </form>
