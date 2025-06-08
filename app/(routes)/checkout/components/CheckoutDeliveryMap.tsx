@@ -61,7 +61,8 @@ const CheckoutDeliveryMap = ({
     <div className="flex flex-col md:flex-row gap-6">
       <div className="md:w-1/2 w-full">
         <h3 className="text-lg font-semibold text-[#5A3E1B] mb-2">Zonas de entrega</h3>
-        <div className="rounded-xl overflow-hidden border-4 border-[#FBE6D4] shadow-lg h-[300px] md:h-[400px]">
+        <div className="rounded-xl overflow-hidden border-4 border-[#FBE6D4] shadow-lg h-[300px] md:h-[400px] z-0 relative">
+
           <MapContainer
             center={[-35.02, -58.1]}
             zoom={12}

@@ -4,13 +4,15 @@ import { useCartStore } from "@/store/cart-store";
 import { useUserStore } from "@/store/user-store";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Button from "@/components/ui/Button";
+import { User, Phone } from "lucide-react";
+
 import CheckoutProductsList from "./CheckoutProductsList";
 import CheckoutResumen from "./CheckoutResumen";
 import CheckoutDeliverySelector from "./CheckoutDeliverySelector";
 import CheckoutForm from "./CheckoutForm";
 import CheckoutSubmitButton from "./CheckoutSubmitButton";
 import CheckoutDeliveryMap from "./CheckoutDeliveryMap";
+import CheckoutPaymentMethod from "./CheckoutPaymentMethod";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
 
 export default function CheckoutPage() {
@@ -21,6 +23,8 @@ export default function CheckoutPage() {
   const user = useUserStore((state) => state.user);
 
   const [tipoEntrega, setTipoEntrega] = useState<"domicilio" | "local">("domicilio");
+  const [metodoPago, setMetodoPago] = useState<"mercado_pago" | "efectivo">("mercado_pago");
+
   const [nombre, setNombre] = useState(user?.username || "");
   const [telefono, setTelefono] = useState(user?.telefono || "");
   const [zona, setZona] = useState(user?.zona || "");
@@ -41,101 +45,133 @@ export default function CheckoutPage() {
   const costoEnvio = zonaSeleccionada
     ? parseInt(zonaSeleccionada.precio.replace(/[$.]/g, ""))
     : 0;
+
   const totalProductos = getTotalPrice();
   const totalGeneral = totalProductos + costoEnvio;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    clearCart();
-    router.push("/perfil");
-  };
+const handleSubmit = (e: React.FormEvent) => {
+  e.preventDefault();
+
+  const porcentajeSenia = metodoPago === "efectivo" ? 0.1 : 1;
+  const montoFinal = Math.round(totalGeneral * porcentajeSenia);
+
+  console.log("🧾 Método de pago:", metodoPago);
+  console.log("💰 Monto a pagar:", montoFinal);
+  clearCart();
+  router.push("/perfil");
+};
+
 
   if (cart.length === 0) {
     return (
       <div className="min-h-screen py-20 px-6 text-center text-[#8B4513]">
         <h2 className="text-3xl font-garamond italic">Tu carrito está vacío 🧺</h2>
-        <Button
+        <button
           onClick={() => router.push("/productos")}
-          className="mt-6 bg-[#FFD966] hover:bg-[#e6c753] text-[#5A3E1B]"
+          className="mt-6 bg-[#FFD966] hover:bg-[#e6c753] text-[#5A3E1B] px-4 py-2 rounded-md"
         >
           Ver productos
-        </Button>
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen py-10 px-4 md:px-12 space-y-8">
-      <h1 className="text-4xl font-garamond text-[#5A3E1B] text-center">
-        Confirmá tu pedido
+    <div className="min-h-screen bg-[#FBE6D4] py-12 px-4 md:px-16 space-y-10">
+      <h1 className="text-4xl font-garamond text-[#5A3E1B] text-center mb-4">
+        Confirmá tu pedido 🍝
       </h1>
 
-      <CheckoutProductsList />
-
-      <CheckoutResumen
-        subtotal={totalProductos}
-        envio={costoEnvio}
-        total={totalGeneral}
-      />
-
-      <form
-        onSubmit={handleSubmit}
-        className="space-y-4 bg-white shadow-lg rounded-xl p-6 border border-[#E0E0E0]"
-      >
-        <div>
-          <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
-            Nombre y Apellido
-          </label>
-          <input
-            type="text"
-            required
-            value={nombre}
-            onChange={(e) => setNombre(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm"
-          />
-        </div>
-        <div>
-          <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
-            Teléfono
-          </label>
-          <input
-            type="tel"
-            required
-            value={telefono}
-            onChange={(e) => setTelefono(e.target.value)}
-            className="w-full border rounded-md px-3 py-2 text-sm"
-          />
+      <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr,1fr]">
+        {/* Columna izquierda */}
+        <div className="space-y-6">
+          <CheckoutProductsList />
+  <CheckoutResumen
+  subtotal={totalProductos}
+  envio={costoEnvio}
+  total={totalGeneral}
+  metodoPago={metodoPago}
+/>
         </div>
 
-        <CheckoutDeliverySelector
-          tipoEntrega={tipoEntrega}
-          setTipoEntrega={setTipoEntrega}
-        />
+        {/* Columna derecha */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-[#FFF8EB] rounded-2xl border border-[#E0E0E0] shadow-lg p-6 space-y-6"
+        >
+          <div className="space-y-4">
+            <h2 className="text-xl font-semibold text-[#8B4513]">
+              Tus datos
+            </h2>
 
-        {tipoEntrega === "domicilio" ? (
-          <CheckoutDeliveryMap
-            tipoEntrega={tipoEntrega}
-            zona={zona}
-            setZona={setZona}
-            direccion={direccion}
-            setDireccion={setDireccion}
-            referencias={referencias}
-            setReferencias={setReferencias}
-          />
-        ) : (
-          <CheckoutForm
-            tipoEntrega={tipoEntrega}
-            zona={zona}
-            setZona={setZona}
-            direccion={direccion}
-            setDireccion={setDireccion}
-            referencias={referencias}
-            setReferencias={setReferencias}
-          />
-        )}
+            {/* Nombre */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-[#5A3E1B] flex items-center gap-1">
+                <User size={16} /> Nombre y Apellido
+              </label>
+              <input
+                type="text"
+                required
+                value={nombre}
+                onChange={(e) => setNombre(e.target.value)}
+                className="w-full border px-4 py-2 rounded-md text-sm bg-white"
+              />
+            </div>
 
-        <CheckoutSubmitButton />
-      </form>
+            {/* Teléfono */}
+            <div className="flex flex-col gap-2">
+              <label className="text-sm font-medium text-[#5A3E1B] flex items-center gap-1">
+                <Phone size={16} /> Teléfono
+              </label>
+              <input
+                type="tel"
+                required
+                value={telefono}
+                onChange={(e) => setTelefono(e.target.value)}
+                className="w-full border px-4 py-2 rounded-md text-sm bg-white"
+              />
+            </div>
+
+            {/* Tipo de entrega */}
+            <CheckoutDeliverySelector
+              tipoEntrega={tipoEntrega}
+              setTipoEntrega={setTipoEntrega}
+            />
+
+            {/* Formulario dinámico según entrega */}
+            {tipoEntrega === "domicilio" ? (
+              <CheckoutDeliveryMap
+                tipoEntrega={tipoEntrega}
+                zona={zona}
+                setZona={setZona}
+                direccion={direccion}
+                setDireccion={setDireccion}
+                referencias={referencias}
+                setReferencias={setReferencias}
+              />
+            ) : (
+              <CheckoutForm
+                tipoEntrega={tipoEntrega}
+                zona={zona}
+                setZona={setZona}
+                direccion={direccion}
+                setDireccion={setDireccion}
+                referencias={referencias}
+                setReferencias={setReferencias}
+              />
+            )}
+
+            {/* Método de pago */}
+            <CheckoutPaymentMethod
+              metodoPago={metodoPago}
+              setMetodoPago={setMetodoPago}
+            />
+          </div>
+
+          {/* Confirmar */}
+          <CheckoutSubmitButton />
+        </form>
+      </div>
     </div>
   );
 }

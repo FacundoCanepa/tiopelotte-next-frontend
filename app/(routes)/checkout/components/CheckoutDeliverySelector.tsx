@@ -7,31 +7,37 @@ interface Props {
 
 export default function CheckoutDeliverySelector({ tipoEntrega, setTipoEntrega }: Props) {
   return (
-    <div>
-      <label className="block text-sm font-semibold text-[#5A3E1B] mb-1">
+    <div className="space-y-2">
+      <label className="text-sm font-medium text-[#5A3E1B]">
         Método de entrega
       </label>
-      <div className="flex gap-4 text-sm">
-        <label className="flex items-center gap-1 cursor-pointer">
-          <input
-            type="radio"
-            value="domicilio"
-            checked={tipoEntrega === "domicilio"}
-            onChange={() => setTipoEntrega("domicilio")}
-            className="accent-[#8B4513]"
-          />
+
+      <div className="flex gap-4">
+        <button
+          type="button"
+          onClick={() => setTipoEntrega("domicilio")}
+          className={`flex-1 px-4 py-2 rounded-md text-sm border transition 
+            ${
+              tipoEntrega === "domicilio"
+                ? "bg-[#FFD966] border-[#FFD966] text-[#5A3E1B] font-semibold shadow"
+                : "bg-white border-[#E0E0E0] text-[#8B4513] hover:bg-[#fef6dd]"
+            } cursor-pointer`}
+        >
           Entrega a domicilio
-        </label>
-        <label className="flex items-center gap-1 cursor-pointer">
-          <input
-            type="radio"
-            value="local"
-            checked={tipoEntrega === "local"}
-            onChange={() => setTipoEntrega("local")}
-            className="accent-[#8B4513]"
-          />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setTipoEntrega("local")}
+          className={`flex-1 px-4 py-2 rounded-md text-sm border transition 
+            ${
+              tipoEntrega === "local"
+                ? "bg-[#FFD966] border-[#FFD966] text-[#5A3E1B] font-semibold shadow"
+                : "bg-white border-[#E0E0E0] text-[#8B4513] hover:bg-[#fef6dd]"
+            } cursor-pointer`}
+        >
           Retiro en el local
-        </label>
+        </button>
       </div>
     </div>
   );
