@@ -16,7 +16,10 @@ import CheckoutPaymentMethod from "./CheckoutPaymentMethod";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
 
 import dynamic from "next/dynamic";
-const MercadoPagoBricks = dynamic(() => import("./MercadoPagoBricks"), { ssr: false });
+const MercadoPagoBricks = dynamic(
+  () => import("@/components/checkout/MercadoPagoBricks"),
+  { ssr: false }
+);
 
 export default function CheckoutPage() {
   const router = useRouter();

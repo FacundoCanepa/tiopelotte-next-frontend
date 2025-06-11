@@ -2,6 +2,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
 import { useCartStore } from "@/store/cart-store";
 
 declare global {
@@ -18,7 +19,9 @@ type Props = {
 export default function MercadoPagoBricks({ total, onSuccess }: Props) {
   const cart = useCartStore((state) => state.cart);
   const [preferenceId, setPreferenceId] = useState<string | null>(null);
+   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const script = document.createElement("script");
@@ -44,7 +47,9 @@ export default function MercadoPagoBricks({ total, onSuccess }: Props) {
         onReady: () => console.log("🧱 PaymentBrick listo"),
         onSubmit: async ({ selectedPaymentMethod, formData }: any) => {
           console.log("✅ Pago procesado", formData);
+          setPaymentSuccess(true);
           onSuccess();
+          router.push("/checkout?status=success");
         },
         onError: (error: any) => {
           console.error("❌ Error en el pago", error);
@@ -83,6 +88,11 @@ export default function MercadoPagoBricks({ total, onSuccess }: Props) {
 
   return (
     <div ref={containerRef} className="mt-6 space-y-6">
+            {paymentSuccess && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded text-center">
+          🎉 ¡Pago aprobado! Gracias por tu compra.
+        </div>
+      )}
       <div id="paymentBrick_container" className="min-h-[250px] bg-white p-4 rounded-xl shadow-md" />
       <div id="walletBrick_container" className="min-h-[100px] bg-white p-4 rounded-xl shadow-md" />
     </div>
