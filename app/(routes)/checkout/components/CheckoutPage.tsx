@@ -3,7 +3,7 @@
 import { useCartStore } from "@/store/cart-store";
 import { useUserStore } from "@/store/user-store";
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { User, Phone } from "lucide-react";
 
 import CheckoutProductsList from "./CheckoutProductsList";
@@ -15,8 +15,12 @@ import CheckoutDeliveryMap from "./CheckoutDeliveryMap";
 import CheckoutPaymentMethod from "./CheckoutPaymentMethod";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
 
+import dynamic from "next/dynamic";
+const MercadoPagoBricks = dynamic(() => import("./MercadoPagoBricks"), { ssr: false });
+
 export default function CheckoutPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const cart = useCartStore((state) => state.cart);
   const clearCart = useCartStore((state) => state.clearCart);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
@@ -31,6 +35,8 @@ export default function CheckoutPage() {
   const [direccion, setDireccion] = useState(user?.direccion || "");
   const [referencias, setReferencias] = useState(user?.referencias || "");
 
+  const pagoAprobado = searchParams.get("status") === "success";
+
   useEffect(() => {
     if (!user) return;
     setNombre(user.username ?? "");
@@ -39,6 +45,10 @@ export default function CheckoutPage() {
     setDireccion(user.direccion ?? "");
     setReferencias(user.referencias ?? "");
   }, [user]);
+
+  useEffect(() => {
+    if (pagoAprobado) clearCart();
+  }, [pagoAprobado]);
 
   const zonaSeleccionada =
     tipoEntrega === "domicilio" ? zonas.find((z) => z.nombre === zona) : null;
@@ -49,18 +59,17 @@ export default function CheckoutPage() {
   const totalProductos = getTotalPrice();
   const totalGeneral = totalProductos + costoEnvio;
 
-const handleSubmit = (e: React.FormEvent) => {
-  e.preventDefault();
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
 
-  const porcentajeSenia = metodoPago === "efectivo" ? 0.1 : 1;
-  const montoFinal = Math.round(totalGeneral * porcentajeSenia);
+    const porcentajeSenia = metodoPago === "efectivo" ? 0.1 : 1;
+    const montoFinal = Math.round(totalGeneral * porcentajeSenia);
 
-  console.log("🧾 Método de pago:", metodoPago);
-  console.log("💰 Monto a pagar:", montoFinal);
-  clearCart();
-  router.push("/perfil");
-};
-
+    console.log("🧾 Método de pago:", metodoPago);
+    console.log("💰 Monto a pagar:", montoFinal);
+    clearCart();
+    router.push("/perfil");
+  };
 
   if (cart.length === 0) {
     return (
@@ -82,16 +91,26 @@ const handleSubmit = (e: React.FormEvent) => {
         Confirmá tu pedido 🍝
       </h1>
 
+      {pagoAprobado && (
+        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-6 text-center">
+          🎉 ¡Pago aprobado! Gracias por tu compra.
+        </div>
+      )}
+
       <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr,1fr]">
         {/* Columna izquierda */}
         <div className="space-y-6">
           <CheckoutProductsList />
-  <CheckoutResumen
-  subtotal={totalProductos}
-  envio={costoEnvio}
-  total={totalGeneral}
-  metodoPago={metodoPago}
-/>
+          <CheckoutResumen
+            subtotal={totalProductos}
+            envio={costoEnvio}
+            total={totalGeneral}
+            metodoPago={metodoPago}
+          />
+
+          {metodoPago === "mercado_pago" && (
+            <MercadoPagoBricks total={totalGeneral} onSuccess={clearCart} />
+          )}
         </div>
 
         {/* Columna derecha */}
@@ -100,11 +119,8 @@ const handleSubmit = (e: React.FormEvent) => {
           className="bg-[#FFF8EB] rounded-2xl border border-[#E0E0E0] shadow-lg p-6 space-y-6"
         >
           <div className="space-y-4">
-            <h2 className="text-xl font-semibold text-[#8B4513]">
-              Tus datos
-            </h2>
+            <h2 className="text-xl font-semibold text-[#8B4513]">Tus datos</h2>
 
-            {/* Nombre */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-[#5A3E1B] flex items-center gap-1">
                 <User size={16} /> Nombre y Apellido
@@ -118,7 +134,6 @@ const handleSubmit = (e: React.FormEvent) => {
               />
             </div>
 
-            {/* Teléfono */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-[#5A3E1B] flex items-center gap-1">
                 <Phone size={16} /> Teléfono
@@ -132,13 +147,8 @@ const handleSubmit = (e: React.FormEvent) => {
               />
             </div>
 
-            {/* Tipo de entrega */}
-            <CheckoutDeliverySelector
-              tipoEntrega={tipoEntrega}
-              setTipoEntrega={setTipoEntrega}
-            />
+            <CheckoutDeliverySelector tipoEntrega={tipoEntrega} setTipoEntrega={setTipoEntrega} />
 
-            {/* Formulario dinámico según entrega */}
             {tipoEntrega === "domicilio" ? (
               <CheckoutDeliveryMap
                 tipoEntrega={tipoEntrega}
@@ -161,14 +171,9 @@ const handleSubmit = (e: React.FormEvent) => {
               />
             )}
 
-            {/* Método de pago */}
-            <CheckoutPaymentMethod
-              metodoPago={metodoPago}
-              setMetodoPago={setMetodoPago}
-            />
+            <CheckoutPaymentMethod metodoPago={metodoPago} setMetodoPago={setMetodoPago} />
           </div>
 
-          {/* Confirmar */}
           <CheckoutSubmitButton />
         </form>
       </div>
