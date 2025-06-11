@@ -1,38 +1,34 @@
-+8
--6
-
+// app/api/create-preference/route.ts
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
-  try {
-    const body = await req.json();
-    const { items, total } = body;
+  const { cart, total, user } = await req.json();
 
-    const res = await fetch("https://api.mercadopago.com/checkout/preferences", {
-      method: "POST",
-      headers: {
-        Authorization: `Bearer ${process.env.MERCADOPAGO_ACCESS_TOKEN}`,
-        "Content-Type": "application/json",
+  const res = await fetch("https://api.mercadopago.com/checkout/preferences", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+    },
+    body: JSON.stringify({
+      items: cart.map((item: any) => ({
+        title: item.productName,
+        quantity: item.quantity,
+        currency_id: "ARS",
+        unit_price: item.price,
+      })),
+      payer: {
+        email: user.email,
       },
-      body: JSON.stringify({
- items: items.map((cartItem: any) => ({
-          title: cartItem.product.productName,
-          quantity: cartItem.quantity,
-          unit_price: cartItem.product.price,
-          currency_id: "ARS",
-        })),
-        back_urls: {
-          success: "https://tupagina.com/checkout?status=success",
-          failure: "https://tupagina.com/checkout?status=failure",
-        },
-        auto_return: "approved",
-      }),
-    });
+      back_urls: {
+        success: `${process.env.NEXT_PUBLIC_FRONT_URL}/gracias`,
+        failure: `${process.env.NEXT_PUBLIC_FRONT_URL}/checkout?error=1`,
+        pending: `${process.env.NEXT_PUBLIC_FRONT_URL}/checkout?pending=1`,
+      },
+      auto_return: "approved",
+    }),
+  });
 
-    const data = await res.json();
-    return NextResponse.json({ id: data.id });
-  } catch (err) {
-    console.error("❌ Error al crear preferencia:", err);
-    return new NextResponse("Error al crear preferencia", { status: 500 });
-  }
+  const data = await res.json();
+  return NextResponse.json({ init_point: data.init_point });
 }
