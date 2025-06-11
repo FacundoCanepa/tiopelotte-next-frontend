@@ -1,3 +1,6 @@
++8
+-6
+
 import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
@@ -12,10 +15,10 @@ export async function POST(req: Request) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        items: items.map((item: any) => ({
-          title: item.productName,
-          quantity: item.quantity,
-          unit_price: item.price,
+ items: items.map((cartItem: any) => ({
+          title: cartItem.product.productName,
+          quantity: cartItem.quantity,
+          unit_price: cartItem.product.price,
           currency_id: "ARS",
         })),
         back_urls: {

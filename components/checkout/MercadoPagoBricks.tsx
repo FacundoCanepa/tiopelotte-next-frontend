@@ -40,9 +40,17 @@ export default function MercadoPagoBricks({ total, onSuccess }: Props) {
   const initBricks = () => {
     if (!window.mp || !preferenceId) return;
     const bricksBuilder = window.mp.bricks();
+    if (containerRef.current) {
+      containerRef.current.innerHTML = "";
+    }
 
     bricksBuilder.create("payment", "paymentBrick_container", {
       initialization: { preferenceId },
+       customization: {
+        paymentMethods: {
+          excludedPaymentTypes: ["ticket", "bank_transfer", "atm"],
+        },
+      },
       callbacks: {
         onReady: () => console.log("🧱 PaymentBrick listo"),
         onSubmit: async ({ selectedPaymentMethod, formData }: any) => {

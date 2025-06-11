@@ -114,6 +114,12 @@ export default function CheckoutPage() {
           {metodoPago === "mercado_pago" && (
             <MercadoPagoBricks total={totalGeneral} onSuccess={clearCart} />
           )}
+          {metodoPago === "efectivo" && (
+            < MercadoPagoBricks
+              total = {Math.round(totalGeneral * 0.1 )}
+              onSuccess = {clearCart}
+            />
+          )}
         </div>
 
         {/* Columna derecha */}
