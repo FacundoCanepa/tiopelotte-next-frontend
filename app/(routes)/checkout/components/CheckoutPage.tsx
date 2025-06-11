@@ -4,7 +4,6 @@ import { useCartStore } from "@/store/cart-store";
 import { useUserStore } from "@/store/user-store";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { User, Phone } from "lucide-react";
 
 import CheckoutProductsList from "./CheckoutProductsList";
 import CheckoutResumen from "./CheckoutResumen";
@@ -31,49 +30,35 @@ export default function CheckoutPage() {
 
   const total = cart.reduce((acc, item) => acc + item.price * item.quantity, 0);
 
-  const handleConfirmarPedido = async () => {
+   const handleConfirmarPedido = async () => {
     setIsLoading(true);
     try {
-      if (tipoEntrega === "local") {
-        // Crea el pedido sin pagar
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${jwt}`,
+      const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${jwt}`,
+        },
+        body: JSON.stringify({
+          data: {
+            items: cart,
+            total,
+            estado: "Pendiente",
+            tipoEntrega,
+            user: user.id,
+            ...(tipoEntrega === "domicilio" && {
+              zona,
+              direccion,
+              referencias,
+            }),
           },
-          body: JSON.stringify({
-            data: {
-              items: cart,
-              total,
-              estado: "Pendiente",
-              tipoEntrega: "local",
-              user: user.id,
-            },
-          }),
-        });
+        }),
+      });
 
-        if (!res.ok) throw new Error("Error al crear el pedido");
+      if (!res.ok) throw new Error("Error al crear el pedido");
 
-        clearCart();
-        router.push("/gracias");
-      } else {
-        // Checkout Pro
-        const res = await fetch("/api/create-preference", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ cart, total, user }),
-        });
-
-        const data = await res.json();
-        if (data?.init_point) {
-          window.location.href = data.init_point;
-        } else {
-          throw new Error("No se pudo iniciar Mercado Pago");
-        }
-      }
+      clearCart();
+      router.push("/gracias");
     } catch (err) {
       alert("Hubo un problema al procesar el pedido.");
       console.error(err);

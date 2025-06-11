@@ -18,7 +18,7 @@ export default function CheckoutPaymentMethod({ metodoPago, setMetodoPago }: Pro
               ? "bg-[#FFD966] border-[#FFD966] text-[#5A3E1B] font-semibold shadow"
               : "bg-white border-[#E0E0E0] text-[#8B4513] hover:bg-[#fef6dd]"}`}
         >
-          💳 Pagar ahora con Mercado Pago (tarjeta, débito, QR)
+          Pagar ahora con Mercado Pago (tarjeta, débito, QR)
         </button>
 
         <button
