@@ -1,4 +1,4 @@
-// frontendNuevo/components/checkout/MercadoPagoBricks.tsx
+
 "use client";
 
 import { useEffect, useRef, useState } from "react";
@@ -88,11 +88,7 @@ export default function MercadoPagoBricks({ total, onSuccess }: Props) {
 
   return (
     <div ref={containerRef} className="mt-6 space-y-6">
-            {paymentSuccess && (
-        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded text-center">
-          🎉 ¡Pago aprobado! Gracias por tu compra.
-        </div>
-      )}
+      
       <div id="paymentBrick_container" className="min-h-[250px] bg-white p-4 rounded-xl shadow-md" />
       <div id="walletBrick_container" className="min-h-[100px] bg-white p-4 rounded-xl shadow-md" />
     </div>
