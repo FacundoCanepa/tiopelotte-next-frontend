@@ -2,13 +2,15 @@ import { create } from "zustand"
 import { persist } from "zustand/middleware"
 import { ProductType } from "@/types/product"
 
-type CartItem = {
+export type CartItem = {
   product: ProductType
   quantity: number
 }
 
 type CartStore = {
   cart: CartItem[]
+  tipoPago: "efectivo" | "tarjeta"
+  setTipoPago: (tipo: "efectivo" | "tarjeta") => void
   addToCart: (product: ProductType, quantity: number) => void
   removeFromCart: (productId: number) => void
   clearCart: () => void
@@ -21,6 +23,8 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       cart: [],
+      tipoPago: "tarjeta",
+      setTipoPago: (tipo) => set({ tipoPago: tipo }),
 
       addToCart: (product, quantity) => {
         const existing = get().cart.find((item) => item.product.id === product.id)
@@ -59,7 +63,7 @@ export const useCartStore = create<CartStore>()(
         get().cart.reduce((acc, item) => acc + item.quantity, 0),
     }),
     {
-      name: "cart-storage", // localStorage key
+      name: "cart-storage",
     }
   )
 )

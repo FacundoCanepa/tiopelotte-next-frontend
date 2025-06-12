@@ -23,7 +23,11 @@ export async function enviarPedido({
     productName: item.product.productName,
     quantity: item.quantity,
     unitPrice: item.product.price,
-    }));
+    subtotal: item.quantity * item.product.price,
+    img: item.product.img?.url || "",
+    slug: item.product.slug,
+    unidadMedida: item.product.unidadMedida,
+  }));
 
   const payload = {
     data: {
@@ -33,32 +37,31 @@ export async function enviarPedido({
       zona,
       direccion,
       referencias,
-      ...(user?.id && { user: user.id }),
+      telefono: user?.telefono || "sin teléfono",
+      nombreApellido: user?.username || "Cliente sin cuenta",
     },
   };
 
   try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos`,
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_API_TOKEN}`,
-        },
-        body: JSON.stringify(payload),
-      }
-    );
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_API_TOKEN}`,
+      },
+      body: JSON.stringify(payload),
+    });
 
     const data = await res.json();
 
     if (!res.ok) {
-      throw new Error(data?.error || "Error al crear el pedido");
+      console.error("📦 Error al crear pedido:", data);
+      throw new Error(data?.error?.message || JSON.stringify(data) || "Error al crear el pedido");
     }
 
     return data;
   } catch (error) {
-    console.error("Error enviando pedido:", error);
+    console.error("❌ Error enviando pedido:", error);
     throw error;
   }
 }
