@@ -1,3 +1,4 @@
+// ✅ CheckoutPage.tsx con console.log y nombre + teléfono en el cart
 "use client";
 
 import { useCartStore } from "@/store/cart-store";
@@ -21,16 +22,31 @@ export default function CheckoutPage() {
   const cart = useCartStore((state) => state.cart);
   const clearCart = useCartStore((state) => state.clearCart);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
+
+  const tipoEntrega = useCartStore((state) => state.tipoEntrega);
+  const setTipoEntrega = useCartStore((state) => state.setTipoEntrega);
+
+  const zona = useCartStore((state) => state.zona);
+  const setZona = useCartStore((state) => state.setZona);
+
+  const direccion = useCartStore((state) => state.direccion);
+  const setDireccion = useCartStore((state) => state.setDireccion);
+
+  const referencias = useCartStore((state) => state.referencias);
+  const setReferencias = useCartStore((state) => state.setReferencias);
+
+  const tipoPago = useCartStore((state) => state.tipoPago);
+  const setTipoPago = useCartStore((state) => state.setTipoPago);
+
+  const setTotal = useCartStore((state) => state.setTotal);
+
+  const nombre = useCartStore((state) => state.nombre);
+  const setNombre = useCartStore((state) => state.setNombre);
+
+  const telefono = useCartStore((state) => state.telefono);
+  const setTelefono = useCartStore((state) => state.setTelefono);
+
   const user = useUserStore((state) => state.user);
-
-  const [tipoEntrega, setTipoEntrega] = useState<"domicilio" | "local">("domicilio");
-  const [metodoPago, setMetodoPago] = useState<"mercado_pago" | "efectivo">("mercado_pago");
-
-  const [nombre, setNombre] = useState(user?.username || "");
-  const [telefono, setTelefono] = useState(user?.telefono || "");
-  const [zona, setZona] = useState(user?.zona || "");
-  const [direccion, setDireccion] = useState(user?.direccion || "");
-  const [referencias, setReferencias] = useState(user?.referencias || "");
 
   useEffect(() => {
     if (!user) return;
@@ -41,21 +57,31 @@ export default function CheckoutPage() {
     setReferencias(user.referencias ?? "");
   }, [user]);
 
-  const zonaSeleccionada =
-    tipoEntrega === "domicilio" ? zonas.find((z) => z.nombre === zona) : null;
+  const totalProductos = getTotalPrice();
+  const zonaSeleccionada = tipoEntrega === "domicilio" ? zonas.find((z) => z.nombre === zona) : null;
   const costoEnvio = zonaSeleccionada
     ? parseInt(zonaSeleccionada.precio.replace(/[$.]/g, ""))
     : 0;
-
-  const totalProductos = getTotalPrice();
   const totalGeneral = totalProductos + costoEnvio;
+
+  useEffect(() => {
+    setTotal(totalGeneral);
+  }, [totalGeneral]);
+
+  useEffect(() => {
+    console.log("🛒 CART STORE >>", cart);
+    console.log("📦 Tipo Entrega:", tipoEntrega);
+    console.log("📍 Zona:", zona);
+    console.log("🏠 Dirección:", direccion);
+    console.log("📄 Referencias:", referencias);
+    console.log("💳 Tipo de pago:", tipoPago);
+    console.log("💰 Total:", totalGeneral);
+    console.log("🙋‍♂️ Nombre:", nombre);
+    console.log("📞 Teléfono:", telefono);
+  }, [cart, tipoEntrega, zona, direccion, referencias, tipoPago, totalGeneral, nombre, telefono]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
-    const porcentajeSenia =
-      tipoEntrega === "domicilio" && metodoPago === "efectivo" ? 0.1 : 1;
-    const montoFinal = Math.round(totalGeneral * porcentajeSenia);
     clearCart();
     router.push("/perfil");
   };
@@ -88,7 +114,7 @@ export default function CheckoutPage() {
             subtotal={totalProductos}
             envio={costoEnvio}
             total={totalGeneral}
-            metodoPago={metodoPago}
+            metodoPago={tipoPago}
           />
         </div>
 
@@ -128,13 +154,11 @@ export default function CheckoutPage() {
               />
             </div>
 
-            {/* Tipo de entrega */}
             <CheckoutDeliverySelector
               tipoEntrega={tipoEntrega}
               setTipoEntrega={setTipoEntrega}
             />
 
-            {/* Formulario dinámico */}
             {tipoEntrega === "domicilio" ? (
               <CheckoutDeliveryMap
                 tipoEntrega={tipoEntrega}
@@ -157,29 +181,22 @@ export default function CheckoutPage() {
               />
             )}
 
-            {/* Método de pago solo si es entrega a domicilio */}
             {tipoEntrega === "domicilio" && (
-              <CheckoutPaymentMethod
-                metodoPago={metodoPago}
-                setMetodoPago={setMetodoPago}
-              />
+              <>
+                <CheckoutPaymentMethod
+                  metodoPago={tipoPago}
+                  setMetodoPago={setTipoPago}
+                />
+                <MercadoPagoButton
+                  total={tipoPago === "efectivo" ? Math.round(totalGeneral * 0.1) : totalGeneral}
+                />
+              </>
             )}
-            {tipoEntrega === "domicilio" && (
-              <MercadoPagoButton
-                total={
-                  metodoPago === "efectivo"
-                    ? Math.round(totalGeneral * 0.1)
-                    : totalGeneral
-                }
-              />
-            )}
-
           </div>
 
-           {tipoEntrega === "local" && (
-            <CheckoutSubmitButton/>
-            )}
-
+          {tipoEntrega === "local" && (
+            <CheckoutSubmitButton label="Confirmar pedido" />
+          )}
         </form>
       </div>
     </div>

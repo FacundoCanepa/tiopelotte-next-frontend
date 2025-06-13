@@ -1,4 +1,5 @@
 // app/api/mercadopago/route.ts
+
 import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
 
@@ -8,10 +9,33 @@ const mp = new MercadoPagoConfig({
 
 export async function POST(req: Request) {
   try {
-    const { items, tipoPago } = await req.json();
+    const {
+      items,          // array de productos [{ title, quantity, unit_price }]
+      cart,           // carrito completo
+      tipoEntrega,
+      zona,
+      direccion,
+      referencias,
+      tipoPago,
+      total,
+      nombre,
+      telefono,
+      userId,
+    } = await req.json();
 
-    console.log("🧾 Tipo de pago:", tipoPago);
+    // 📋 Mostrar datos recibidos
+    console.log("🔹 items recibidos:", items);
+    console.log("📦 tipoEntrega:", tipoEntrega);
+    console.log("📍 zona:", zona);
+    console.log("🏠 direccion:", direccion);
+    console.log("📄 referencias:", referencias);
+    console.log("💳 tipoPago:", tipoPago);
+    console.log("💰 total:", total);
+    console.log("🙋‍♂️ nombre:", nombre);
+    console.log("📞 telefono:", telefono);
+    console.log("🧑‍💻 userId:", userId);
 
+    // ⚙ Procesar los precios si es efectivo
     const itemsProcesados = items.map((item: any) => ({
       ...item,
       unit_price:
@@ -20,22 +44,44 @@ export async function POST(req: Request) {
           : item.unit_price,
     }));
 
-      const preference = await new Preference(mp).create({
-        body: {
-          items: itemsProcesados,
-          back_urls: {
-            success: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/success",
-            failure: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/failure",
-            pending: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/pending",
-          },
-          notification_url: "https://tudominio.com/api/mercadopago/webhook", 
-          auto_return: "approved" , 
-          metadata: { tipo: tipoPago },
+    console.log("📦 itemsProcesados para MP:", itemsProcesados);
+
+    // 🧠 Armar metadata
+    const metadata = {
+      cart: items, // solo items necesarios, no todo el objeto cart
+      tipoEntrega,
+      zona,
+      direccion,
+      referencias,
+      tipoPago,
+      total,
+      nombre,
+      telefono,
+      userId,
+    };
+
+    console.log("📩 Metadata enviada:", metadata);
+
+    // 🧾 Crear preferencia
+    const { id, init_point } = await new Preference(mp).create({
+      body: {
+        items: itemsProcesados,
+        back_urls: {
+          success: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/success",
+          failure: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/failure",
+          pending: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/pending",
         },
-      });
+        notification_url: "https://8cg4tq4t-3000.brs.devtunnels.ms/api/mercadopago/webhook",
+        auto_return: "approved",
+        metadata,
+      },
+    });
 
+    console.log("✅ Preferencia creada:");
+    console.log("🆔 ID:", id);
+    console.log("🔗 Init Point:", init_point);
 
-    return NextResponse.json({ url: preference.init_point });
+    return NextResponse.json({ url: init_point });
   } catch (error) {
     console.error("❌ Error al crear preferencia:", error);
     return new NextResponse("Error interno al crear preferencia", { status: 500 });

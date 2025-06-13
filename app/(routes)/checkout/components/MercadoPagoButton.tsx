@@ -1,60 +1,66 @@
 "use client";
 
 import { useCartStore } from "@/store/cart-store";
-import { Loader2 } from "lucide-react";
-import { useState } from "react";
 
-type Props = {
+interface Props {
   total: number;
-};
+}
 
 export default function MercadoPagoButton({ total }: Props) {
-  const [loading, setLoading] = useState(false);
   const cart = useCartStore((state) => state.cart);
+  const tipoPago = useCartStore((state) => state.tipoPago); // ✅ importante
 
-  const handleClick = async () => {
-    setLoading(true);
+const handleClick = async () => {
+  try {
+    const cartStore = useCartStore.getState();
 
-    // En este caso, solo mandamos un ítem resumen (uno solo con el total calculado)
-    const items = [
-      {
-        id: "resumen",
-        title: "TÍO PELOTTE - Pedido personalizado",
-        quantity: 1,
-        unit_price: total,
-      },
-    ];
+    const items = cartStore.cart.map((item) => ({
+      title: item.product.productName,
+      quantity: item.quantity,
+      unit_price: item.product.price,
+    }));
 
-    try {
-      const res = await fetch("/api/mercadopago", {
-        method: "POST",
-        body: JSON.stringify({ items }),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+    const body = {
+      items,
+      cart: cartStore.cart,
+      tipoEntrega: cartStore.tipoEntrega,
+      zona: cartStore.zona,
+      direccion: cartStore.direccion,
+      referencias: cartStore.referencias,
+      tipoPago: cartStore.tipoPago,
+      total: cartStore.getTotalPrice(),
+      nombre: cartStore.nombre,
+      telefono: cartStore.telefono,
+      userId: typeof window !== "undefined" && localStorage.getItem("userId") // o usá useUserStore si lo tenés
+    };
 
-      const data = await res.json();
+    console.log("📦 Enviando body completo a MP:", body);
+
+    const res = await fetch("/api/mercadopago", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    if (data?.url) {
       window.location.href = data.url;
-    } catch (err) {
-      console.error("Error redirigiendo a Mercado Pago", err);
-      alert("Hubo un error al iniciar el pago. Intentá de nuevo.");
-    } finally {
-      setLoading(false);
+    } else {
+      alert("Error al generar pago");
+      console.error("Respuesta:", data);
     }
-  };
+  } catch (err) {
+    console.error("❌ Error al generar link de pago:", err);
+  }
+};
 
   return (
     <button
+      type="button"
       onClick={handleClick}
-      className="w-full bg-[#03A9F4] text-white px-4 py-3 rounded-md hover:bg-[#0288D1] transition disabled:opacity-50"
-      disabled={loading}
+      className="mt-4 bg-[#2ecc71] hover:bg-[#27ae60] text-white w-full py-2 rounded-md"
     >
-      {loading ? (
-        <Loader2 className="animate-spin" />
-      ) : (
-        "Pagar ahora con Mercado Pago"
-      )}
+      Ir a pagar
     </button>
   );
 }
