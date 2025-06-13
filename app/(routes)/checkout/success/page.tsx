@@ -16,13 +16,13 @@ export default function CheckoutSuccessPage() {
   const clearCart = useCartStore((state) => state.clearCart);
 
   const user = useUserStore((state) => state.user);
-
+  const cartItems= useCartStore((state)=> state.cart)
   useEffect(() => {
     const status = searchParams.get("status");
 
     if (status === "approved" && cart.length > 0) {
       const total = getTotalPrice();
-
+      console.log(cartItems)
       enviarPedido({
         cart,
         total,
