@@ -1,9 +1,9 @@
 "use client";
 
 import { useEffect } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCartStore } from "@/store/cart-store";
 import { useUserStore } from "@/store/user-store";
-import { useRouter, useSearchParams } from "next/navigation";
 import { enviarPedido } from "@/components/hook/sendPedido";
 import { CheckCircle } from "lucide-react";
 
@@ -14,6 +14,7 @@ export default function CheckoutSuccessPage() {
   const cart = useCartStore((state) => state.cart);
   const getTotalPrice = useCartStore((state) => state.getTotalPrice);
   const clearCart = useCartStore((state) => state.clearCart);
+
   const user = useUserStore((state) => state.user);
 
   useEffect(() => {
@@ -26,9 +27,10 @@ export default function CheckoutSuccessPage() {
         cart,
         total,
         zona: user?.zona || "Sin zona",
-        direccion: user?.direccion || "Sin dirección",
+        direccion: user?.direccion || "Sin direccion",
         referencias: user?.referencias || "",
-        user,
+        telefono: user?.telefono || "Sin telefono",
+        nombreApellido: user?.username || "Cliente sin cuenta",
       }).then(() => {
         clearCart();
       });
@@ -43,9 +45,9 @@ export default function CheckoutSuccessPage() {
           ¡Gracias por tu compra!
         </h1>
         <p className="text-[#8B4513] text-sm mb-6">
-          Tu pedido fue confirmado y ya está siendo procesado. Vas a poder consultar el estado con tu número de teléfono.
+          Tu pedido fue confirmado y ya está siendo procesado. Vas a poder
+          consultar el estado con tu número de teléfono.
         </p>
-
         <div className="flex flex-col gap-3">
           <button
             onClick={() => router.push("/consultar-pedido")}
