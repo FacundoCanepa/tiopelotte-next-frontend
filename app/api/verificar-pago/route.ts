@@ -3,29 +3,27 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const {
-      payment_id,
-      cart,
-      tipoEntrega,
-      zona,
-      direccion,
-      referencias,
-      tipoPago,
-      total,
-      nombre,
-      telefono,
-      userId,
-    } = body;
+    const { payment_id } = body;
 
     console.log("📥 Recibido en verificar-pago:", body);
 
+    if (!payment_id) {
+      return NextResponse.json(
+        { error: "payment_id requerido" },
+        { status: 400 }
+      );
+    }
+
     // Paso 1: Consultar Mercado Pago
-    const resPago = await fetch(`https://api.mercadopago.com/v1/payments/${payment_id}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
-        "Content-Type": "application/json",
-      },
-    });
+    const resPago = await fetch(
+      `https://api.mercadopago.com/v1/payments/${payment_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     const dataPago = await resPago.json();
     console.log("✅ Respuesta de Mercado Pago:", dataPago);
@@ -34,6 +32,8 @@ export async function POST(req: NextRequest) {
       console.warn("❌ Pago no aprobado");
       return NextResponse.json({ error: "Pago no aprobado" }, { status: 400 });
     }
+
+    const metadata = dataPago.metadata;
 
     // Paso 2: Verificar si ya existe
     const yaExiste = await fetch(
@@ -51,21 +51,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ status: "ok", message: "Pedido ya creado" });
     }
 
-    // Paso 3: Crear pedido en Strapi
+    // Paso 3: Crear pedido en Strapi utilizando la metadata del pago
     const payload = {
       data: {
-        items: cart,
-        tipoEntrega,
-        zona,
-        direccion,
-        referencias,
-        tipoPago,
-        total,
+        items: metadata.cart,
+        tipoEntrega: metadata.tipoEntrega,
+        zona: metadata.zona,
+        direccion: metadata.direccion,
+        referencias: metadata.referencias,
+        tipoPago: metadata.tipoPago,
+        total: metadata.total,
         payment_id,
         estado: "Pendiente",
-        nombre,
-        telefono,
-        user: userId || null,
+        nombre: metadata.nombre,
+        telefono: metadata.telefono,
+        user: metadata.userId || null,
       },
     };
 

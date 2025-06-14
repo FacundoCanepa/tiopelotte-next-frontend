@@ -1,6 +1,7 @@
 "use client";
 
 import { useCartStore } from "@/store/cart-store";
+import { useUserStore } from "@/store/user-store";
 
 interface Props {
   total: number;
@@ -13,6 +14,7 @@ export default function MercadoPagoButton({ total }: Props) {
 const handleClick = async () => {
   try {
     const cartStore = useCartStore.getState();
+    const userId = useUserStore.getState().user?.id;
 
     const items = cartStore.cart.map((item) => ({
       title: item.product.productName,
@@ -31,7 +33,7 @@ const handleClick = async () => {
       total: cartStore.getTotalPrice(),
       nombre: cartStore.nombre,
       telefono: cartStore.telefono,
-      userId: typeof window !== "undefined" && localStorage.getItem("userId") // o usá useUserStore si lo tenés
+      userId,
     };
 
     console.log("📦 Enviando body completo a MP:", body);
