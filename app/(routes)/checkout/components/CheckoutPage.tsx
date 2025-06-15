@@ -1,4 +1,3 @@
-// ✅ CheckoutPage.tsx con console.log y nombre + teléfono en el cart
 "use client";
 
 import { useCartStore } from "@/store/cart-store";
@@ -16,6 +15,7 @@ import CheckoutDeliveryMap from "./CheckoutDeliveryMap";
 import CheckoutPaymentMethod from "./CheckoutPaymentMethod";
 import MercadoPagoButton from "./MercadoPagoButton";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
+import { enviarPedido } from "@/components/hook/sendPedido";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -48,6 +48,11 @@ export default function CheckoutPage() {
 
   const user = useUserStore((state) => state.user);
 
+  const [error, setError] = useState("");
+  const [nombreError, setNombreError] = useState(false);
+  const [telefonoError, setTelefonoError] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+
   useEffect(() => {
     if (!user) return;
     setNombre(user.username ?? "");
@@ -67,23 +72,68 @@ export default function CheckoutPage() {
   useEffect(() => {
     setTotal(totalGeneral);
   }, [totalGeneral]);
+const handleConfirmRetiro = async () => {
+  console.log("🛒 Confirmando pedido RETIRO EN LOCAL");
 
-  useEffect(() => {
-    console.log("🛒 CART STORE >>", cart);
-    console.log("📦 Tipo Entrega:", tipoEntrega);
-    console.log("📍 Zona:", zona);
-    console.log("🏠 Dirección:", direccion);
-    console.log("📄 Referencias:", referencias);
-    console.log("💳 Tipo de pago:", tipoPago);
-    console.log("💰 Total:", totalGeneral);
-    console.log("🙋‍♂️ Nombre:", nombre);
-    console.log("📞 Teléfono:", telefono);
-  }, [cart, tipoEntrega, zona, direccion, referencias, tipoPago, totalGeneral, nombre, telefono]);
+  const payload = {
+    items: cart.map((item) => ({
+      productId: item.product.id,
+      productName: item.product.productName,
+      quantity: item.quantity,
+      unitPrice: item.product.price,
+      subtotal: item.quantity * item.product.price,
+      img: item.product.img?.[0]?.url || "",
+      slug: item.product.slug,
+      unidadMedida: item.product.unidadMedida,
+    })),
+    total: totalGeneral,
+    estado: "Pendiente",
+    zona,
+    direccion,
+    referencias,
+    telefono,
+    nombre,
+    tipoEntrega: "local",
+    tipoPago: "efectivo",
+  };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  try {
+    const res = await fetch("/api/crear-pedido", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const data = await res.json();
+    console.log("✅ Pedido creado con éxito:", data);
+
+    if (!res.ok) {
+      throw new Error(data.error || "Error al crear el pedido");
+    }
+
     clearCart();
-    router.push("/perfil");
+    router.push("/checkout/success");
+  } catch (error) {
+    console.error("❌ Error creando pedido de retiro en local:", error);
+    setError("Ocurrió un error al confirmar el pedido. Intentalo de nuevo.");
+  }
+};
+
+
+
+  const camposCompletos =
+    nombre && telefono && zona && direccion && tipoPago && !nombreError && !telefonoError;
+
+  const validarNombre = (value: string) => {
+    const valido = /^[^\d]*$/.test(value);
+    setNombreError(!valido);
+    setNombre(value);
+  };
+
+  const validarTelefono = (value: string) => {
+    const valido = /^[0-9]+$/.test(value);
+    setTelefonoError(!valido);
+    setTelefono(value);
   };
 
   if (cart.length === 0) {
@@ -101,13 +151,34 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#FBE6D4] py-12 px-4 md:px-16 space-y-10">
+    <div className="min-h-screen bg-[#FBE6D4] py-12 px-4 md:px-16 space-y-10 relative">
+      {showToast && (
+        <div className="fixed inset-0 z-50 flex justify-center items-center backdrop-blur-sm bg-black/10">
+          <div className="bg-white text-center p-6 rounded-xl shadow-xl space-y-4 z-50">
+            <h2 className="text-lg font-semibold text-[#5A3E1B]">¿Querés confirmar tu pedido para retirar en el local?</h2>
+            <div className="flex justify-center gap-4">
+              <button
+                onClick={handleConfirmRetiro}
+                className="bg-[#2ecc71] text-white px-4 py-2 rounded-md"
+              >
+                Confirmar
+              </button>
+              <button
+                onClick={() => setShowToast(false)}
+                className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md"
+              >
+                Seguir comprando
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <h1 className="text-4xl font-garamond text-[#5A3E1B] text-center mb-4">
         Confirmá tu pedido 🍝
       </h1>
 
       <div className="grid gap-10 md:grid-cols-2 lg:grid-cols-[1.4fr,1fr]">
-        {/* Columna izquierda */}
         <div className="space-y-6">
           <CheckoutProductsList />
           <CheckoutResumen
@@ -118,15 +189,10 @@ export default function CheckoutPage() {
           />
         </div>
 
-        {/* Columna derecha */}
-        <form
-          onSubmit={handleSubmit}
-          className="bg-[#FFF8EB] rounded-2xl border border-[#E0E0E0] shadow-lg p-6 space-y-6"
-        >
+        <div className="bg-[#FFF8EB] rounded-2xl border border-[#E0E0E0] shadow-lg p-6 space-y-6">
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-[#8B4513]">Tus datos</h2>
 
-            {/* Nombre */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-[#5A3E1B] flex items-center gap-1">
                 <User size={16} /> Nombre y Apellido
@@ -135,12 +201,12 @@ export default function CheckoutPage() {
                 type="text"
                 required
                 value={nombre}
-                onChange={(e) => setNombre(e.target.value)}
+                onChange={(e) => validarNombre(e.target.value)}
                 className="w-full border px-4 py-2 rounded-md text-sm bg-white"
               />
+              {nombreError && <p className="text-red-600 text-sm">No se permiten números en el nombre</p>}
             </div>
 
-            {/* Teléfono */}
             <div className="flex flex-col gap-2">
               <label className="text-sm font-medium text-[#5A3E1B] flex items-center gap-1">
                 <Phone size={16} /> Teléfono
@@ -149,15 +215,13 @@ export default function CheckoutPage() {
                 type="tel"
                 required
                 value={telefono}
-                onChange={(e) => setTelefono(e.target.value)}
+                onChange={(e) => validarTelefono(e.target.value)}
                 className="w-full border px-4 py-2 rounded-md text-sm bg-white"
               />
+              {telefonoError && <p className="text-red-600 text-sm">Solo se permiten números sin espacios</p>}
             </div>
 
-            <CheckoutDeliverySelector
-              tipoEntrega={tipoEntrega}
-              setTipoEntrega={setTipoEntrega}
-            />
+            <CheckoutDeliverySelector tipoEntrega={tipoEntrega} setTipoEntrega={setTipoEntrega} />
 
             {tipoEntrega === "domicilio" ? (
               <CheckoutDeliveryMap
@@ -182,22 +246,39 @@ export default function CheckoutPage() {
             )}
 
             {tipoEntrega === "domicilio" && (
-              <>
-                <CheckoutPaymentMethod
-                  metodoPago={tipoPago}
-                  setMetodoPago={setTipoPago}
-                />
-                <MercadoPagoButton
-                  total={tipoPago === "efectivo" ? Math.round(totalGeneral * 0.1) : totalGeneral}
-                />
-              </>
+              <CheckoutPaymentMethod metodoPago={tipoPago} setMetodoPago={setTipoPago} />
+            )}
+
+            {error && <p className="text-red-600 text-sm">{error}</p>}
+
+            {tipoEntrega === "domicilio" ? (
+              camposCompletos ? (
+                <MercadoPagoButton total={tipoPago === "efectivo" ? Math.round(totalGeneral * 0.1) : totalGeneral} />
+              ) : (
+                <button
+                  type="button"
+                  className="mt-4 bg-[#2ecc71] text-white w-full py-2 rounded-md opacity-70 cursor-not-allowed"
+                  onClick={() => setError("Completá todos los campos correctamente para continuar con el pago")}
+                >
+                  Ir a pagar
+                </button>
+              )
+            ) : (
+              <button
+                onClick={() => {
+                  if (!nombre || !telefono || nombreError || telefonoError) {
+                    setError("Completá correctamente todos los campos para continuar");
+                  } else {
+                    setShowToast(true);
+                  }
+                }}
+                className="w-full bg-[#FFD966] text-[#5A3E1B] hover:bg-[#f5c741] px-4 py-2 rounded-md"
+              >
+                Confirmar pedido
+              </button>
             )}
           </div>
-
-          {tipoEntrega === "local" && (
-            <CheckoutSubmitButton label="Confirmar pedido" />
-          )}
-        </form>
+        </div>
       </div>
     </div>
   );

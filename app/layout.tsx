@@ -6,6 +6,7 @@ import Footer from "@/components/layout/footer";
 import UserSessionLoader from "@/components/providers/UserSessionLoader";
 import WhatsAppButton from "@/components/ui/WhatsAppButton"
 import CartFloatButton from "@/components/ui/CartFloatButton"
+import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
   title: "Tio pelotte",
@@ -23,6 +24,7 @@ export default function RootLayout({
         <UserSessionLoader></UserSessionLoader>
           <Navbar />
           {children}
+          <Toaster position="top-center" richColors closeButton />
           <Footer />
           <CartFloatButton/>
           <WhatsAppButton/>

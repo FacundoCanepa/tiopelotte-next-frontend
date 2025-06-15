@@ -10,8 +10,8 @@ const mp = new MercadoPagoConfig({
 export async function POST(req: Request) {
   try {
     const {
-      items,          // array de productos [{ title, quantity, unit_price }]
-      cart,           // carrito completo
+      items,          // [{ title, quantity, unit_price }]
+      cart,           // carrito completo (por si se necesita)
       tipoEntrega,
       zona,
       direccion,
@@ -23,7 +23,7 @@ export async function POST(req: Request) {
       userId,
     } = await req.json();
 
-    // 📋 Mostrar datos recibidos
+    // 📋 Logs para debug
     console.log("🔹 items recibidos:", items);
     console.log("📦 tipoEntrega:", tipoEntrega);
     console.log("📍 zona:", zona);
@@ -35,20 +35,23 @@ export async function POST(req: Request) {
     console.log("📞 telefono:", telefono);
     console.log("🧑‍💻 userId:", userId);
 
-    // ⚙ Procesar los precios si es efectivo
-    const itemsProcesados = items.map((item: any) => ({
-      ...item,
-      unit_price:
-        tipoPago === "efectivo"
-          ? Math.round(item.unit_price * 0.1)
-          : item.unit_price,
-    }));
+    // ✅ Procesar cada item (1 por línea, sin quantity decimal)
+    const itemsProcesados = items.map((item: any) => {
+      const precio = tipoPago === "efectivo"
+        ? Math.round(item.unit_price * 0.1)
+        : item.unit_price;
+
+      return {
+        title: item.title,  // Ej: "1 x Ravioles Mixtos"
+        quantity: 1,
+        unit_price: precio,
+      };
+    });
 
     console.log("📦 itemsProcesados para MP:", itemsProcesados);
 
-    // 🧠 Armar metadata
     const metadata = {
-      cart: items, // solo items necesarios, no todo el objeto cart
+      cart: items,
       tipoEntrega,
       zona,
       direccion,
@@ -62,7 +65,6 @@ export async function POST(req: Request) {
 
     console.log("📩 Metadata enviada:", metadata);
 
-    // 🧾 Crear preferencia
     const { id, init_point } = await new Preference(mp).create({
       body: {
         items: itemsProcesados,
@@ -74,6 +76,7 @@ export async function POST(req: Request) {
         notification_url: "https://8cg4tq4t-3000.brs.devtunnels.ms/api/mercadopago/webhook",
         auto_return: "approved",
         metadata,
+        statement_descriptor: "TIO PELOTTE", 
       },
     });
 
