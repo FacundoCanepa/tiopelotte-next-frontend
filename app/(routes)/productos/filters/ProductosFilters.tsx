@@ -1,6 +1,6 @@
 "use client"
 
-import { useGetCategory } from "@/components/hook/useGetCategory"
+import { useGetCategory } from "@/components/hooks/useGetCategory"
 import { Search, DollarSign, Flame, Scale, ArrowUpDown } from "lucide-react"
 
 interface Props {

@@ -1,7 +1,7 @@
 "use client";
 
 import SkeletonCategory from "../../ui/SkeletonCategory"; 
-import { useGetCategory } from "@/components/hook/useGetCategory";
+import { useGetCategory } from "@/components/hooks/useGetCategory";
 import { ResponseType } from "@/types/response";
 import { useState } from "react";
 import { useRouter } from "next/navigation";

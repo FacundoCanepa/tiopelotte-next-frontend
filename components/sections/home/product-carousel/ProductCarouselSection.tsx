@@ -1,7 +1,8 @@
 "use client";
 
 import AnimatedSection from "@/components/ui/AnimatedWrapper";
-import ProductCarousel from "@/components/ui/ProductCarousel";
+import dynamic from "next/dynamic";
+const ProductCarousel = dynamic(() => import("@/components/ui/ProductCarousel"));
 import SkeletonCarousel from "@/components/ui/skeletonSchema";
 import { useRouter } from "next/navigation";
 import type { ProductType } from "@/types/product";

@@ -3,9 +3,8 @@ import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import { islandMoments, ebGaramond } from "@/lib/fonts/fonts";
 import Footer from "@/components/layout/footer";
-import UserSessionLoader from "@/components/providers/UserSessionLoader";
-import WhatsAppButton from "@/components/ui/WhatsAppButton"
-import CartFloatButton from "@/components/ui/CartFloatButton"
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import CartFloatButton from "@/components/ui/CartFloatButton";
 import { Toaster } from "sonner";
 
 export const metadata: Metadata = {
@@ -20,9 +19,8 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <body className={`${islandMoments.variable} ${ebGaramond.variable} antialiased`}>
-        <UserSessionLoader></UserSessionLoader>
-          <Navbar />
+        <body className={`${islandMoments.variable} ${ebGaramond.variable} antialiased`}>
+            <Navbar />
           {children}
           <Toaster position="top-center" richColors closeButton />
           <Footer />

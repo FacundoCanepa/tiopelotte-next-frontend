@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { Menu, X, ShoppingCart, UserRound } from "lucide-react";
-import { useToggleMenu } from "../hook/useMenuToggle";
+import { useToggleMenu } from "../hooks/useMenuToggle";
 import MenuList from "./menuList";
 import { useUserStore } from "@/store/user-store";
 import { useCartStore } from "@/store/cart-store";
@@ -13,16 +13,13 @@ export default function Navbar() {
 
   const user = useUserStore((state) => state.user);
   const cart = useCartStore((state) => state.cart);
-  const itemCount = cart.length; // igual que en CartFloatButton
-
+  const itemCount = cart.length; 
   return (
     <header className="sticky top-0 left-0 w-full flex items-center justify-between py-3 md:py-0 md:px-5 shadow-md z-50 navbar-secondary bg-white/90 backdrop-blur-sm">
-      {/* Logo */}
       <div className="hidden md:flex size-[6vw]">
         <img src="/favicon.ico" alt="Tio Pelotte Icon" />
       </div>
 
-      {/* Título */}
       <div className="flex flex-col items-start space-y-2">
         <span
           className="text-[9vw] md:text-[2.8vw] md:tracking-widest md:font-semibold font-island cursor-pointer"
@@ -32,9 +29,7 @@ export default function Navbar() {
         </span>
       </div>
 
-      {/* Íconos a la derecha */}
       <div className="flex items-center space-x-4 md:space-x-8">
-        {/* Menú hamburguesa */}
         <button onClick={toggleMenu} className="cursor-pointer">
           {isOpen ? (
             <X className="w-[7vw] h-[7vw] md:w-[2vw] md:h-[2vw]" />
@@ -43,7 +38,6 @@ export default function Navbar() {
           )}
         </button>
 
-        {/* Carrito */}
         <div
           className="relative cursor-pointer"
           onClick={() => router.push("/cart")}
@@ -56,7 +50,6 @@ export default function Navbar() {
           )}
         </div>
 
-        {/* Usuario */}
         {user ? (
           <div
             onClick={() => router.push("/perfil")}
@@ -79,7 +72,6 @@ export default function Navbar() {
         )}
       </div>
 
-      {/* Menú desplegable */}
       <MenuList isOpen={isOpen} closeMenu={closeMenu} />
     </header>
   );

@@ -1,5 +1,3 @@
-// app/api/mercadopago/route.ts
-
 import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
 
@@ -10,8 +8,8 @@ const mp = new MercadoPagoConfig({
 export async function POST(req: Request) {
   try {
     const {
-      items,          // [{ title, quantity, unit_price }]
-      cart,           // carrito completo (por si se necesita)
+      items,        
+      cart,           
       tipoEntrega,
       zona,
       direccion,
@@ -23,32 +21,18 @@ export async function POST(req: Request) {
       userId,
     } = await req.json();
 
-    // 📋 Logs para debug
-    console.log("🔹 items recibidos:", items);
-    console.log("📦 tipoEntrega:", tipoEntrega);
-    console.log("📍 zona:", zona);
-    console.log("🏠 direccion:", direccion);
-    console.log("📄 referencias:", referencias);
-    console.log("💳 tipoPago:", tipoPago);
-    console.log("💰 total:", total);
-    console.log("🙋‍♂️ nombre:", nombre);
-    console.log("📞 telefono:", telefono);
-    console.log("🧑‍💻 userId:", userId);
-
-    // ✅ Procesar cada item (1 por línea, sin quantity decimal)
     const itemsProcesados = items.map((item: any) => {
       const precio = tipoPago === "efectivo"
         ? Math.round(item.unit_price * 0.1)
         : item.unit_price;
 
       return {
-        title: item.title,  // Ej: "1 x Ravioles Mixtos"
+        title: item.title,  
         quantity: 1,
         unit_price: precio,
       };
     });
 
-    console.log("📦 itemsProcesados para MP:", itemsProcesados);
 
     const metadata = {
       cart: items,
@@ -62,8 +46,6 @@ export async function POST(req: Request) {
       telefono,
       userId,
     };
-
-    console.log("📩 Metadata enviada:", metadata);
 
     const { id, init_point } = await new Preference(mp).create({
       body: {
@@ -79,10 +61,6 @@ export async function POST(req: Request) {
         statement_descriptor: "TIO PELOTTE", 
       },
     });
-
-    console.log("✅ Preferencia creada:");
-    console.log("🆔 ID:", id);
-    console.log("🔗 Init Point:", init_point);
 
     return NextResponse.json({ url: init_point });
   } catch (error) {

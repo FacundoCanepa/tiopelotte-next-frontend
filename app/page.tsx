@@ -1,8 +1,8 @@
 "use client";
 
-import { useGetFeaturedProducts } from "@/components/hook/useGetFeaturedProducts";
-import { useGetOfferProducts } from "@/components/hook/useGetOfertProducts";
-import { useGetDessertProducts } from "@/components/hook/useGetDessertProducts";
+import { useGetFeaturedProducts } from "@/components/hooks/useGetFeaturedProducts";
+import { useGetOfferProducts } from "@/components/hooks/useGetOfertProducts";
+import { useGetDessertProducts } from "@/components/hooks/useGetDessertProducts";
 
 import CaroseText from "@/components/sections/shared/caroseText";
 import ProductCarouselSection from "@/components/sections/home/product-carousel/ProductCarouselSection";

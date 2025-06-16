@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { useGetRecipes } from "@/components/hook/useGetRecipes";
+import { useGetRecipes } from "@/components/hooks/useGetRecipes";
 import Button from "@/components/ui/Button";
 import Link from "next/link";
 import { Loader } from "lucide-react";

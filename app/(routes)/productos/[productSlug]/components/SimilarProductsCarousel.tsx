@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetSimilarProducts } from "@/components/hook/useSimilarProducts";
+import { useGetSimilarProducts } from "@/components/hooks/useSimilarProducts";
 import { ProductType } from "@/types/product";
 import SimilarProductCarouselWrapper from "./SimilarProductCarouselWrapper";
 import { Sparkles, ChevronLeft, ChevronRight } from "lucide-react";

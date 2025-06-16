@@ -1,6 +1,6 @@
 "use client";
 
-import { useFilteredProducts } from "@/components/hook/useFilteredProducts";
+import { useFilteredProducts } from "@/components/hooks/useFilteredProducts";
 import AnimatedSection from "@/components/ui/AnimatedWrapper";
 import ProductGridCard from "./ProductGridCard";
 import ProductosFilters from "../filters/ProductosFilters";

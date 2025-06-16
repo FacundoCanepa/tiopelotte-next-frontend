@@ -1,11 +1,9 @@
 import { NextResponse } from "next/server";
-import { addPedido } from "@/components/hook/addPedidos";
+import { addPedido } from "@/components/hooks/addPedidos";
 
 export async function POST(req: Request) {
   try {
     const body = await req.json();
-
-    console.log("📥 Body recibido en /api/crear-pedido:", body);
 
     const data = await addPedido(body);
 

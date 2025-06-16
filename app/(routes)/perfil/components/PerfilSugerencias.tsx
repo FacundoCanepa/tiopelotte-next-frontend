@@ -1,6 +1,6 @@
 "use client";
 
-import { useGetOfferProducts } from "@/components/hook/useGetOfertProducts";
+import { useGetOfferProducts } from "@/components/hooks/useGetOfertProducts";
 import ProductCarouselSection from "@/components/sections/home/product-carousel/ProductCarouselSection";
 import { useUserStore } from "@/store/user-store";
 
@@ -26,4 +26,3 @@ export default function PerfilSugerencias() {
       </p>
     </div>
   );
-}

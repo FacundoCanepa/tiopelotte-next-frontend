@@ -5,8 +5,6 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { payment_id } = body;
 
-    console.log("📥 Recibido en verificar-pago:", body);
-
     if (!payment_id) {
       return NextResponse.json(
         { error: "payment_id requerido" },
@@ -14,7 +12,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Paso 1: Consultar Mercado Pago
     const resPago = await fetch(
       `https://api.mercadopago.com/v1/payments/${payment_id}`,
       {
@@ -26,16 +23,13 @@ export async function POST(req: NextRequest) {
     );
 
     const dataPago = await resPago.json();
-    console.log("✅ Respuesta de Mercado Pago:", dataPago);
 
     if (dataPago.status !== "approved") {
-      console.warn("❌ Pago no aprobado");
       return NextResponse.json({ error: "Pago no aprobado" }, { status: 400 });
     }
 
     const metadata = dataPago.metadata;
 
-    // Paso 2: Verificar si ya existe
     const yaExiste = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos?filters[payment_id][$eq]=${payment_id}`,
       {
@@ -46,12 +40,11 @@ export async function POST(req: NextRequest) {
     );
 
     const existeData = await yaExiste.json();
-    console.log("🔎 Pedido existente:", existeData);
+
     if (existeData?.data?.length > 0) {
       return NextResponse.json({ status: "ok", message: "Pedido ya creado" });
     }
 
-    // Paso 3: Crear pedido en Strapi utilizando la metadata del pago
     const payload = {
       data: {
         items: metadata.cart,
@@ -69,8 +62,6 @@ export async function POST(req: NextRequest) {
       },
     };
 
-    console.log("📦 Payload a enviar a Strapi:", payload);
-
     const crear = await fetch(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos`,
       {
@@ -84,11 +75,9 @@ export async function POST(req: NextRequest) {
     );
 
     const result = await crear.json();
-    console.log("✅ Pedido creado:", result);
 
     return NextResponse.json({ status: "ok", pedidoId: result?.data?.id });
   } catch (err) {
-    console.error("❌ Error en verificar-pago:", err);
     return NextResponse.json({ error: "Error interno" }, { status: 500 });
   }
 }

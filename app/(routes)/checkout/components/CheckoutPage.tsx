@@ -10,12 +10,11 @@ import CheckoutProductsList from "./CheckoutProductsList";
 import CheckoutResumen from "./CheckoutResumen";
 import CheckoutDeliverySelector from "./CheckoutDeliverySelector";
 import CheckoutForm from "./CheckoutForm";
-import CheckoutSubmitButton from "./CheckoutSubmitButton";
-import CheckoutDeliveryMap from "./CheckoutDeliveryMap";
+import dynamic from "next/dynamic";
+const CheckoutDeliveryMap = dynamic(() => import("./CheckoutDeliveryMap"), { ssr: false });
 import CheckoutPaymentMethod from "./CheckoutPaymentMethod";
 import MercadoPagoButton from "./MercadoPagoButton";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
-import { enviarPedido } from "@/components/hook/sendPedido";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -40,8 +39,8 @@ export default function CheckoutPage() {
 
   const setTotal = useCartStore((state) => state.setTotal);
 
-  const nombre = useCartStore((state) => state.nombre);
   const setNombre = useCartStore((state) => state.setNombre);
+  const nombre = useCartStore((state) => state.nombre);
 
   const telefono = useCartStore((state) => state.telefono);
   const setTelefono = useCartStore((state) => state.setTelefono);

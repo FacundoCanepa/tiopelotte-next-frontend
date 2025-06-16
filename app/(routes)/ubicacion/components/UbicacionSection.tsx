@@ -13,7 +13,8 @@ import {
   ShoppingCart,
 } from "lucide-react";
 import SectionHeader from "@/components/ui/SectionHeader";
-import DeliveryMap from "./DeliveryMap";
+import dynamic from "next/dynamic";
+const DeliveryMap = dynamic(() => import("./DeliveryMap"), { ssr: false });
 
 const floatAnimation = {
   animate: { y: [0, -10, 0] },

@@ -1,7 +1,7 @@
 "use client";
 
 import { useParams } from "next/navigation";
-import { useGetProductBySlug } from "@/components/hook/useGetProductBySlug";
+import { useGetProductBySlug } from "@/components/hooks/useGetProductBySlug";
 import ProductDetail from "./components/ProductDetail";
 
 export default function Page() {

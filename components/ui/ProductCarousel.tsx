@@ -4,7 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import type { ProductType } from "@/types/product";
-import FeaturedProductCard from "../carosel/FeaturedProductCard";
+import FeaturedProductCard from "../carousel/FeaturedProductCard";
 
 interface Props {
   products: ProductType[];
