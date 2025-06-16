@@ -42,7 +42,8 @@ export async function enviarPedido({
       direccion,
       referencias,
       telefono: telefono?.trim() || "sin teléfono",
-      nombreApellido: nombreApellido || "Cliente sin cuenta",
+      nombre: nombreApellido || "Cliente sin cuenta",
+
     },
   };
 

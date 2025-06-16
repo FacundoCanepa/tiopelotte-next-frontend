@@ -104,7 +104,6 @@ const handleConfirmRetiro = async () => {
     });
 
     const data = await res.json();
-    console.log("✅ Pedido creado con éxito:", data);
 
     if (!res.ok) {
       throw new Error(data.error || "Error al crear el pedido");
