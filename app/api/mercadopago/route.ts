@@ -7,56 +7,64 @@ const mp = new MercadoPagoConfig({
 
 export async function POST(req: Request) {
   try {
-    const { items, pedidoToken, tipoPago } = await req.json();
+    const {
+      items,        
+      cart,           
+      tipoEntrega,
+      zona,
+      direccion,
+      referencias,
+      tipoPago,
+      total,
+      nombre,
+      telefono,
+      userId,
+    } = await req.json();
 
-    console.log("📥 Body recibido:", { items, pedidoToken, tipoPago });
-
-    if (!items || !pedidoToken) {
-      console.warn("⚠️ Faltan datos requeridos: items o pedidoToken");
-      return new NextResponse("Faltan datos", { status: 400 });
-    }
-
-    const mpItems = items.map((item: any, index: number) => {
+    const itemsProcesados = items.map((item: any) => {
       const precio = tipoPago === "efectivo"
         ? Math.round(item.unit_price * 0.1)
         : item.unit_price;
 
-      console.log(`🧾 Item ${index + 1}:`, {
-        title: item.title,
-        quantity: item.quantity,
-        unit_price: precio,
-      });
-
       return {
-        title: item.title,
-        quantity: item.quantity,
+        title: item.title,  
+        quantity: 1,
         unit_price: precio,
       };
     });
 
-    console.log("✅ Items finales para MP:", mpItems);
 
-    const preference = await new Preference(mp).create({
+    const metadata = {
+      cart: items,
+      tipoEntrega,
+      zona,
+      direccion,
+      referencias,
+      tipoPago,
+      total,
+      nombre,
+      telefono,
+      userId,
+    };
+
+    const { id, init_point } = await new Preference(mp).create({
       body: {
-        items: mpItems,
-        metadata: {
-          pedidoToken,
-        },
+        items: itemsProcesados,
         back_urls: {
-          success: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/checkout/success`,
-          failure: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/checkout/failure`,
-          pending: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/checkout/pending`,
+          success: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/success",
+          failure: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/failure",
+          pending: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/pending",
         },
-        notification_url: `${process.env.NEXT_PUBLIC_FRONTEND_URL}/api/mercadopago/webhook`,
+        notification_url: "https://8cg4tq4t-3000.brs.devtunnels.ms/api/mercadopago/webhook",
         auto_return: "approved",
-        statement_descriptor: "TIO PELOTTE",
+        metadata,
+        statement_descriptor: "TIO PELOTTE", 
       },
     });
 
-    console.log("🔗 Preferencia creada:", preference.body.init_point);
-    return NextResponse.json({ url: preference.body.init_point });
-  } catch (error: any) {
-    console.error("❌ Error al crear preferencia:", error?.message || error);
+    return NextResponse.json({ url: init_point });
+  } catch (error) {
+    console.error("❌ Error al crear preferencia:", error);
     return new NextResponse("Error interno al crear preferencia", { status: 500 });
   }
 }
