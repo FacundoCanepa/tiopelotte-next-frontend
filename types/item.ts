@@ -1,9 +1,6 @@
 export type ItemType = {
-  img: string;
-  slug: string;
+  title: string;
   quantity: number;
-  productId: number;
-  unitPrice: number;
-  productName: string;
-  unidadMedida: string;
+  unit_price: number;
+  productName?: string;
 };

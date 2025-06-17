@@ -9,7 +9,6 @@ import type { ProductType } from "@/types/product";
 import Button from "@/components/ui/Button";
 
 interface ProductState {
-  
   loading: boolean;
   result: ProductType[] | null;
   error: string;
@@ -40,7 +39,9 @@ const ProductCarouselSection = ({
           <h3 className="font-garamond text-3xl md:text-5xl italic tracking-wide">
             {title}
           </h3>
-          <p className="text-stone-600 italic font-garamond text-lg mt-1">{subtitle}</p>
+          <p className="text-stone-600 italic font-garamond text-lg mt-1">
+            {subtitle}
+          </p>
           {buttonText && buttonHref && (
             <Button className="mt-4" onClick={() => router.push(buttonHref)}>
               {buttonText}
@@ -49,12 +50,12 @@ const ProductCarouselSection = ({
         </div>
 
         <div className="mt-4">
-          {loading ? (
-            <SkeletonCarousel count={4} />
-          ) : result ? (
+          {loading && <SkeletonCarousel count={4} />}
+          {!loading && error && (
+            <p className="text-center text-stone-500">{error}</p>
+          )}
+          {!loading && !error && result && (
             <ProductCarousel products={result} />
-          ) : (
-            <p className="text-center text-stone-500">{error || "Error al cargar productos."}</p>
           )}
         </div>
       </div>

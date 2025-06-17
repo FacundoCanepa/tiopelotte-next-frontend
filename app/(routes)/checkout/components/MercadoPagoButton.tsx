@@ -3,6 +3,7 @@
 import { useCartStore } from "@/store/cart-store";
 import { useUserStore } from "@/store/user-store";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
+import type { ItemType } from "@/types/item";
 
 interface Props {
   total: number;
@@ -16,29 +17,29 @@ export default function MercadoPagoButton({ total }: Props) {
       const cartStore = useCartStore.getState();
       const userId = useUserStore.getState().user?.id;
 
-      // ✅ Formateamos los productos para que se vean bien en MP
-      const items = cartStore.cart.map((item) => ({
+      const items: ItemType[] = cartStore.cart.map((item) => ({
         title: `${item.quantity} x ${item.product.productName}`,
         quantity: 1,
         unit_price: Math.round(item.quantity * item.product.price),
+        productName: item.product.productName,
       }));
 
-      // ✅ Agregamos el envío si corresponde
+
       if (cartStore.tipoEntrega === "domicilio" && cartStore.zona) {
         const zonaSeleccionada = zonas.find((z) => z.nombre === cartStore.zona);
         if (zonaSeleccionada) {
           const costoEnvio = parseInt(zonaSeleccionada.precio.replace(/[$.]/g, ""));
           items.push({
             title: "Envío a domicilio",
-            quantity: 1,
+            quantity: 1 ,
             unit_price: costoEnvio,
+            productName: undefined ,
           });
         }
       }
 
       const body = {
         items,
-        cart: cartStore.cart,
         tipoEntrega: cartStore.tipoEntrega,
         zona: cartStore.zona,
         direccion: cartStore.direccion,

@@ -2,6 +2,8 @@
 
 import { usePedidoContext } from "./PedidoProvider";
 import Image from "next/image";
+import { useGetProductByName } from "@/components/hooks/useGetProductByName";
+import SkeletonConsultarPedido from "@/components/ui/SkeletonConsultarPedido";
 
 function EstadoBadge({ estado }: { estado: string }) {
   const color =
@@ -37,21 +39,38 @@ function PedidoInfoCard({ pedido }: { pedido: any }) {
 }
 
 function ProductoItemCard({ item }: { item: any }) {
+  const productName = item.product_name || item.productName;
+  const { product, loading, error } = useGetProductByName(productName);
+
+  if (loading) return <SkeletonConsultarPedido />;
+
+  if (error) {
+    console.error("❌ Error al buscar producto:", error);
+    return (
+      <div className="text-sm text-red-600 bg-white px-4 py-3 rounded-md shadow">
+        Error al cargar <strong>{productName}</strong>
+      </div>
+    );
+  }
+
+  if (!product) return null;
+
   return (
     <div className="flex items-center gap-4 bg-white rounded-xl px-4 py-3 shadow-sm hover:shadow-md transition">
       <div className="w-20 h-20 relative rounded overflow-hidden">
-        <Image src={item.img} alt={item.product_name} fill className="object-cover" />
+        <Image
+          src={product.img?.[0]?.url || "/placeholder.jpg"}
+          alt={product.productName}
+          fill
+          className="object-cover"
+        />
       </div>
       <div className="flex-1 text-sm">
-        <p className="font-semibold text-[#8B4513] text-base mb-1">{item.product_name}</p>
-        <p className="text-xs text-[#5A3E1B]">
-          {item.quantity} {item.unidad_medida} — ${item.subtotal.toLocaleString("es-AR")}
+        <p className="font-semibold text-[#8B4513] text-base mb-1">{product.productName}</p>
+        <p className="text-xs text-[#5A3E1B]">{product.descriptionCorta}</p>
+        <p className="text-xs text-[#5A3E1B] mt-1">
+          {item.title} — ${item.unit_price.toLocaleString("es-AR")}
         </p>
-        {item.is_offer && (
-          <span className="inline-block mt-1 text-xs font-medium text-[#D16A45] bg-[#FFEDE5] px-2 py-0.5 rounded">
-            Oferta especial 🎉
-          </span>
-        )}
       </div>
     </div>
   );
@@ -77,9 +96,11 @@ export default function PedidoResultado() {
       <div>
         <h3 className="font-semibold text-[#5A3E1B] mb-3">Productos:</h3>
         <div className="space-y-3">
-          {pedido.items.map((item: any, index: number) => (
-            <ProductoItemCard key={index} item={item} />
-          ))}
+          {pedido.items
+            .filter((item: any) => item.product_name || item.productName)
+            .map((item: any, index: number) => (
+              <ProductoItemCard key={index} item={item} />
+            ))}
         </div>
       </div>
     </div>

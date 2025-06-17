@@ -8,8 +8,7 @@ const mp = new MercadoPagoConfig({
 export async function POST(req: Request) {
   try {
     const {
-      items,        
-      cart,           
+      items,
       tipoEntrega,
       zona,
       direccion,
@@ -27,15 +26,15 @@ export async function POST(req: Request) {
         : item.unit_price;
 
       return {
-        title: item.title,  
+        title: item.title,
         quantity: 1,
         unit_price: precio,
+        productName: item.productName,
       };
     });
 
-
     const metadata = {
-      cart: items,
+      cart: itemsProcesados,
       tipoEntrega,
       zona,
       direccion,
@@ -58,13 +57,13 @@ export async function POST(req: Request) {
         notification_url: "https://8cg4tq4t-3000.brs.devtunnels.ms/api/mercadopago/webhook",
         auto_return: "approved",
         metadata,
-        statement_descriptor: "TIO PELOTTE", 
+        statement_descriptor: "TIO PELOTTE",
       },
     });
 
-    return NextResponse.json({ url: init_point });
+    return NextResponse.json({ id, url: init_point });
   } catch (error) {
     console.error("❌ Error al crear preferencia:", error);
-    return new NextResponse("Error interno al crear preferencia", { status: 500 });
+    return NextResponse.json({ error: "Error al crear preferencia" }, { status: 500 });
   }
 }

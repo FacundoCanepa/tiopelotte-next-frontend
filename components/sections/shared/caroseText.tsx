@@ -1,13 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import {
-  Carousel,
-  CarouselContent,
-  CarouselItem,
-} from "@/components/ui/carousel";
-import { Card, CardContent } from "@/components/ui/card";
+import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
+import { useRef } from "react";
+import { useRouter } from "next/navigation";
 import Button from "@/components/ui/Button";
 import { motion } from "framer-motion";
 
@@ -50,6 +46,15 @@ export const datacaroseltop = [
 
 const CaroseText = () => {
   const router = useRouter();
+  const autoplay = useRef(Autoplay({ delay: 4000, stopOnInteraction: false }));
+  const [emblaRef] = useEmblaCarousel(
+    {
+      loop: true,
+      align: "start",
+      dragFree: false,
+    },
+    [autoplay.current]
+  );
 
   return (
     <div
@@ -57,22 +62,18 @@ const CaroseText = () => {
       aria-label="Carrusel de bienvenida"
       className="w-full max-w-[100vw] mx-auto"
     >
-      <Carousel
-        plugins={[Autoplay({ delay: 3000 })]}
-        className="pointer-events-auto"
-      >
-        <CarouselContent>
+      <div className="overflow-hidden" ref={emblaRef}>
+        <div className="flex">
           {datacaroseltop.map(({ id, title, description, href, img, buttonLabel }) => (
-            <CarouselItem key={id} className="cursor-default">
-              <Card
-                className="h-[20vh] md:h-[25vh] bg-cover bg-center rounded-none border-none shadow-none relative"
+            <div key={id} className="shrink-0 w-full">
+              <div
+                className="h-[20vh] md:h-[25vh] bg-cover bg-center relative"
                 style={{
                   backgroundImage: `url(${process.env.NEXT_PUBLIC_MEDIA_URL}${img})`,
                 }}
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-0" />
-
-                <CardContent className="relative z-10 h-full w-full flex flex-col items-center justify-end text-center px-4 pt-8 pb-6 text-white">
+                <div className="relative z-10 h-full w-full flex flex-col items-center justify-end text-center px-4 pt-8 pb-6 text-white">
                   <motion.h2
                     className="text-xl md:text-4xl font-garamond italic tracking-wide mb-1"
                     initial={{ opacity: 0, y: 10 }}
@@ -101,12 +102,12 @@ const CaroseText = () => {
                       {buttonLabel}
                     </Button>
                   </motion.div>
-                </CardContent>
-              </Card>
-            </CarouselItem>
+                </div>
+              </div>
+            </div>
           ))}
-        </CarouselContent>
-      </Carousel>
+        </div>
+      </div>
     </div>
   );
 };
