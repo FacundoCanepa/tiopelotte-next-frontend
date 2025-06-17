@@ -7,6 +7,7 @@ import {
   ShoppingBag,
   Percent,
   ScrollText,
+  Logs,
 } from "lucide-react";
 
 interface MenuListProps {
@@ -20,6 +21,7 @@ const links = [
   { text: "Ubicación", href: "/ubicacion", icon: MapPin },
   { text: "Recetas", href: "/recetas", icon: Percent },
   { text: "Nuestra historia", href: "/historia", icon: ScrollText },
+  { text: "Consultar pedido", href: "/consultarPedido", icon: Logs },
 ];
 
 const menuVariants = {

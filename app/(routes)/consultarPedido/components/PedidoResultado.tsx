@@ -1,10 +1,63 @@
 "use client";
-import { usePedidoContext } from "./PedidoProvider";
 
+import { usePedidoContext } from "./PedidoProvider";
 import Image from "next/image";
 
-export default function PedidoResultado() {
+function EstadoBadge({ estado }: { estado: string }) {
+  const color =
+    estado === "Pendiente"
+      ? "bg-[#FFD966] text-[#5A3E1B]"
+      : estado === "En camino"
+      ? "bg-[#6B8E23] text-white"
+      : estado === "Entregado"
+      ? "bg-green-600 text-white"
+      : estado === "Cancelado"
+      ? "bg-red-600 text-white"
+      : "bg-gray-400 text-white";
 
+  return (
+    <span className={`inline-block text-sm font-semibold px-3 py-1 rounded-full ${color}`}>
+      {estado}
+    </span>
+  );
+}
+
+function PedidoInfoCard({ pedido }: { pedido: any }) {
+  return (
+    <div className="text-sm text-[#5A3E1B] bg-white rounded-lg p-4 shadow space-y-1">
+      <p><strong>Nombre:</strong> {pedido.nombre}</p>
+      <p><strong>Total:</strong> ${pedido.total.toLocaleString("es-AR")}</p>
+      <p><strong>Entrega:</strong> {pedido.tipoEntrega}</p>
+      <p><strong>Pago:</strong> {pedido.tipoPago}</p>
+      <p><strong>Zona:</strong> {pedido.zona}</p>
+      <p><strong>Dirección:</strong> {pedido.direccion}</p>
+      <p><strong>Referencias:</strong> {pedido.referencias}</p>
+    </div>
+  );
+}
+
+function ProductoItemCard({ item }: { item: any }) {
+  return (
+    <div className="flex items-center gap-4 bg-white rounded-xl px-4 py-3 shadow-sm hover:shadow-md transition">
+      <div className="w-20 h-20 relative rounded overflow-hidden">
+        <Image src={item.img} alt={item.product_name} fill className="object-cover" />
+      </div>
+      <div className="flex-1 text-sm">
+        <p className="font-semibold text-[#8B4513] text-base mb-1">{item.product_name}</p>
+        <p className="text-xs text-[#5A3E1B]">
+          {item.quantity} {item.unidad_medida} — ${item.subtotal.toLocaleString("es-AR")}
+        </p>
+        {item.is_offer && (
+          <span className="inline-block mt-1 text-xs font-medium text-[#D16A45] bg-[#FFEDE5] px-2 py-0.5 rounded">
+            Oferta especial 🎉
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default function PedidoResultado() {
   const { pedido, error } = usePedidoContext();
 
   if (error)
@@ -12,39 +65,20 @@ export default function PedidoResultado() {
 
   if (!pedido) return null;
 
-  const p = pedido;
-
   return (
-    <div className="mt-6 space-y-4 border-t pt-4">
-      <h2 className="text-lg font-semibold text-[#5A3E1B]">Estado del pedido:</h2>
-      <p className="text-base text-[#5A3E1B]">{p.estado}</p>
-
-      <div className="text-sm text-[#5A3E1B]">
-        <p><strong>Nombre:</strong> {p.nombre}</p>
-        <p><strong>Total:</strong> ${p.total.toLocaleString("es-AR")}</p>
-        <p><strong>Entrega:</strong> {p.tipoEntrega}</p>
-        <p><strong>Pago:</strong> {p.tipoPago}</p>
-        <p><strong>Zona:</strong> {p.zona}</p>
-        <p><strong>Dirección:</strong> {p.direccion}</p>
-        <p><strong>Referencias:</strong> {p.referencias}</p>
-        <p><strong>Fecha:</strong> {new Date(p.createdAt).toLocaleString("es-AR")}</p>
+    <div className="mt-6 space-y-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold text-[#5A3E1B]">Estado del pedido:</h2>
+        <EstadoBadge estado={pedido.estado} />
       </div>
 
-      <div className="mt-4">
-        <h3 className="font-semibold text-[#5A3E1B] mb-2">Productos:</h3>
-        <div className="space-y-2">
-          {p.items.map((item: any, index: number) => (
-            <div key={index} className="flex items-center gap-4 bg-white rounded-md px-3 py-2 shadow">
-              <div className="w-14 h-14 relative">
-                <Image src={item.img} alt={item.productName} fill className="object-cover rounded" />
-              </div>
-              <div className="flex-1 text-sm">
-                <p className="font-medium text-[#8B4513]">{item.productName}</p>
-                <p className="text-xs text-[#5A3E1B]">
-                  {item.quantity} {item.unidadMedida} — ${item.subtotal.toLocaleString("es-AR")}
-                </p>
-              </div>
-            </div>
+      <PedidoInfoCard pedido={pedido} />
+
+      <div>
+        <h3 className="font-semibold text-[#5A3E1B] mb-3">Productos:</h3>
+        <div className="space-y-3">
+          {pedido.items.map((item: any, index: number) => (
+            <ProductoItemCard key={index} item={item} />
           ))}
         </div>
       </div>

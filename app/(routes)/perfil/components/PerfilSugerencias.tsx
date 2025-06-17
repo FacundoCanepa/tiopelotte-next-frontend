@@ -20,9 +20,9 @@ export default function PerfilSugerencias() {
         products={products}
       />
 
-      {/* Mensaje solo en mobile */}
       <p className="md:hidden text-sm text-center text-[#8B4513] mt-2 animate-pulse">
-        👉 Desliza para ver más
+        👉 Deslizá para ver más
       </p>
     </div>
   );
+}

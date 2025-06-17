@@ -22,16 +22,25 @@ export async function enviarPedido({
   console.log("📞 Teléfono recibido:", telefono);
   console.log("🙋‍♂️ Nombre recibido:", nombreApellido);
 
-  const items = cart.map((item) => ({
-    productId: item.product.id,
-    productName: item.product.productName,
-    quantity: item.quantity,
-    unitPrice: item.product.price,
-    subtotal: item.quantity * item.product.price,
-    img: item.product.img?.[0]?.url || "",
+ const items = cart.map((item: any) => {
+  const enrichedItem = {
+    title: item.product.productName,                  
+    quantity: item.quantity,                         
+    unit_price: item.product.price,                   
+
+    product_id: item.product.id,
+    product_name: item.product.productName,
     slug: item.product.slug,
-    unidadMedida: item.product.unidadMedida,
-  }));
+    img: item.product.img?.[0]?.url || "",
+    description: item.product.description,
+    unidad_medida: item.product.unidadMedida,
+    is_offer: item.product.isOffer,
+    subtotal: item.quantity * item.product.price,
+  };
+
+  return enrichedItem;
+});
+
 
   const payload = {
     data: {
@@ -54,7 +63,7 @@ export async function enviarPedido({
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.NEXT_PUBLIC_STRAPI_API_TOKEN}`,
+        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
       },
       body: JSON.stringify(payload),
     });

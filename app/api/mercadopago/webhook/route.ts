@@ -38,7 +38,6 @@ export async function POST(req: NextRequest) {
     const total = metadata.total;
     const nombre = metadata.nombre;
     const telefono = metadata.telefono;
-    const userId = getMeta("userId", "user_id");
 
     const payload = {
       data: {

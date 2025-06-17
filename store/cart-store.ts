@@ -45,7 +45,7 @@ export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
       cart: [],
-      tipoEntrega: null,
+      tipoEntrega: "domicilio",
       zona: "",
       direccion: "",
       referencias: "",

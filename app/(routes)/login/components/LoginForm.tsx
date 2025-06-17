@@ -87,7 +87,17 @@ export default function LoginForm() {
         {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Ingresar"}
       </button>
 
-      <p className="text-sm text-center">
+      <p className="text-sm text-center text-stone-700">
+        ¿Olvidaste tu contraseña?{" "}
+        <span
+          onClick={() => router.push("/reset-password")}
+          className="underline cursor-pointer text-[#8B4513]"
+        >
+          Recuperarla
+        </span>
+      </p>
+
+      <p className="text-sm text-center text-stone-700 mt-2">
         ¿No tenés cuenta?{" "}
         <span
           onClick={() => router.push("/register")}

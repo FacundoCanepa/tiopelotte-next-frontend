@@ -12,8 +12,8 @@ export default function CartFloatButton() {
 
   const itemCount = cart.length;
 
+if (["/cart", "/checkout"].includes(pathname) || itemCount === 0) return null;
 
-  if (pathname === "/cart" || itemCount === 0) return null;
 
   return (
     <motion.button
