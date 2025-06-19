@@ -1,11 +1,12 @@
 "use client";
 
 import { createContext, useContext, useState } from "react";
+import type { PedidoType } from "@/types/pedido";
 
 type PedidoContextType = {
   telefono: string;
   setTelefono: (t: string) => void;
-  pedido: any | null;
+  pedido: PedidoType | null;
   loading: boolean;
   error: string;
   buscarPedido: () => Promise<void>;
@@ -15,7 +16,7 @@ const PedidoContext = createContext<PedidoContextType | undefined>(undefined);
 
 export function PedidoProvider({ children }: { children: React.ReactNode }) {
   const [telefono, setTelefono] = useState("");
-  const [pedido, setPedido] = useState<any | null>(null);
+  const [pedido, setPedido] = useState<PedidoType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 

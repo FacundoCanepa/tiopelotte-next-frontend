@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { MercadoPagoConfig, Preference } from "mercadopago";
+import type { ItemType } from "@/types/item";
 
 const mp = new MercadoPagoConfig({
   accessToken: process.env.MP_ACCESS_TOKEN!,
@@ -20,7 +21,7 @@ export async function POST(req: Request) {
       userId,
     } = await req.json();
 
-    const itemsProcesados = items.map((item: any) => {
+    const itemsProcesados = (items as ItemType[]).map((item) => {
       const precio = tipoPago === "efectivo"
         ? Math.round(item.unit_price * 0.1)
         : item.unit_price;
@@ -46,15 +47,20 @@ export async function POST(req: Request) {
       userId,
     };
 
+    const successUrl = process.env.MP_SUCCESS_URL!;
+    const failureUrl = process.env.MP_FAILURE_URL!;
+    const pendingUrl = process.env.MP_PENDING_URL!;
+    const webhookUrl = process.env.MP_WEBHOOK_URL!;
+
     const { id, init_point } = await new Preference(mp).create({
       body: {
         items: itemsProcesados,
         back_urls: {
-          success: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/success",
-          failure: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/failure",
-          pending: "https://8cg4tq4t-3000.brs.devtunnels.ms/checkout/pending",
+          success: successUrl,
+          failure: failureUrl,
+          pending: pendingUrl,
         },
-        notification_url: "https://8cg4tq4t-3000.brs.devtunnels.ms/api/mercadopago/webhook",
+        notification_url: webhookUrl,
         auto_return: "approved",
         metadata,
         statement_descriptor: "TIO PELOTTE",
@@ -63,7 +69,6 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ id, url: init_point });
   } catch (error) {
-    console.error("❌ Error al crear preferencia:", error);
     return NextResponse.json({ error: "Error al crear preferencia" }, { status: 500 });
   }
 }

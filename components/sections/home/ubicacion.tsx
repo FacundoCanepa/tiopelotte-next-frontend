@@ -3,23 +3,22 @@
 import AnimatedSection from "../../ui/AnimatedWrapper";
 import Button from "../../ui/Button";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const Ubicacion = () => {
   const router = useRouter();
 
   return (
     <AnimatedSection className="relative py-16 overflow-hidden">
-      {/* Imagen de fondo decorativa */}
-      <img
+      <Image
         src={`${process.env.NEXT_PUBLIC_MEDIA_URL}/photo_1723473620176_8d26dc6314cf_803f81fe52.jpg`}
-        className="absolute inset-0 w-full h-full object-cover -z-20"
+        fill
+        className="absolute inset-0 object-cover -z-20"
         alt="Decoración fondo"
       />
 
-      {/* Capa de color encima de la imagen */}
       <div className="absolute inset-0 bg-[#FBE0C2] opacity-50 -z-10" />
 
-      {/* SVG arriba */}
       <div className="absolute top-0 left-0 w-full overflow-hidden leading-[0] z-10">
         <svg
           viewBox="0 0 1440 320"
@@ -34,7 +33,6 @@ const Ubicacion = () => {
         </svg>
       </div>
 
-      {/* Contenido */}
       <section className="py-10 px-4 relative z-10">
         <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-10 items-center text-center md:text-left">
           <div className="md:bg-white/20 md:shadow-md md:p-10 md:rounded-lg md:backdrop-blur-sm">

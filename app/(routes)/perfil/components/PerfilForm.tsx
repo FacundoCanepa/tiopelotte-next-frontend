@@ -44,7 +44,6 @@ export default function PerfilForm({ userId, jwt }: Props) {
           referencias: data.referencias || "",
         });
       } catch (error) {
-        console.error("Error al obtener perfil:", error);
       } finally {
         setLoading(false);
       }

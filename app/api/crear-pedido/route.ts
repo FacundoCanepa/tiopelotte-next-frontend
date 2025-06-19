@@ -8,10 +8,10 @@ export async function POST(req: Request) {
     const data = await addPedido(body);
 
     return NextResponse.json(data, { status: 200 });
-  } catch (error: any) {
-    console.error("❌ Error en /api/crear-pedido:", error);
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Error";
     return NextResponse.json(
-      { error: error.message || "Error interno al crear pedido" },
+      { error: message || "Error interno al crear pedido" },
       { status: 500 }
     );
   }

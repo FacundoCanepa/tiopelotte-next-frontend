@@ -4,6 +4,8 @@ import { usePedidoContext } from "./PedidoProvider";
 import Image from "next/image";
 import { useGetProductByName } from "@/components/hooks/useGetProductByName";
 import SkeletonConsultarPedido from "@/components/ui/SkeletonConsultarPedido";
+import type { PedidoType } from "@/types/pedido";
+import type { ItemType } from "@/types/item";
 
 function EstadoBadge({ estado }: { estado: string }) {
   const color =
@@ -24,7 +26,7 @@ function EstadoBadge({ estado }: { estado: string }) {
   );
 }
 
-function PedidoInfoCard({ pedido }: { pedido: any }) {
+function PedidoInfoCard({ pedido }: { pedido: PedidoType }) {
   return (
     <div className="text-sm text-[#5A3E1B] bg-white rounded-lg p-4 shadow space-y-1">
       <p><strong>Nombre:</strong> {pedido.nombre}</p>
@@ -38,14 +40,13 @@ function PedidoInfoCard({ pedido }: { pedido: any }) {
   );
 }
 
-function ProductoItemCard({ item }: { item: any }) {
+function ProductoItemCard({ item }: { item: ItemType }) {
   const productName = item.product_name || item.productName;
   const { product, loading, error } = useGetProductByName(productName);
 
   if (loading) return <SkeletonConsultarPedido />;
 
   if (error) {
-    console.error("❌ Error al buscar producto:", error);
     return (
       <div className="text-sm text-red-600 bg-white px-4 py-3 rounded-md shadow">
         Error al cargar <strong>{productName}</strong>
@@ -97,9 +98,9 @@ export default function PedidoResultado() {
         <h3 className="font-semibold text-[#5A3E1B] mb-3">Productos:</h3>
         <div className="space-y-3">
           {pedido.items
-            .filter((item: any) => item.product_name || item.productName)
-            .map((item: any, index: number) => (
-              <ProductoItemCard key={index} item={item} />
+            .filter((item) => item.product_name || item.productName)
+            .map((item, index: number) => (
+              <ProductoItemCard key={index} item={item as ItemType} />
             ))}
         </div>
       </div>

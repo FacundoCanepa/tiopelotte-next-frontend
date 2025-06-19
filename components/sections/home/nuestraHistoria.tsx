@@ -3,6 +3,7 @@
 import AnimatedSection from "../../ui/AnimatedWrapper";
 import { useRouter } from "next/navigation";
 import Button from "../../ui/Button";
+import Image from "next/image";
 
 const NuestraHistoria = () => {
   const router = useRouter();
@@ -10,9 +11,10 @@ const NuestraHistoria = () => {
   return (
     <AnimatedSection className="relative py-16 overflow-hidden">
       {/* Imagen de fondo decorativa */}
-      <img
+      <Image
         src={`${process.env.NEXT_PUBLIC_MEDIA_URL}/premium_photo_1661962560564_220abc8b6bf2_f9f2261ff0.avif`}
-        className="absolute inset-0 w-full h-full object-cover -z-20"
+        fill
+        className="absolute inset-0 object-cover -z-20"
         alt="Decoración fondo"
       />
 

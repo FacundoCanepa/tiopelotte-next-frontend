@@ -72,7 +72,6 @@ export default function CheckoutPage() {
     setTotal(totalGeneral);
   }, [totalGeneral]);
 const handleConfirmRetiro = async () => {
-  console.log("🛒 Confirmando pedido RETIRO EN LOCAL");
 
   const payload = {
     items: cart.map((item) => ({
@@ -112,7 +111,6 @@ const handleConfirmRetiro = async () => {
     clearCart();
     router.push("/checkout/success");
   } catch (error) {
-    console.error("❌ Error creando pedido de retiro en local:", error);
     setError("Ocurrió un error al confirmar el pedido. Intentalo de nuevo.");
   }
 };

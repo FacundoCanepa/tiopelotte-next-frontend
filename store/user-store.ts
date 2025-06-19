@@ -36,9 +36,8 @@ export const useUserStore = create<UserState>()(
     {
       name: "user-storage",
       partialize: (state) => ({ user: state.user, jwt: state.jwt }),
-      onRehydrateStorage: () => (state, error) => {
+      onRehydrateStorage: () => (state) => {
         state?.setIsSessionChecked(true);
-        if (error) console.error("hydrate user-store", error);
       },
     }
   )

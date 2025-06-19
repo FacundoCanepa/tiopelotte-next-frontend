@@ -4,6 +4,7 @@ import useEmblaCarousel from "embla-carousel-react";
 import Autoplay from "embla-carousel-autoplay";
 import { useRef, useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import Image from "next/image";
 
 interface Props {
   images: string[];
@@ -44,10 +45,11 @@ const HistoriaCarousel = ({ images }: Props) => {
         <div className="flex">
           {images.map((img, index) => (
             <div key={index} className="min-w-full aspect-[4/3] relative">
-              <img
+              <Image
                 src={`${process.env.NEXT_PUBLIC_MEDIA_URL}${img}`}
                 alt={`Historia imagen ${index + 1}`}
-                className="w-full h-full object-cover"
+                fill
+                className="object-cover"
               />
             </div>
           ))}

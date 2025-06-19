@@ -51,8 +51,6 @@ export default function MercadoPagoButton({ total }: Props) {
         userId,
       };
 
-      console.log("📦 Enviando body completo a MP:", body);
-
       const res = await fetch("/api/mercadopago", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -64,10 +62,8 @@ export default function MercadoPagoButton({ total }: Props) {
         window.location.href = data.url;
       } else {
         alert("Error al generar pago");
-        console.error("Respuesta:", data);
       }
     } catch (err) {
-      console.error("❌ Error al generar link de pago:", err);
     }
   };
 

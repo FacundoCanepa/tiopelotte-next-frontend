@@ -83,7 +83,6 @@ export async function POST(req: NextRequest) {
 
     return new NextResponse("OK", { status: 200 });
   } catch (err) {
-    console.error("❌ Error en webhook:", err);
     return new NextResponse("Error interno", { status: 500 });
   }
 }

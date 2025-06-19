@@ -1,10 +1,11 @@
 "use client";
 
-import SkeletonCategory from "../../ui/SkeletonCategory"; 
+import SkeletonCategory from "../../ui/SkeletonCategory";
 import { useGetCategory } from "@/components/hooks/useGetCategory";
 import { ResponseType } from "@/types/response";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const CategoryHome = () => {
   const { loading, result } = useGetCategory() as ResponseType;
@@ -53,10 +54,11 @@ const CategoryHome = () => {
                   w-[280px] lg:w-auto
                 `}
               >
-                <img
+                <Image
                   src={`${category.mainImage.url}`}
                   alt={category.categoryNames}
-                  className="absolute inset-0 w-full h-full object-cover scale-110 group-hover:scale-100 transition-transform duration-500"
+                  fill
+                  className="absolute inset-0 object-cover scale-110 group-hover:scale-100 transition-transform duration-500"
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent z-10" />
                 <div

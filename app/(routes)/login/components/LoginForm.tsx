@@ -31,7 +31,6 @@ export default function LoginForm() {
       const data = await res.json();
 
       if (!res.ok) {
-        console.error("❌ Error en login:", data);
         setError(data?.error?.message || "Error al iniciar sesión.");
         return;
       }
@@ -39,8 +38,7 @@ export default function LoginForm() {
       setUser(data.user);
       setJwt(data.jwt);
       router.push("/perfil");
-    } catch (err: any) {
-      console.error("💥 Error de red:", err);
+    } catch (err) {
       setError("Error de red. Intentá de nuevo.");
     } finally {
       setLoading(false);

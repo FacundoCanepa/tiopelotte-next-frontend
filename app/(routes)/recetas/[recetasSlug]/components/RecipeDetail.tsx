@@ -49,8 +49,7 @@ export default function RecipeDetail({ slug }: Props) {
               img: prod.img || [],
             })) || [],
         });
-      } catch (err: any) {
-        console.error("❌ Error al cargar receta:", err.message);
+      } catch (err) {
         setError("Error al obtener los datos de la receta.");
       } finally {
         setLoading(false);
@@ -110,8 +109,12 @@ export default function RecipeDetail({ slug }: Props) {
             {receta.descripcion}
           </p>
           <div className="flex flex-wrap gap-6 mt-4 text-[#8B4513] text-base font-medium">
-            <span>⏱ <strong>Tiempo:</strong> {receta.tiempo}</span>
-            <span>🍽 <strong>Porciones:</strong> {receta.porciones}</span>
+            <span>
+              ⏱ <strong>Tiempo:</strong> {receta.tiempo}
+            </span>
+            <span>
+              🍽 <strong>Porciones:</strong> {receta.porciones}
+            </span>
           </div>
         </div>
       </div>
@@ -160,7 +163,7 @@ export default function RecipeDetail({ slug }: Props) {
                   </p>
                   {product.price !== undefined && (
                     <p className="text-sm text-[#5C3D2E] mt-1">
-                      ${product.price?.toLocaleString("es-AR")}
+                      ${product.price.toLocaleString("es-AR")}
                     </p>
                   )}
                 </div>

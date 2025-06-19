@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
+import type { PedidoType } from "@/types/pedido";
 
 export function useBuscarPedido() {
   const [telefono, setTelefono] = useState("");
-  const [pedido, setPedido] = useState<any | null>(null);
+  const [pedido, setPedido] = useState<PedidoType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -17,12 +18,10 @@ export function useBuscarPedido() {
 
     try {
       const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos?filters[telefono][$eq]=${telefono}&sort=createdAt:desc&pagination[limit]=1`;
-      console.log("🔍 Consultando pedido en:", url);
 
       const res = await fetch(url);
       const data = await res.json();
 
-      console.log("📦 Respuesta de Strapi:", data);
 
       if (data?.data?.length > 0) {
         setPedido(data.data[0]);
@@ -30,7 +29,6 @@ export function useBuscarPedido() {
         setError("No encontramos ningún pedido con ese número.");
       }
     } catch (err) {
-      console.error("❌ Error al consultar pedido:", err);
       setError("Ocurrió un error al consultar el pedido.");
     } finally {
       setLoading(false);

@@ -6,6 +6,7 @@ import { useToggleMenu } from "../hooks/useMenuToggle";
 import MenuList from "./menuList";
 import { useUserStore } from "@/store/user-store";
 import { useCartStore } from "@/store/cart-store";
+import Image from "next/image";
 
 export default function Navbar() {
   const router = useRouter();
@@ -16,8 +17,8 @@ export default function Navbar() {
   const itemCount = cart.length; 
   return (
     <header className="sticky top-0 left-0 w-full flex items-center justify-between py-3 md:py-0 md:px-5 shadow-md z-50 navbar-secondary bg-white/90 backdrop-blur-sm">
-      <div className="hidden md:flex size-[6vw]">
-        <img src="/favicon.ico" alt="Tio Pelotte Icon" />
+      <div className="hidden md:flex size-[6vw] relative">
+        <Image src="/favicon.ico" alt="Tio Pelotte Icon" fill className="object-contain" />
       </div>
 
       <div className="flex flex-col items-start space-y-2">

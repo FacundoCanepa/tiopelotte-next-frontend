@@ -3,14 +3,16 @@
 import { googleReviews } from "@/types/comments";
 import { Star } from "lucide-react";
 import AnimatedSection from "../../ui/AnimatedWrapper";
+import Image from "next/image";
 
 const CommentsUser = () => {
   return (
     <AnimatedSection className="relative py-16 overflow-hidden">
       {/* Imagen de fondo decorativa */}
-      <img
+      <Image
         src={`${process.env.NEXT_PUBLIC_MEDIA_URL}/photo_1465911817134_741b5e473a1b_732b198613.avif`}
-        className="absolute inset-0 w-full h-full object-cover  -z-20"
+        fill
+        className="absolute inset-0 object-cover -z-20"
         alt="Decoración fondo"
       />
 
@@ -39,9 +41,11 @@ const CommentsUser = () => {
               key={index}
               className="flex items-start gap-4 bg-white/20 p-4 rounded-xl backdrop-blur-sm"
             >
-              <img
+              <Image
                 src={`${process.env.NEXT_PUBLIC_MEDIA_URL}${review.avatar}`}
                 alt={review.name}
+                width={48}
+                height={48}
                 className="w-12 h-12 rounded-full object-cover border-2 border-black/90"
               />
               <div className="flex-1">

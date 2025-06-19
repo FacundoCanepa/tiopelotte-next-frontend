@@ -28,7 +28,6 @@ export function useFetch<T>(
         setData(value);
       } catch (err: any) {
         if (err.name !== "AbortError") {
-          console.error("fetch error", err);
           setError(err.message || "Error al cargar datos");
         }
       } finally {

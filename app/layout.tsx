@@ -6,6 +6,7 @@ import Footer from "@/components/layout/footer";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import CartFloatButton from "@/components/ui/CartFloatButton";
 import { Toaster } from "sonner";
+import UserSessionLoader from "@/components/providers/UserSessionLoader";
 
 export const metadata: Metadata = {
   title: "Tio pelotte",
@@ -20,6 +21,7 @@ export default function RootLayout({
   return (
     <html lang="es">
         <body className={`${islandMoments.variable} ${ebGaramond.variable} antialiased`}>
+            <UserSessionLoader />
             <Navbar />
           {children}
           <Toaster position="top-center" richColors closeButton />
