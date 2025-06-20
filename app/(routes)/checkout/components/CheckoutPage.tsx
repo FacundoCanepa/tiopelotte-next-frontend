@@ -71,29 +71,26 @@ export default function CheckoutPage() {
   useEffect(() => {
     setTotal(totalGeneral);
   }, [totalGeneral]);
-const handleConfirmRetiro = async () => {
+    const handleConfirmRetiro = async () => {
 
-  const payload = {
-    items: cart.map((item) => ({
-      productId: item.product.id,
-      productName: item.product.productName,
-      quantity: item.quantity,
-      unitPrice: item.product.price,
-      subtotal: item.quantity * item.product.price,
-      img: item.product.img?.[0]?.url || "",
-      slug: item.product.slug,
-      unidadMedida: item.product.unidadMedida,
-    })),
-    total: totalGeneral,
-    estado: "Pendiente",
-    zona,
-    direccion,
-    referencias,
-    telefono,
-    nombre,
-    tipoEntrega: "local",
-    tipoPago: "efectivo",
-  };
+      const payload = {
+        items: cart.map((item) => ({
+        title: `${item.product.productName} · ${item.quantity} ${item.product.unidadMedida}`,
+          quantity: 1,
+          unit_price: Math.round(item.quantity * item.product.price),
+          product_name: item.product.productName,
+        })),
+        total: totalGeneral,
+        estado: "Pendiente",
+        zona,
+        direccion,
+        referencias,
+        telefono,
+        nombre,
+        tipoEntrega: "local",
+        tipoPago: "Elegís al momento de pagar",
+      };
+
 
   try {
     const res = await fetch("/api/crear-pedido", {

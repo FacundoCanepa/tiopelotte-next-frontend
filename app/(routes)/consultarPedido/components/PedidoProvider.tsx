@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useState } from "react";
 import type { PedidoType } from "@/types/pedido";
+import { useUserStore } from "@/store/user-store";
 
 type PedidoContextType = {
   telefono: string;
@@ -15,7 +16,8 @@ type PedidoContextType = {
 const PedidoContext = createContext<PedidoContextType | undefined>(undefined);
 
 export function PedidoProvider({ children }: { children: React.ReactNode }) {
-  const [telefono, setTelefono] = useState("");
+  const user = useUserStore((state) => state.user);
+  const [telefono, setTelefono] = useState(user?.telefono || "")
   const [pedido, setPedido] = useState<PedidoType | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");

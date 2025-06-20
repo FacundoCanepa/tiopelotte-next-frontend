@@ -18,7 +18,7 @@ export type CartStore = {
   zona: string;
   direccion: string;
   referencias: string;
-  tipoPago: "mercado_pago" | "efectivo";
+  tipoPago: "mercado pago" | "efectivo" | "Elegís al momento de pagar";
   total: number;
   nombre: string;
   telefono: string;
@@ -32,7 +32,7 @@ export type CartStore = {
   setZona: (zona: string) => void;
   setDireccion: (direccion: string) => void;
   setReferencias: (referencias: string) => void;
-  setTipoPago: (tipo: "mercado_pago" | "efectivo") => void;
+  setTipoPago: (tipo: "mercado pago" | "efectivo") => void;
   setTotal: (total: number) => void;
   setNombre: (nombre: string) => void;
   setTelefono: (telefono: string) => void;
@@ -49,7 +49,7 @@ export const useCartStore = create<CartStore>()(
       zona: "",
       direccion: "",
       referencias: "",
-      tipoPago: "mercado_pago",
+      tipoPago: "mercado pago",
       total: 0,
       nombre: "",
       telefono: "",
@@ -86,7 +86,7 @@ export const useCartStore = create<CartStore>()(
           zona: "",
           direccion: "",
           referencias: "",
-          tipoPago: "mercado_pago",
+          tipoPago: "mercado pago",
           total: 0,
           nombre: "",
           telefono: "",

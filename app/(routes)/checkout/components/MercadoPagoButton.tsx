@@ -18,7 +18,7 @@ export default function MercadoPagoButton({ total }: Props) {
       const userId = useUserStore.getState().user?.id;
 
       const items: ItemType[] = cartStore.cart.map((item) => ({
-        title: `${item.quantity} x ${item.product.productName}`,
+        title: `${item.product.productName} · ${item.quantity} ${item.product.unidadMedida}`,
         quantity: 1,
         unit_price: Math.round(item.quantity * item.product.price),
         productName: item.product.productName,
