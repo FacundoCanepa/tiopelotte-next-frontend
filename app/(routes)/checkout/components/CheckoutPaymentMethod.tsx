@@ -1,8 +1,8 @@
 "use client";
 
 interface Props {
-  metodoPago: "mercado_pago" | "efectivo";
-  setMetodoPago: (val: "mercado_pago" | "efectivo") => void;
+  metodoPago: "mercado pago" | "efectivo";
+  setMetodoPago: (val: "mercado pago" | "efectivo") => void;
 }
 
 export default function CheckoutPaymentMethod({ metodoPago, setMetodoPago }: Props) {
@@ -12,9 +12,9 @@ export default function CheckoutPaymentMethod({ metodoPago, setMetodoPago }: Pro
       <div className="flex flex-col gap-3">
         <button
           type="button"
-          onClick={() => setMetodoPago("mercado_pago")}
+          onClick={() => setMetodoPago("mercado pago")}
           className={`w-full px-4 py-3 rounded-md text-sm border transition cursor-pointer text-left
-            ${metodoPago === "mercado_pago"
+            ${metodoPago === "mercado pago"
               ? "bg-[#FFD966] border-[#FFD966] text-[#5A3E1B] font-semibold shadow"
               : "bg-white border-[#E0E0E0] text-[#8B4513] hover:bg-[#fef6dd]"}`}
         >

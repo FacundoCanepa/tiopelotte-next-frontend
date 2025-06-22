@@ -14,32 +14,43 @@ export default function LoginForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  const traducirError = (mensaje: string) => {
+    if (mensaje.includes("Invalid identifier or password")) {
+      return "Email o contraseña incorrectos";
+    }
+    if (mensaje.includes("identifier is a required field") || mensaje.includes("Missing identifier")) {
+      return "Falta ingresar el email";
+    }
+    if (mensaje.includes("password is a required field") || mensaje.includes("Missing password")) {
+      return "Falta ingresar la contraseña";
+    }
+    return "Error al iniciar sesión. Intentá nuevamente.";
+  };
+
   const handleLogin = async () => {
     setLoading(true);
     setError("");
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/local`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ identifier: email, password }),
-        }
-      );
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: email, password }),
+      });
 
       const data = await res.json();
 
       if (!res.ok) {
-        setError(data?.error?.message || "Error al iniciar sesión.");
+        const msg = data?.error || "Error desconocido";
+        setError(traducirError(msg));
         return;
       }
 
-      setUser(data.user);
+      setUser({ ...data.user, role: data.user?.role?.name || "cliente" });
       setJwt(data.jwt);
       router.push("/perfil");
     } catch (err) {
-      setError("Error de red. Intentá de nuevo.");
+      setError("Error de red. Verificá tu conexión.");
     } finally {
       setLoading(false);
     }

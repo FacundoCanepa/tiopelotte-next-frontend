@@ -10,6 +10,7 @@ export default function RegisterForm() {
   const router = useRouter();
   const setUser = useUserStore((state) => state.setUser);
   const setJwt = useUserStore((state) => state.setJwt);
+
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,17 +30,26 @@ export default function RegisterForm() {
       });
 
       const data = await res.json();
+      console.log("Respuesta registro:", data); // Debug
 
       if (!res.ok) {
-        throw new Error(data.error?.message || "Error al registrarse");
+        const mensaje = data?.error?.message || "";
+
+        if (mensaje.includes("Email or Username are already taken")) {
+          throw new Error("El nombre de usuario o email ya está en uso.");
+        }
+
+        throw new Error(mensaje || "Error al registrarse.");
       }
 
-      setUser(data.user);
+      const roleName = data.user?.role?.name || "cliente";
+
+      setUser({ ...data.user, role: roleName });
       setJwt(data.jwt);
       router.push("/");
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
-      else setError("Error desconocido");
+      else setError("Ocurrió un error desconocido.");
     } finally {
       setLoading(false);
     }
@@ -107,7 +117,13 @@ export default function RegisterForm() {
       </Button>
 
       <p className="text-sm text-center mt-6 text-stone-600">
-        ¿Ya tenés cuenta? <span className="underline cursor-pointer text-[#8B4513]" onClick={() => router.push("/login")}>Iniciar sesión</span>
+        ¿Ya tenés cuenta?{" "}
+        <span
+          className="underline cursor-pointer text-[#8B4513]"
+          onClick={() => router.push("/login")}
+        >
+          Iniciar sesión
+        </span>
       </p>
     </form>
   );

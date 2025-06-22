@@ -37,7 +37,7 @@ export type CartStore = {
   setNombre: (nombre: string) => void;
   setTelefono: (telefono: string) => void;
 
-  getTotalPrice: () => number;
+  getTotalPrice: () => number; 
   getTotalItems: () => number;
 };
 

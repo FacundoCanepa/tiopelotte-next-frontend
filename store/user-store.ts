@@ -5,6 +5,7 @@ type UserType = {
   id: number;
   email: string;
   username: string;
+  role?: string;
   telefono?: string;
   zona?: string;
   direccion?: string;

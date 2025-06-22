@@ -8,7 +8,10 @@ import {
   Percent,
   ScrollText,
   Logs,
+  LayoutDashboard,
 } from "lucide-react";
+
+import { useUserStore } from "@/store/user-store";
 
 interface MenuListProps {
   isOpen: boolean;
@@ -36,7 +39,11 @@ const menuVariants = {
 
 const MenuList = ({ isOpen, closeMenu }: MenuListProps) => {
   const router = useRouter();
-
+  const user = useUserStore((state) => state.user);
+  const adminLinks =
+    user && (user.role === "Administrador" || user.role === "Empleado")
+      ? [{ text: "Panel", href: "/admin", icon: LayoutDashboard }]
+      : [];
   const handleClick = (href: string) => {
     router.push(href);
     closeMenu();
@@ -54,7 +61,7 @@ const MenuList = ({ isOpen, closeMenu }: MenuListProps) => {
         >
           <ul className="flex flex-col items-start font-garamond text-[4.5vw] sm:text-base md:text-lg text-stone-800 px-6 gap-4 lg:justify-center">
 
-            {links.map(({ text, href, icon: Icon }) => (
+            {[...links, ...adminLinks].map(({ text, href, icon: Icon }) => (
               <li
                 key={text}
                 onClick={() => handleClick(href)}
