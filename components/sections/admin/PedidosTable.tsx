@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 interface Pedido {
   id: number;
+  documentId: string;
   estado: string;
   total: number;
   tipoPago: string;
@@ -20,17 +21,17 @@ interface Props {
 }
 
 export default function PedidosTable({ pedidos }: Props) {
-  const [loadingId, setLoadingId] = useState<number | null>(null);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
 
   const copiar = (texto: string) => {
     navigator.clipboard.writeText(texto);
     toast.success("Teléfono copiado");
   };
 
-  const actualizarEstado = async (id: number, nuevoEstado: string) => {
-    setLoadingId(id);
+  const actualizarEstado = async (documentId: string, nuevoEstado: string) => {
+    setLoadingId(documentId);
     try {
-      const res = await fetch(`/api/pedidos/${id}`, {
+      const res = await fetch(`/api/pedidos/${documentId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ estado: nuevoEstado }),
@@ -80,14 +81,16 @@ export default function PedidosTable({ pedidos }: Props) {
                   <select
                     className="border rounded-md px-2 py-1 bg-white"
                     value={p.estado}
-                    onChange={(e) => actualizarEstado(p.id, e.target.value)}
+                    onChange={(e) => actualizarEstado(p.documentId, e.target.value)}
                   >
                     <option value="Pendiente">Pendiente</option>
                     <option value="En camino">En camino</option>
                     <option value="Entregado">Entregado</option>
                     <option value="Cancelado">Cancelado</option>
                   </select>
-                  {loadingId === p.id && <Loader2 className="inline ml-2 w-4 h-4 animate-spin" />}
+                  {loadingId === p.documentId && (
+                    <Loader2 className="inline ml-2 w-4 h-4 animate-spin" />
+                  )}
                 </td>
                 <td className="p-2 whitespace-nowrap flex items-center gap-2">
                   <a

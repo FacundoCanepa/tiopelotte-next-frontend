@@ -2,7 +2,7 @@ import { ItemType } from "./item";
 
 export type PedidoType = {
   id: number;
-  user: { id: number }[];
+  documentId?: string;
   items: ItemType[];
   total: number;
   estado: string;

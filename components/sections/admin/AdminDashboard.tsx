@@ -20,6 +20,7 @@ import PedidosTable from "./PedidosTable";
 
 interface Pedido {
   id: number;
+  documentId: string;
   estado: string;
   total: number;
   tipoPago: string;
