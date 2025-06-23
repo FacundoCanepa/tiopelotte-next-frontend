@@ -1,0 +1,30 @@
+import { NextRequest, NextResponse } from "next/server";
+
+const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+const token = process.env.STRAPI_API_TOKEN;
+
+export async function GET() {
+  const res = await fetch(`${backend}/api/products?populate=*`, {
+    headers: { Authorization: `Bearer ${token}` },
+  });
+  const data = await res.json();
+  return NextResponse.json(data, { status: res.status });
+}
+
+export async function POST(req: NextRequest) {
+  try {
+    const body = await req.json();
+    const res = await fetch(`${backend}/api/products`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({ data: body }),
+    });
+    const json = await res.json();
+    return NextResponse.json(json, { status: res.status });
+  } catch (err) {
+    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+  }
+}
