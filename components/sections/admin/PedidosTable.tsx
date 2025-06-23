@@ -33,7 +33,7 @@ export default function PedidosTable({ pedidos }: Props) {
       const res = await fetch(`/api/pedidos/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ data: { estado: nuevoEstado } }),
+        body: JSON.stringify({ estado: nuevoEstado }), // ✅ sin "data"
       });
 
       const json = await res.json();
