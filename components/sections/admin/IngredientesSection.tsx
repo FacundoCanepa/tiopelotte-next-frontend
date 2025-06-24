@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Loader2, Pencil, Trash2, Plus } from "lucide-react";
+import { Loader2, Pencil, Trash2, Plus, ArrowUpDown, Check, AlertTriangle } from "lucide-react";
 import SearchInput from "@/components/ui/productos-filters/SearchInput";
 import { toast } from "sonner";
 
@@ -17,6 +17,9 @@ export default function IngredientesSection() {
   const [ingredientes, setIngredientes] = useState<Ingrediente[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
+  const [filterUnidad, setFilterUnidad] = useState("all");
+  const [filterLowStock, setFilterLowStock] = useState(false);
+  const [orderBy, setOrderBy] = useState<{ field: string; direction: "asc" | "desc" }>({ field: "nombre", direction: "asc" });
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState({
@@ -42,28 +45,7 @@ export default function IngredientesSection() {
     fetchIngredientes();
   }, []);
 
-  const saveIngrediente = async () => {
-    try {
-      const url = editingId
-        ? `/api/admin/ingredientes/${editingId}`
-        : "/api/admin/ingredientes";
-      const method = editingId ? "PUT" : "POST";
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error();
-      toast.success("Guardado correctamente");
-      setShowForm(false);
-      setForm({ nombre: "", stock: 0, unidadMedida: "", precio: 0 });
-      setEditingId(null);
-      fetchIngredientes();
-    } catch (err) {
-      toast.error("Error al guardar");
-    }
-  };
-
+@@ -67,70 +70,90 @@ export default function IngredientesSection() {
   const editIngrediente = (i: Ingrediente) => {
     setForm({
       nombre: i.nombre,
@@ -89,9 +71,20 @@ export default function IngredientesSection() {
     }
   };
 
-  const filtered = ingredientes.filter((i) =>
-    i.nombre?.toLowerCase().includes(search.toLowerCase())
-  );
+  const unidades = Array.from(new Set(ingredientes.map((i) => i.unidadMedida)));
+
+  const filtered = ingredientes
+    .filter((i) => i.nombre?.toLowerCase().includes(search.toLowerCase()))
+    .filter((i) => (filterUnidad === "all" ? true : i.unidadMedida === filterUnidad))
+    .filter((i) => (filterLowStock ? i.stock <= 5 : true));
+
+  const sorted = [...filtered].sort((a, b) => {
+    const dir = orderBy.direction === "asc" ? 1 : -1;
+    if (orderBy.field === "precio" || orderBy.field === "stock") {
+      return (a[orderBy.field] as number) > (b[orderBy.field] as number) ? dir : -dir;
+    }
+    return a[orderBy.field].localeCompare(b[orderBy.field]) * dir;
+  });
 
   if (loading) {
     return (
@@ -107,8 +100,17 @@ export default function IngredientesSection() {
         Gestión de ingredientes
       </h1>
 
-      <div className="flex flex-col sm:flex-row gap-2 items-start">
+      <div className="flex flex-col sm:flex-row gap-2 items-start flex-wrap">
         <SearchInput value={search} setValue={setSearch} />
+        <select value={filterUnidad} onChange={(e) => setFilterUnidad(e.target.value)} className="border p-2 rounded">
+          <option value="all">Unidad</option>
+          {unidades.map((u) => (
+            <option key={u} value={u}>{u}</option>
+          ))}
+        </select>
+        <label className="flex items-center gap-2 text-sm">
+          <input type="checkbox" checked={filterLowStock} onChange={(e) => setFilterLowStock(e.target.checked)} /> Stock bajo
+        </label>
         <button
           onClick={() => {
             setShowForm((p) => !p);
@@ -134,11 +136,7 @@ export default function IngredientesSection() {
             type="number"
             placeholder="Stock"
             value={form.stock}
-            onChange={(e) => setForm({ ...form, stock: Number(e.target.value) })}
-            className="border p-2 rounded w-full"
-          />
-          <input
-            type="text"
+@@ -142,62 +165,62 @@ export default function IngredientesSection() {
             placeholder="Unidad de medida"
             value={form.unidadMedida}
             onChange={(e) => setForm({ ...form, unidadMedida: e.target.value })}
@@ -164,18 +162,18 @@ export default function IngredientesSection() {
         <table className="min-w-full text-sm text-left">
           <thead className="bg-[#FBE6D4] text-[#5A3E1B]">
             <tr>
-              <th className="p-2">Nombre</th>
-              <th className="p-2">Stock</th>
+              <th className="p-2 cursor-pointer" onClick={() => setOrderBy({ field: "nombre", direction: orderBy.direction === "asc" ? "desc" : "asc" })}>Nombre <ArrowUpDown className="inline h-3 w-3" /></th>
+              <th className="p-2 cursor-pointer" onClick={() => setOrderBy({ field: "stock", direction: orderBy.direction === "asc" ? "desc" : "asc" })}>Stock <ArrowUpDown className="inline h-3 w-3" /></th>
               <th className="p-2">Unidad</th>
-              <th className="p-2">Precio</th>
+              <th className="p-2 cursor-pointer" onClick={() => setOrderBy({ field: "precio", direction: orderBy.direction === "asc" ? "desc" : "asc" })}>Precio <ArrowUpDown className="inline h-3 w-3" /></th>
               <th className="p-2">Actualizado</th>
               <th className="p-2" />
             </tr>
           </thead>
           <tbody>
-            {filtered.map((i) => (
+            {sorted.map((i) => (
               <tr key={i.id} className="border-b last:border-none hover:bg-[#FFF8EC]">
-                <td className="p-2 capitalize">{i.nombre}</td>
+                <td className="p-2 capitalize flex items-center gap-2">{i.stock <= 5 && <AlertTriangle className="h-4 w-4 text-red-600" />} {i.nombre}</td>
                 <td className="p-2">{i.stock}</td>
                 <td className="p-2">{i.unidadMedida}</td>
                 <td className="p-2">${i.precio.toLocaleString("es-AR")}</td>
@@ -201,5 +199,3 @@ export default function IngredientesSection() {
         </table>
       </div>
     </div>
-  );
-}

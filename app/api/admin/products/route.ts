@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
-const token = process.env.STRAPI_API_TOKEN;
+const token = process.env.STRAPI_PEDIDOS_TOKEN;
 
 export async function GET() {
   const res = await fetch(`${backend}/api/products?populate=*`, {

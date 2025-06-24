@@ -5,7 +5,7 @@ export async function GET(req: NextRequest) {
     const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/pedidos?populate=*`;
     const res = await fetch(url, {
       headers: {
-        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+        Authorization: `Bearer ${process.env.STRAPI_PEDIDOS_TOKEN}`,
       },
     });
     const data = await res.json();
