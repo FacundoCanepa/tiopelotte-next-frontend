@@ -219,8 +219,13 @@ export default function ProductForm({ form, setForm, ingredientes, handleFileUpl
           <button type="button" onClick={() => carouselInputRef.current?.click()} className="bg-[#fbe6d4] hover:bg-[#efd6bf] text-[#8B4513] px-4 py-2 rounded-md flex items-center gap-2 justify-center">
             <ImagePlus className="w-4 h-4" /> Subir múltiples
           </button>
-          <input type="file" className="hidden" multiple ref={carouselInputRef} onChange={(e) => e.target.files && handleFileUpload(e.target.files, true)} />
-            <input type="file" className="hidden" multiple ref={carouselInputRef} onChange={(e) => e.target.files && handleFileUpload(e.target.files, true)} />
+          <input
+            type="file"
+            className="hidden"
+            multiple
+            ref={carouselInputRef}
+            onChange={(e) => e.target.files && handleFileUpload(e.target.files, true)}
+          />
               {form.img_carousel_preview?.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-2">
               {form.img_carousel_preview.map((src: string, idx: number) => (
