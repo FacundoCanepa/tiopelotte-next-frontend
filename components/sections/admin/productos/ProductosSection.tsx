@@ -127,13 +127,13 @@ const saveProducto = async () => {
       : "/api/admin/products";
     const method = editingId ? "PUT" : "POST";
 
-    const payload = { ...form };
+   const { imgPreview, img_carousel_preview, ...payload } = form;
     if (!editingId) {
-      delete payload.documentId;
+      delete (payload as any).documentId;
     }
 
     console.log("🟡 Intentando guardar producto:");
-    console.log("🧾 Payload limpio:", JSON.stringify(payload, null, 2)); // <- corregido acá
+    console.log("🧾 Payload limpio:", JSON.stringify(payload, null, 2)); 
 
     const res = await fetch(url, {
       method,
