@@ -6,7 +6,7 @@ import { ProductType } from "@/types/product";
 interface Props {
   productos: ProductType[];
   onEdit: (p: ProductType) => void;
-  onDelete: (id: number) => void;
+  onDelete: (documentId: string) => void;
   orderBy: { field: string; direction: "asc" | "desc" };
   setOrderBy: (val: { field: string; direction: "asc" | "desc" }) => void;
 }
@@ -56,7 +56,7 @@ export default function ProductTable({ productos, onEdit, onDelete, orderBy, set
                 <button onClick={() => onEdit(p)} className="text-[#8B4513] hover:text-[#5A3E1B] transition">
                   <Pencil className="h-4 w-4" />
                 </button>
-                <button onClick={() => onDelete(p.id)} className="text-red-600 hover:text-red-800 transition">
+                <button onClick={() => onDelete(p.documentId)} className="text-red-600 hover:text-red-800 transition">
                   <Trash2 className="h-4 w-4" />
                 </button>
               </td>

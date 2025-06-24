@@ -123,16 +123,16 @@ export default function ProductosSection() {
       ...p,
       ingredientes: p.ingredientes?.map((i: any) => i.id) || [],
       imgPreview: p.img?.url,
-      documentId: p.documentId, // importante para el PUT
+      documentId: p.documentId,
     });
     setEditingId(p.id);
     setShowForm(true);
   };
 
-  const deleteProducto = async (id: number) => {
+    const deleteProducto = async (documentId: string) => {
     if (!confirm("¿Eliminar producto?")) return;
     try {
-      const res = await fetch(`/api/admin/products/${id}`, { method: "DELETE" });
+    const res = await fetch(`/api/admin/products/${documentId}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
       toast.success("Producto eliminado");
       fetchProductos();

@@ -49,3 +49,30 @@ export async function PUT(
     headers: { "Content-Type": "application/json" },
   });
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products/${params.id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+      },
+    });
+
+    // ✅ Si no hay contenido en la respuesta, devolvemos solo el status
+    if (res.status === 204) {
+      return new Response(null, { status: 204 });
+    }
+
+    // 🧼 Verificamos que la respuesta tenga contenido antes de parsear
+    const text = await res.text();
+    const data = text ? JSON.parse(text) : null;
+
+    return new Response(JSON.stringify(data), {
+      status: res.status,
+    });
+  } catch (error) {
+    console.error("❌ Error en DELETE /api/admin/products/[id]:", error);
+    return new Response("Error interno del servidor", { status: 500 });
+  }
+}
