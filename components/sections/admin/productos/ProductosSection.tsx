@@ -48,6 +48,7 @@ export default function ProductosSection() {
       img: null,
       img_carousel: [],
       imgPreview: null,
+        img_carousel_preview: [],
       documentId: "",
     };
   }
@@ -84,15 +85,34 @@ export default function ProductosSection() {
   }, [form.productName]);
 
   const handleFileUpload = async (files: FileList, isCarousel = false) => {
-    const data = new FormData();
-    Array.from(files).forEach((file) => data.append("files", file));
-    const res = await fetch("/api/upload", { method: "POST", body: data });
-    const json = await res.json();
+    if (!files || files.length === 0) return;
     if (isCarousel) {
-      setForm((prev: any) => ({ ...prev, img_carousel: json.map((img: any) => img.id) }));
+      const previews = Array.from(files).map((file) => URL.createObjectURL(file));
+      setForm((prev: any) => ({ ...prev, img_carousel_preview: previews }));
     } else {
-      setForm((prev: any) => ({ ...prev, img: json[0].id, imgPreview: json[0].url }));
-    }
+    const localUrl = URL.createObjectURL(files[0]);
+          setForm((prev: any) => ({ ...prev, imgPreview: localUrl }));
+        }
+
+        const data = new FormData();
+        Array.from(files).forEach((file) => data.append("files", file));
+
+        try {
+          const res = await fetch("/api/upload", { method: "POST", body: data });
+          const json = await res.json();
+          if (!res.ok) throw new Error();
+          if (isCarousel) {
+            setForm((prev: any) => ({
+              ...prev,
+              img_carousel: json.map((img: any) => img.id),
+              img_carousel_preview: json.map((img: any) => img.url),
+            }));
+          } else {
+            setForm((prev: any) => ({ ...prev, img: json[0].id, imgPreview: json[0].url }));
+          }
+        } catch (error) {
+          toast.error("Error al subir la imagen");
+        }
   };
 
   const saveProducto = async () => {
@@ -123,6 +143,7 @@ export default function ProductosSection() {
       ...p,
       ingredientes: p.ingredientes?.map((i: any) => i.id) || [],
       imgPreview: p.img?.url,
+img_carousel_preview: p.img_carousel?.map((i: any) => i.url) || [],
       documentId: p.documentId,
     });
     setEditingId(p.id);

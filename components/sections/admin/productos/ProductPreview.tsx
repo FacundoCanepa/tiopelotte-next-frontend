@@ -3,8 +3,7 @@
 import Image from "next/image";
 import { ProductType } from "@/types/product";
 
-export default function ProductPreview({ product }: { product: Partial<ProductType> }) {
-  if (!product.productName) return null;
+export default function ProductPreview({ product }: { product: Partial<ProductType> & { img_carousel_preview?: string[] } }) {
 
   return (
     <div className="bg-white border border-[#E6D4C3] rounded-xl p-6 mt-6 shadow-sm space-y-4">
@@ -34,6 +33,13 @@ export default function ProductPreview({ product }: { product: Partial<ProductTy
           <p><span className="font-bold">Descripción completa:</span> {product.description}</p>
         </div>
       </div>
+         {product.img_carousel_preview && product.img_carousel_preview.length > 0 && (
+        <div className="flex gap-2 flex-wrap pt-4">
+          {product.img_carousel_preview.map((src, idx) => (
+            <Image key={idx} src={src} alt={`${product.productName}-${idx}`} width={80} height={80} className="h-20 w-20 object-cover rounded" />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

@@ -59,12 +59,10 @@ export async function DELETE(req: NextRequest, { params }: { params: { id: strin
       },
     });
 
-    // ✅ Si no hay contenido en la respuesta, devolvemos solo el status
+
     if (res.status === 204) {
       return new Response(null, { status: 204 });
     }
-
-    // 🧼 Verificamos que la respuesta tenga contenido antes de parsear
     const text = await res.text();
     const data = text ? JSON.parse(text) : null;
 
