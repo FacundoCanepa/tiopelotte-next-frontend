@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
 const token = process.env.STRAPI_PEDIDOS_TOKEN;
 
-// GET todos los ingredientes
 export async function GET() {
   try {
     const res = await fetch(`${backend}/api/ingredientes?populate=*`, {
@@ -35,7 +34,6 @@ export async function GET() {
   }
 }
 
-// POST nuevo ingrediente
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -56,7 +54,6 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PUT para actualizar un ingrediente
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await req.json();

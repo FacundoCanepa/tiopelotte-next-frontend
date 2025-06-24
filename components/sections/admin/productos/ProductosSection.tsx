@@ -88,11 +88,15 @@ export default function ProductosSection() {
     if (!files || files.length === 0) return;
     if (isCarousel) {
       const previews = Array.from(files).map((file) => URL.createObjectURL(file));
-      setForm((prev: any) => ({ ...prev, img_carousel_preview: previews }));
+      setForm((prev: any) => ({
+        ...prev,
+        img_carousel_preview: previews,
+        img_carousel: prev.img_carousel || [],
+      }));
     } else {
-    const localUrl = URL.createObjectURL(files[0]);
-          setForm((prev: any) => ({ ...prev, imgPreview: localUrl }));
-        }
+      const localUrl = URL.createObjectURL(files[0]);
+      setForm((prev: any) => ({ ...prev, imgPreview: localUrl }));
+    }
 
         const data = new FormData();
         Array.from(files).forEach((file) => data.append("files", file));
@@ -115,28 +119,46 @@ export default function ProductosSection() {
         }
   };
 
-  const saveProducto = async () => {
-    try {
-      const url = editingId
-        ? `/api/admin/products/${form.documentId}` // usar documentId para PUT
-        : "/api/admin/products";
-      const method = editingId ? "PUT" : "POST";
+const saveProducto = async () => {
+  try {
+    const url = editingId
+      ? `/api/admin/products/${form.documentId}`
+      : "/api/admin/products";
+    const method = editingId ? "PUT" : "POST";
 
-      const res = await fetch(url, {
-        method,
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      if (!res.ok) throw new Error();
-      toast.success("Guardado correctamente");
-      setShowForm(false);
-      setEditingId(null);
-      setForm(defaultForm());
-      fetchProductos();
-    } catch (err) {
-      toast.error("Error al guardar el producto");
+    const payload = { ...form };
+    if (!editingId) {
+      delete payload.documentId; // 🔥 eliminar si es un POST
     }
-  };
+
+    console.log("🟡 Intentando guardar producto:");
+    console.log("🧾 Payload limpio:", payload);
+
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+
+    const responseText = await res.text();
+    console.log("📨 Respuesta del servidor:", responseText);
+
+    if (!res.ok) {
+      console.error("🔴 Error al guardar. Status:", res.status);
+      throw new Error(`Error al guardar: ${res.status}`);
+    }
+
+    toast.success("Guardado correctamente");
+    setShowForm(false);
+    setEditingId(null);
+    setForm(defaultForm());
+    fetchProductos();
+  } catch (err) {
+    console.error("❌ Error en saveProducto:", err);
+    toast.error("Error al guardar el producto");
+  }
+};
+
 
   const editProducto = (p: ProductType) => {
     setForm({
