@@ -6,7 +6,7 @@ const token = process.env.STRAPI_API_TOKEN;
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const body = await req.json();
-    const res = await fetch(`${backend}/api/ingredients/${params.id}`, {
+    const res = await fetch(`${backend}/api/ingredientes/${params.id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",

@@ -1,33 +1,16 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Loader2, Save } from "lucide-react";
+import { Loader2, Save, Search } from "lucide-react";
 import { toast } from "sonner";
 
 const rolesDisponibles = ["Authenticated", "Administrador", "Empleado"];
 const zonasDisponibles = [
-  "Etcheverry 2",
-  "Etcheverry 1",
-  "Olmos",
-  "ruta 36 y 197",
-  "los hornos 1",
-  "los hornos 2",
-  "los hornos 3",
-  "62 y 248",
-  "Barrio Los Cachorros",
-  "El rodeo",
-  "Area 60",
-  "Miralagos",
-  "Campos de Roca I y II",
-  "Haras del SUR I",
-  "Haras del SUR III",
-  "Posada de los Lagos",
-  "Haras del SUR II",
-  "Abasto",
-  "Abasto 2",
-  "Club de campo La Torre",
-  "Romero",
-  "Romero II",
+  "Etcheverry 2", "Etcheverry 1", "Olmos", "ruta 36 y 197", "los hornos 1",
+  "los hornos 2", "los hornos 3", "62 y 248", "Barrio Los Cachorros", "El rodeo",
+  "Area 60", "Miralagos", "Campos de Roca I y II", "Haras del SUR I", "Haras del SUR III",
+  "Posada de los Lagos", "Haras del SUR II", "Abasto", "Abasto 2",
+  "Club de campo La Torre", "Romero", "Romero II"
 ];
 
 interface Usuario {
@@ -42,29 +25,44 @@ interface Usuario {
 
 export default function UsuariosSection() {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
+  const [originales, setOriginales] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [savingId, setSavingId] = useState<number | null>(null);
+  const [search, setSearch] = useState("");
 
-  const fetchUsuarios = async () => {
-    try {
-      const res = await fetch("/api/admin/users");
-      const json = await res.json();
-      setUsuarios(Array.isArray(json?.data) ? json.data : []);
-    } catch {
-      toast.error("No se pudieron cargar los usuarios");
-    } finally {
-      setLoading(false);
-    }
-  };
+  useEffect(() => {
+    const fetchUsuarios = async () => {
+      try {
+        const res = await fetch("/api/admin/users");
+        const json = await res.json();
+        if (Array.isArray(json?.data)) {
+          setUsuarios(json.data);
+          setOriginales(json.data);
+        }
+      } catch {
+        toast.error("No se pudieron cargar los usuarios");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchUsuarios();
+  }, []);
 
-  const handleInputChange = (
-    id: number,
-    field: keyof Usuario,
-    value: string
-  ) => {
+  const handleInputChange = (id: number, field: keyof Usuario, value: string) => {
     setUsuarios((prev) =>
       prev.map((u) => (u.id === id ? { ...u, [field]: value } : u))
     );
+  };
+
+  const handleRoleChange = (id: number, value: string) => {
+    setUsuarios((prev) =>
+      prev.map((u) => (u.id === id ? { ...u, role: { name: value } } : u))
+    );
+  };
+
+  const usuarioCambio = (u: Usuario) => {
+    const original = originales.find((o) => o.id === u.id);
+    return JSON.stringify(original) !== JSON.stringify(u);
   };
 
   const guardarUsuario = async (usuario: Usuario) => {
@@ -75,9 +73,11 @@ export default function UsuariosSection() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(usuario),
       });
-
       if (!res.ok) throw new Error();
       toast.success("Usuario actualizado");
+      setOriginales((prev) =>
+        prev.map((u) => (u.id === usuario.id ? { ...usuario } : u))
+      );
     } catch {
       toast.error("No se pudo guardar el usuario");
     } finally {
@@ -85,9 +85,11 @@ export default function UsuariosSection() {
     }
   };
 
-  useEffect(() => {
-    fetchUsuarios();
-  }, []);
+  const usuariosFiltrados = usuarios.filter((u) =>
+    [u.username, u.email, u.telefono].some((campo) =>
+      campo?.toLowerCase().includes(search.toLowerCase())
+    )
+  );
 
   if (loading) {
     return (
@@ -98,111 +100,102 @@ export default function UsuariosSection() {
   }
 
   return (
-    <div className="space-y-4">
-      <h1 className="text-3xl font-semibold text-[#8B4513] font-garamond">Usuarios</h1>
-      <div className="overflow-x-auto bg-white rounded-xl shadow">
-        <table className="min-w-full text-sm">
-          <thead className="bg-[#FBE6D4] text-[#5A3E1B]">
-            <tr>
-              <th className="p-2 text-left">Nombre</th>
-              <th className="p-2 text-left">Email</th>
-              <th className="p-2 text-left">Rol</th>
-              <th className="p-2 text-left">Teléfono</th>
-              <th className="p-2 text-left">Dirección</th>
-              <th className="p-2 text-left">Zona</th>
-              <th className="p-2 text-left">Guardar</th>
-            </tr>
-          </thead>
-          <tbody>
-            {usuarios.map((u) => (
-              <tr key={u.id} className="border-b last:border-none hover:bg-[#FFF8EC]">
-                <td className="p-2">
-                  <input
-                    value={u.username}
-                    onChange={(e) => handleInputChange(u.id, "username", e.target.value)}
-                    className="border rounded px-2 py-1 w-full"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    value={u.email}
-                    onChange={(e) => handleInputChange(u.id, "email", e.target.value)}
-                    className="border rounded px-2 py-1 w-full"
-                  />
-                </td>
-                <td className="p-2">
-                  <select
-                    value={u.role?.name || ""}
-                    onChange={(e) =>
-                      setUsuarios((prev) =>
-                        prev.map((user) =>
-                          user.id === u.id ? { ...user, role: { name: e.target.value } } : user
-                        )
-                      )
-                    }
-                    className="border rounded px-2 py-1 w-full"
-                  >
-                    {rolesDisponibles.map((r) => (
-                      <option key={r} value={r}>{r}</option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-2 whitespace-nowrap flex items-center gap-2">
-                  <a
-                    href={`https://wa.me/54${u.telefono}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-green-600 underline"
-                  >
-                    {u.telefono || "-"}
-                  </a>
-                  <input
-                    type="number"
-                    value={u.telefono || ""}
-                    onChange={(e) => handleInputChange(u.id, "telefono", e.target.value)}
-                    className="border rounded px-2 py-1 w-24"
-                  />
-                </td>
-                <td className="p-2">
-                  <input
-                    value={u.direccion || ""}
-                    onChange={(e) => handleInputChange(u.id, "direccion", e.target.value)}
-                    className="border rounded px-2 py-1 w-full"
-                  />
-                </td>
-                <td className="p-2">
-                  <select
-                    value={u.zona || ""}
-                    onChange={(e) => handleInputChange(u.id, "zona", e.target.value)}
-                    className="border rounded px-2 py-1 w-full"
-                  >
-                    <option value="">Seleccionar zona</option>
-                    {zonasDisponibles.map((zona) => (
-                      <option key={zona} value={zona}>{zona}</option>
-                    ))}
-                  </select>
-                </td>
-                <td className="p-2">
-                  <button
-                    onClick={() => guardarUsuario(u)}
-                    className="bg-[#8B4513] text-white px-3 py-1 rounded hover:bg-[#5A3E1B] flex items-center gap-1"
-                    disabled={savingId === u.id}
-                  >
-                    {savingId === u.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <>
-                        <Save className="w-4 h-4" />
-                        Guardar
-                      </>
-                    )}
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+    <section className="px-4 md:px-10 space-y-6">
+      <h1 className="text-3xl font-semibold text-[#8B4513] font-garamond">
+        Gestión de Usuarios
+      </h1>
+
+      {/* Barra de búsqueda */}
+      <div className="flex items-center gap-2 max-w-md">
+        <Search className="w-5 h-5 text-gray-500" />
+        <input
+          type="text"
+          placeholder="Buscar por nombre, email o teléfono"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full border border-gray-300 rounded-md px-3 py-1.5 text-sm"
+        />
       </div>
-    </div>
+
+      {/* Tarjetas de usuario */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {usuariosFiltrados.map((u) => (
+          <div key={u.id} className="bg-white border rounded-xl p-5 shadow-sm space-y-3">
+            <input
+              value={u.username}
+              onChange={(e) => handleInputChange(u.id, "username", e.target.value)}
+              placeholder="Nombre"
+              className="w-full border rounded-md px-3 py-1.5 text-sm"
+            />
+            <input
+              value={u.email}
+              onChange={(e) => handleInputChange(u.id, "email", e.target.value)}
+              placeholder="Email"
+              className="w-full border rounded-md px-3 py-1.5 text-sm"
+            />
+            <select
+              value={u.role?.name || ""}
+              onChange={(e) => handleRoleChange(u.id, e.target.value)}
+              className="w-full border rounded-md px-3 py-1.5 text-sm"
+            >
+              {rolesDisponibles.map((r) => (
+                <option key={r} value={r}>{r}</option>
+              ))}
+            </select>
+            <input
+              type="number"
+              value={u.telefono || ""}
+              onChange={(e) => handleInputChange(u.id, "telefono", e.target.value)}
+              placeholder="Teléfono"
+              className="w-full border rounded-md px-3 py-1.5 text-sm"
+            />
+            {u.telefono && (
+              <a
+                href={`https://wa.me/54${u.telefono}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-green-600 underline text-sm"
+              >
+                Enviar WhatsApp
+              </a>
+            )}
+            <input
+              value={u.direccion || ""}
+              onChange={(e) => handleInputChange(u.id, "direccion", e.target.value)}
+              placeholder="Dirección"
+              className="w-full border rounded-md px-3 py-1.5 text-sm"
+            />
+            <select
+              value={u.zona || ""}
+              onChange={(e) => handleInputChange(u.id, "zona", e.target.value)}
+              className="w-full border rounded-md px-3 py-1.5 text-sm"
+            >
+              <option value="">Seleccionar zona</option>
+              {zonasDisponibles.map((z) => (
+                <option key={z} value={z}>{z}</option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => guardarUsuario(u)}
+              disabled={savingId === u.id || !usuarioCambio(u)}
+              className={`w-full mt-2 flex items-center justify-center gap-2 rounded-md px-3 py-2 text-white text-sm transition 
+                ${savingId === u.id || !usuarioCambio(u)
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#8B4513] hover:bg-[#5A3E1B]"}`}
+            >
+              {savingId === u.id ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <>
+                  <Save className="w-4 h-4" />
+                  Guardar
+                </>
+              )}
+            </button>
+          </div>
+        ))}
+      </div>
+    </section>
   );
 }
