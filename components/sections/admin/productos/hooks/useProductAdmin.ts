@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ProductType } from "@/types/product";
 import { toast } from "sonner";
+import { useImageUpload } from "./useImageUpload";
 
 const generateSlug = (text: string) =>
   text
@@ -53,6 +54,7 @@ export function useProductAdmin() {
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<number | null>(null);
   const [form, setForm] = useState<any>(defaultForm());
+const { uploadImages, loading: uploading } = useImageUpload();
 
   const fetchProductos = async () => {
     try {
@@ -88,48 +90,21 @@ export function useProductAdmin() {
     }));
   }, [form.productName]);
 
-  const handleFileUpload = async (files: FileList, isCarousel = false) => {
-    const formData = new FormData();
-    Array.from(files).forEach((file) => formData.append("files", file));
+ const uploadMainImage = async (files: FileList | File[]) => {
+    const { ids, urls } = await uploadImages(files);
+    if (ids[0]) {
+      setForm((prev: any) => ({ ...prev, img: ids[0], imgPreview: urls[0] }));
+    }
+  };
 
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        throw new Error("Error al subir imagen");
-      }
-
-      const urls = data.map((img: any) =>
-        img.url.startsWith("/")
-          ? `${process.env.NEXT_PUBLIC_BACKEND_URL}${img.url}`
-          : img.url
-      );
-
-      const ids = data.map((img: any) => ({ id: img.id }));
-
-      if (isCarousel) {
-        setForm((prev: any) => ({
-          ...prev,
-          img_carousel: ids,
-          img_carousel_preview: urls,
-        }));
-      } else {
-        setForm((prev: any) => ({
-          ...prev,
-          img: data[0].id,
-          imgPreview: urls[0],
-        }));
-      }
-    } catch (error) {
-      console.error("Error al subir archivo:", error);
+  const uploadCarouselImages = async (files: FileList | File[]) => {
+    const { ids, urls } = await uploadImages(files);
+    if (ids.length) {
+      setForm((prev: any) => ({
+        ...prev,
+        img_carousel: [...prev.img_carousel, ...ids],
+        img_carousel_preview: [...prev.img_carousel_preview, ...urls],
+      }));
     }
   };
 
@@ -294,7 +269,9 @@ export function useProductAdmin() {
     setShowForm,
     form,
     setForm,
-    handleFileUpload,
+    uploadMainImage,
+    uploadCarouselImages,
+    uploading,
     saveProducto,
     editProducto,
     deleteProducto,

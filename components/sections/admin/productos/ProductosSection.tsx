@@ -29,7 +29,9 @@ export default function ProductosSection() {
     setShowForm,
     form,
     setForm,
-    handleFileUpload,
+    uploadMainImage,
+    uploadCarouselImages,
+    uploading,
     saveProducto,
     editProducto,
     deleteProducto,
@@ -77,7 +79,9 @@ export default function ProductosSection() {
             form={form}
             setForm={setForm}
             ingredientes={ingredientes}
-            handleFileUpload={handleFileUpload}
+            onMainUpload={uploadMainImage}
+            onCarouselUpload={uploadCarouselImages}
+            uploading={uploading}
             onSave={saveProducto}
           />
           <ProductPreview product={form} />

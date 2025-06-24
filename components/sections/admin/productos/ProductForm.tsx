@@ -1,20 +1,20 @@
 "use client";
 
-import { UploadCloud, ImagePlus } from "lucide-react";
-import Image from "next/image";
-import { Dispatch, SetStateAction, useRef } from "react";
+import { Dispatch, SetStateAction } from "react";
+import UploadImageMain from "@/components/ui/upload/UploadImageMain";
+import UploadCarouselGallery from "@/components/ui/upload/UploadCarouselGallery";
 
 interface Props {
   form: any;
   setForm: Dispatch<SetStateAction<any>>;
   ingredientes: any[];
-  handleFileUpload: (files: FileList, isCarousel?: boolean) => Promise<void>;
+  onMainUpload: (files: FileList | File[]) => Promise<void>;
+  onCarouselUpload: (files: FileList | File[]) => Promise<void>;
+  uploading: boolean;
   onSave: () => void;
 }
 
-export default function ProductForm({ form, setForm, ingredientes, handleFileUpload, onSave }: Props) {
-  const fileInputRef = useRef<HTMLInputElement | null>(null);
-  const carouselInputRef = useRef<HTMLInputElement | null>(null);
+export default function ProductForm({ form, setForm, ingredientes, onMainUpload, onCarouselUpload, uploading, onSave }: Props) {
 
   const sabores = [
     "fideos",
@@ -205,34 +205,24 @@ export default function ProductForm({ form, setForm, ingredientes, handleFileUpl
       <div className="grid md:grid-cols-2 gap-6">
         <div className="space-y-2">
           <label className="text-sm font-semibold text-[#5A3E1B]">Imagen principal</label>
-          <button type="button" onClick={() => fileInputRef.current?.click()} className="bg-[#fbe6d4] hover:bg-[#efd6bf] text-[#8B4513] px-4 py-2 rounded-md flex items-center gap-2 justify-center">
-            <UploadCloud className="w-4 h-4" /> Subir imagen
-          </button>
-          <input type="file" className="hidden" ref={fileInputRef} onChange={(e) => e.target.files && handleFileUpload(e.target.files)} />
-          {form.imgPreview && (
-            <Image src={form.imgPreview} alt="preview" width={300} height={300} className="rounded-md object-cover h-40 w-full" />
-          )}
+          <UploadImageMain
+            value={form.img}
+            preview={form.imgPreview}
+            uploadImages={onMainUpload}
+            onChange={(val, prev) => setForm({ ...form, img: val, imgPreview: prev })}
+            loading={uploading}
+          />
         </div>
 
         <div className="space-y-2">
           <label className="text-sm font-semibold text-[#5A3E1B]">Carrusel de imágenes</label>
-          <button type="button" onClick={() => carouselInputRef.current?.click()} className="bg-[#fbe6d4] hover:bg-[#efd6bf] text-[#8B4513] px-4 py-2 rounded-md flex items-center gap-2 justify-center">
-            <ImagePlus className="w-4 h-4" /> Subir múltiples
-          </button>
-          <input
-            type="file"
-            className="hidden"
-            multiple
-            ref={carouselInputRef}
-            onChange={(e) => e.target.files && handleFileUpload(e.target.files, true)}
+          <UploadCarouselGallery
+            values={form.img_carousel}
+            previews={form.img_carousel_preview}
+            uploadImages={onCarouselUpload}
+            onChange={(ids, prevs) => setForm({ ...form, img_carousel: ids, img_carousel_preview: prevs })}
+            loading={uploading}
           />
-              {form.img_carousel_preview?.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2">
-              {form.img_carousel_preview.map((src: string, idx: number) => (
-                <Image key={idx} src={src} alt={`preview-${idx}`} width={80} height={80} className="object-cover rounded-md h-20 w-20" />
-              ))}
-            </div>
-          )}
         </div>
       </div>
 
