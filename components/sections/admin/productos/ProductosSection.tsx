@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState } from "react";
@@ -48,7 +49,7 @@ export default function ProductosSection() {
       img: null,
       img_carousel: [],
       imgPreview: null,
-        img_carousel_preview: [],
+      img_carousel_preview: [],
       documentId: "",
     };
   }
@@ -98,25 +99,25 @@ export default function ProductosSection() {
       setForm((prev: any) => ({ ...prev, imgPreview: localUrl }));
     }
 
-        const data = new FormData();
-        Array.from(files).forEach((file) => data.append("files", file));
+    const data = new FormData();
+    Array.from(files).forEach((file) => data.append("files", file));
 
-        try {
-          const res = await fetch("/api/upload", { method: "POST", body: data });
-          const json = await res.json();
-          if (!res.ok) throw new Error();
-          if (isCarousel) {
-            setForm((prev: any) => ({
-              ...prev,
-              img_carousel: json.map((img: any) => img.id),
-              img_carousel_preview: json.map((img: any) => img.url),
-            }));
-          } else {
-            setForm((prev: any) => ({ ...prev, img: json[0].id, imgPreview: json[0].url }));
-          }
-        } catch (error) {
-          toast.error("Error al subir la imagen");
-        }
+    try {
+      const res = await fetch("/api/upload", { method: "POST", body: data });
+      const json = await res.json();
+      if (!res.ok) throw new Error();
+      if (isCarousel) {
+        setForm((prev: any) => ({
+          ...prev,
+          img_carousel: json.map((img: any) => img.id),
+          img_carousel_preview: json.map((img: any) => img.url),
+        }));
+      } else {
+        setForm((prev: any) => ({ ...prev, img: json[0].id, imgPreview: json[0].url }));
+      }
+    } catch (error) {
+      toast.error("Error al subir la imagen");
+    }
   };
 
 const saveProducto = async () => {
@@ -128,11 +129,11 @@ const saveProducto = async () => {
 
     const payload = { ...form };
     if (!editingId) {
-      delete payload.documentId; // 🔥 eliminar si es un POST
+      delete payload.documentId;
     }
 
     console.log("🟡 Intentando guardar producto:");
-    console.log("🧾 Payload limpio:", payload);
+    console.log("🧾 Payload limpio:", JSON.stringify(payload, null, 2)); // <- corregido acá
 
     const res = await fetch(url, {
       method,
@@ -165,17 +166,17 @@ const saveProducto = async () => {
       ...p,
       ingredientes: p.ingredientes?.map((i: any) => i.id) || [],
       imgPreview: p.img?.url,
-img_carousel_preview: p.img_carousel?.map((i: any) => i.url) || [],
+      img_carousel_preview: p.img_carousel?.map((i: any) => i.url) || [],
       documentId: p.documentId,
     });
     setEditingId(p.id);
     setShowForm(true);
   };
 
-    const deleteProducto = async (documentId: string) => {
+  const deleteProducto = async (documentId: string) => {
     if (!confirm("¿Eliminar producto?")) return;
     try {
-    const res = await fetch(`/api/admin/products/${documentId}`, { method: "DELETE" });
+      const res = await fetch(`/api/admin/products/${documentId}`, { method: "DELETE" });
       if (!res.ok) throw new Error();
       toast.success("Producto eliminado");
       fetchProductos();
