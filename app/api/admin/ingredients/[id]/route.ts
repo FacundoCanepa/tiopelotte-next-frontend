@@ -19,9 +19,9 @@ async function getIngredientId(documentId: string) {
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = params.id;
+  const { id } = context.params;
   try {
     const body = await req.json();
     console.log("📥 PUT recibido body:", body);
@@ -69,9 +69,9 @@ export async function PUT(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  context: { params: { id: string } }
 ) {
-  const id = params.id;
+  const { id } = context.params;
   try {
     console.log("🗑️ DELETE recibido para:", id);
 
