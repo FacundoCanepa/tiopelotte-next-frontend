@@ -19,6 +19,7 @@ export async function GET() {
     const data = Array.isArray(json?.data)
       ? json.data.map((item: any) => ({
           id: item.id,
+          documentId: item.documentId,
           nombre: item.ingredienteName,
           stock: item.Stock,
           unidadMedida: item.unidadMedida,

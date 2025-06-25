@@ -23,7 +23,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
 
 export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
   try {
-    const res = await fetch(`${backend}/api/ingredients/${params.id}`, {
+    const res = await fetch(`${backend}/api/ingredientes/${params.id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },
     });
