@@ -74,7 +74,7 @@ export function useIngredientesAdmin() {
 
       const url = isNew
         ? "/api/admin/ingredients"
-        : `/api/admin/ingredients/${form.id}`;
+        : `/api/admin/ingredients/${form.documentId}`;
       const method = isNew ? "POST" : "PUT";
 
       const res = await fetch(url, {
@@ -95,12 +95,9 @@ export function useIngredientesAdmin() {
 
   const deleteIngrediente = async (documentId: string) => {
     try {
-      const ingrediente = ingredientes.find((i) => i.documentId === documentId);
-      if (!ingrediente) throw new Error("Ingrediente no encontrado");
+     console.log("🗑️ Eliminando ingrediente con documentId:", documentId);
 
-      console.log("🗑️ Eliminando ingrediente con id:", ingrediente.id);
-
-      const res = await fetch(`/api/admin/ingredients/${ingrediente.id}`, {
+      const res = await fetch(`/api/admin/ingredients/${documentId}`, {
         method: "DELETE",
       });
 

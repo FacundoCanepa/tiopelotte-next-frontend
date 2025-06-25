@@ -1,6 +1,21 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
+const backend = process.env.NEXT_PUBLIC_BACKEND_URL!;
+const token = process.env.STRAPI_PEDIDOS_TOKEN!;
+
+async function getIngredientId(documentId: string) {
+  console.log("🔍 Buscando ingrediente con documentId:", documentId);
+  const search = await fetch(
+    `${backend}/api/ingredientes?filters[documentId][$eq]=${documentId}`,
+    {
+      headers: { Authorization: `Bearer ${token}` },
+    }
+  );
+
+  const json = await search.json();
+  console.log("🔎 Resultado búsqueda:", json);
+  return json.data?.[0]?.id as number | undefined;
+}
 
 export async function PUT(
   req: NextRequest,
@@ -8,29 +23,46 @@ export async function PUT(
 ) {
   try {
     const body = await req.json();
+    console.log("📥 PUT recibido body:", body);
+    console.log("🆔 Params:", params.id);
+
+    const ingredientId = await getIngredientId(params.id);
+
+    if (!ingredientId) {
+      console.warn("⚠️ Ingrediente no encontrado:", params.id);
+      return NextResponse.json(
+        { error: "Ingrediente no encontrado" },
+        { status: 404 }
+      );
+    }
 
     const data = {
       ingredienteName: body.ingredienteName,
       Stock: body.Stock,
       unidadMedida: body.unidadMedida,
       precio: body.precio,
-      documentId: body.documentId,
     };
 
-    const res = await fetch(`${backend}/api/ingredientes/${params.id}`, {
+    console.log("🛠️ Payload limpio para PUT:", data);
+
+    const res = await fetch(`${backend}/api/ingredientes/${ingredientId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.STRAPI_PEDIDOS_TOKEN}`,
+        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ data }),
     });
 
     const json = await res.json();
-    return NextResponse.json(json);
+    console.log("✅ Respuesta PUT:", json);
+    return NextResponse.json(json, { status: res.status });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error }, { status: 500 });
+    console.error("🔥 Error en PUT:", error);
+    return NextResponse.json(
+      { error: "Error interno del servidor" },
+      { status: 500 }
+    );
   }
 }
 
@@ -39,17 +71,38 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    const res = await fetch(`${backend}/api/ingredientes/${params.id}`, {
+    console.log("🗑️ DELETE recibido para:", params.id);
+
+    const ingredientId = await getIngredientId(params.id);
+
+    if (!ingredientId) {
+      console.warn("⚠️ Ingrediente no encontrado para eliminar:", params.id);
+      return NextResponse.json(
+        { error: "Ingrediente no encontrado" },
+        { status: 404 }
+      );
+    }
+
+    const res = await fetch(`${backend}/api/ingredientes/${ingredientId}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${process.env.STRAPI_PEDIDOS_TOKEN}`,
+        Authorization: `Bearer ${token}`,
       },
     });
 
+    if (res.status === 204) {
+      console.log("✅ Ingrediente eliminado correctamente");
+      return new Response(null, { status: 204 });
+    }
+
     const json = await res.json();
-    return NextResponse.json(json);
+    console.log("⚠️ Respuesta DELETE (no 204):", json);
+    return NextResponse.json(json, { status: res.status });
   } catch (error) {
-    console.error(error);
-    return NextResponse.json({ error }, { status: 500 });
+    console.error("🔥 Error en DELETE:", error);
+    return NextResponse.json(
+      { error: "Error interno del servidor" },
+      { status: 500 }
+    );
   }
 }
