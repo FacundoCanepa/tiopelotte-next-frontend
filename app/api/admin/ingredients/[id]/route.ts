@@ -21,15 +21,16 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const id = params.id;
   try {
     const body = await req.json();
     console.log("📥 PUT recibido body:", body);
-    console.log("🆔 Params:", params.id);
+    console.log("🆔 Params:", id);
 
-    const ingredientId = await getIngredientId(params.id);
+    const ingredientId = await getIngredientId(id);
 
     if (!ingredientId) {
-      console.warn("⚠️ Ingrediente no encontrado:", params.id);
+      console.warn("⚠️ Ingrediente no encontrado:", id);
       return NextResponse.json(
         { error: "Ingrediente no encontrado" },
         { status: 404 }
@@ -70,13 +71,17 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
+  const id = params.id;
   try {
-    console.log("🗑️ DELETE recibido para:", params.id);
+    console.log("🗑️ DELETE recibido para:", id);
 
-    const ingredientId = await getIngredientId(params.id);
+    const ingredientId = await getIngredientId(id);
 
     if (!ingredientId) {
-      console.warn("⚠️ Ingrediente no encontrado para eliminar:", params.id);
+      console.warn(
+        "⚠️ Ingrediente no encontrado para eliminar:",
+        id
+      );
       return NextResponse.json(
         { error: "Ingrediente no encontrado" },
         { status: 404 }

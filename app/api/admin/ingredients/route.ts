@@ -4,7 +4,6 @@ const backend = process.env.NEXT_PUBLIC_BACKEND_URL!;
 const token = process.env.STRAPI_PEDIDOS_TOKEN!;
 
 export async function GET() {
-  console.log("📤 GET ingredientes solicitado");
   const res = await fetch(
     `${backend}/api/ingredientes?sort[0]=ingredienteName&pagination[pageSize]=100`,
     {
@@ -15,7 +14,7 @@ export async function GET() {
   );
 
   const data = await res.json();
-  console.log("✅ Respuesta GET ingredientes:", data);
+
   return NextResponse.json(data, { status: res.status });
 }
 
