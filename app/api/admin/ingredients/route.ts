@@ -1,92 +1,33 @@
 import { NextRequest, NextResponse } from "next/server";
 
 const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
-const token = process.env.STRAPI_PEDIDOS_TOKEN;
 
-export async function GET() {
-  try {
-    const res = await fetch(`${backend}/api/ingredientes?populate=*`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (!res.ok) {
-      console.error("Error al obtener ingredientes:", res.statusText);
-      return NextResponse.json({ error: "Error al obtener ingredientes" }, { status: res.status });
-    }
-
-    const json = await res.json();
-
-    const data = Array.isArray(json?.data)
-      ? json.data.map((item: any) => ({
-          id: item.id,
-          documentId: item.documentId,
-          nombre: item.ingredienteName,
-          stock: item.Stock,
-          unidadMedida: item.unidadMedida,
-          precio: item.precio,
-          stockUpdatedAt: item.stockUpdatedAt,
-        }))
-      : [];
-
-    return NextResponse.json({ data }, { status: 200 });
-  } catch (err) {
-    console.error("Error interno en GET ingredientes:", err);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
-  }
-}
-
+// 🔥 Crear ingrediente
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
+
+    const data = {
+      ingredienteName: body.ingredienteName,
+      Stock: body.Stock,
+      unidadMedida: body.unidadMedida,
+      precio: body.precio,
+      documentId: body.documentId,
+    };
+
     const res = await fetch(`${backend}/api/ingredientes`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
+        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
       },
-      body: JSON.stringify({ data: body }),
+      body: JSON.stringify({ data }),
     });
 
     const json = await res.json();
-    return NextResponse.json(json, { status: res.status });
-  } catch (err) {
-    console.error("Error interno en POST ingrediente:", err);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
-  }
-}
-
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const body = await req.json();
-    const res = await fetch(`${backend}/api/ingredientes/${params.id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({ data: body }),
-    });
-
-    const json = await res.json();
-    return NextResponse.json(json, { status: res.status });
-  } catch (err) {
-    console.error("Error interno en PUT ingrediente:", err);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
-  }
-}
-
-// DELETE para eliminar un ingrediente
-export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
-  try {
-    const res = await fetch(`${backend}/api/ingredientes/${params.id}`, {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    const json = await res.json();
-    return NextResponse.json(json, { status: res.status });
-  } catch (err) {
-    console.error("Error interno en DELETE ingrediente:", err);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+    return NextResponse.json(json);
+  } catch (error) {
+    console.error(error);
+    return NextResponse.json({ error }, { status: 500 });
   }
 }

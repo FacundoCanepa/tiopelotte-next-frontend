@@ -41,8 +41,12 @@ export default function IngredientesSection() {
     <section className="space-y-6">
       <header className="flex flex-col sm:flex-row justify-between items-start gap-4">
         <div>
-          <h1 className="text-3xl font-bold text-[#8B4513] font-garamond">Gestión de ingredientes</h1>
-          <p className="text-sm text-gray-600">Crear, editar y eliminar ingredientes</p>
+          <h1 className="text-3xl font-bold text-[#8B4513] font-garamond">
+            Gestión de ingredientes
+          </h1>
+          <p className="text-sm text-gray-600">
+            Crear, editar y eliminar ingredientes
+          </p>
         </div>
         <IngredientFilters
           search={search}
