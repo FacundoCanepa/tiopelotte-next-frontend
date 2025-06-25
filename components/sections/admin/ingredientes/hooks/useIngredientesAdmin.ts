@@ -28,38 +28,31 @@ export function useIngredientesAdmin() {
 
   const unidades = ["kg", "planchas", "unidad"];
 
-  const fetchIngredientes = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/ingredientes?sort[0]=ingredienteName&pagination[pageSize]=100`,
-        {
-          headers: {
-            Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
-          },
-        }
-      );
+ const fetchIngredientes = async () => {
+  try {
+    const res = await fetch("/api/admin/ingredientes");
+    const json = await res.json();
 
-      const json = await res.json();
-      const data = Array.isArray(json.data) ? json.data : [];
+    const data = Array.isArray(json.data) ? json.data : [];
 
-      const ingredientes = data.map((i: any) => ({
-        id: i.id,
-        documentId: i.documentId,
-        nombre: i.ingredienteName, // Campo real en tu Strapi
-        stock: i.Stock,
-        unidadMedida: i.unidadMedida,
-        precio: i.precio,
-        stockUpdatedAt: i.stockUpdatedAt,
-      }));
+    const ingredientes = data.map((i: any) => ({
+      id: i.id,
+      documentId: i.documentId,
+      nombre: i.ingredienteName,
+      stock: i.Stock,
+      unidadMedida: i.unidadMedida,
+      precio: i.precio,
+      stockUpdatedAt: i.stockUpdatedAt,
+    }));
 
-      setIngredientes(ingredientes);
-    } catch (error) {
-      console.error(error);
-      toast.error("Error cargando ingredientes");
-    } finally {
-      setLoading(false);
-    }
-  };
+    setIngredientes(ingredientes);
+  } catch (error) {
+    console.error("❌ Error cargando ingredientes:", error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchIngredientes();
@@ -77,6 +70,8 @@ export function useIngredientesAdmin() {
         documentId: isNew ? generateSlug(form.nombre) : form.documentId,
       };
 
+      console.log("📝 Guardando ingrediente:", payload);
+
       const url = isNew
         ? "/api/admin/ingredients"
         : `/api/admin/ingredients/${form.id}`;
@@ -93,7 +88,7 @@ export function useIngredientesAdmin() {
       setShowForm(false);
       fetchIngredientes();
     } catch (error) {
-      console.error(error);
+      console.error("❌ Error al guardar ingrediente:", error);
       toast.error("Error al guardar ingrediente");
     }
   };
@@ -102,6 +97,8 @@ export function useIngredientesAdmin() {
     try {
       const ingrediente = ingredientes.find((i) => i.documentId === documentId);
       if (!ingrediente) throw new Error("Ingrediente no encontrado");
+
+      console.log("🗑️ Eliminando ingrediente con id:", ingrediente.id);
 
       const res = await fetch(`/api/admin/ingredients/${ingrediente.id}`, {
         method: "DELETE",
@@ -112,12 +109,13 @@ export function useIngredientesAdmin() {
       toast.success("Ingrediente eliminado");
       fetchIngredientes();
     } catch (error) {
-      console.error(error);
+      console.error("❌ Error al eliminar:", error);
       toast.error("Error al eliminar");
     }
   };
 
   const editIngrediente = (i: IngredientType) => {
+    console.log("✏️ Editando ingrediente:", i);
     setForm({
       id: i.id,
       nombre: i.nombre,
@@ -130,6 +128,7 @@ export function useIngredientesAdmin() {
   };
 
   const startNew = () => {
+    console.log("➕ Nuevo ingrediente");
     setForm({
       nombre: "",
       stock: 0,

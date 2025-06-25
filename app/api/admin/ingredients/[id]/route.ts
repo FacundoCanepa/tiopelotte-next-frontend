@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 
 const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// 🔥 Editar ingrediente
 export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -22,7 +21,7 @@ export async function PUT(
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+        Authorization: `Bearer ${process.env.STRAPI_PEDIDOS_TOKEN}`,
       },
       body: JSON.stringify({ data }),
     });
@@ -35,7 +34,6 @@ export async function PUT(
   }
 }
 
-// 🔥 Eliminar ingrediente
 export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -44,7 +42,7 @@ export async function DELETE(
     const res = await fetch(`${backend}/api/ingredientes/${params.id}`, {
       method: "DELETE",
       headers: {
-        Authorization: `Bearer ${process.env.STRAPI_API_TOKEN}`,
+        Authorization: `Bearer ${process.env.STRAPI_PEDIDOS_TOKEN}`,
       },
     });
 
