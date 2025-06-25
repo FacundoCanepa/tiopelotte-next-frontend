@@ -28,9 +28,9 @@ export function useIngredientesAdmin() {
 
   const unidades = ["kg", "planchas", "unidad"];
 
- const fetchIngredientes = async () => {
+  const fetchIngredientes = async () => {
   try {
-    const res = await fetch("/api/admin/ingredientes");
+    const res = await fetch("/api/admin/ingredients");
     const json = await res.json();
 
     const data = Array.isArray(json.data) ? json.data : [];
