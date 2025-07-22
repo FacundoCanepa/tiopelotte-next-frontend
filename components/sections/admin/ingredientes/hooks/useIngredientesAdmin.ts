@@ -28,7 +28,7 @@ export function useIngredientesAdmin() {
 
   const unidades = ["kg", "planchas", "unidad"];
 
-  const fetchIngredientes = async () => {
+const fetchIngredientes = async () => {
   try {
     const res = await fetch("/api/admin/ingredients");
     const json = await res.json();
@@ -45,6 +45,8 @@ export function useIngredientesAdmin() {
       stockUpdatedAt: i.stockUpdatedAt,
     }));
 
+    console.log("📦 Ingredientes cargados:", ingredientes); // 👈 LOG IMPORTANTE
+
     setIngredientes(ingredientes);
   } catch (error) {
     console.error("❌ Error cargando ingredientes:", error);
@@ -52,6 +54,7 @@ export function useIngredientesAdmin() {
     setLoading(false);
   }
 };
+
 
 
   useEffect(() => {
@@ -111,18 +114,21 @@ export function useIngredientesAdmin() {
     }
   };
 
-  const editIngrediente = (i: IngredientType) => {
-    console.log("✏️ Editando ingrediente:", i);
-    setForm({
-      id: i.id,
-      nombre: i.nombre,
-      stock: i.stock,
-      unidadMedida: i.unidadMedida,
-      precio: i.precio,
-      documentId: i.documentId,
-    });
-    setShowForm(true);
-  };
+const editIngrediente = (i: IngredientType) => {
+  console.log("✏️ Editando ingrediente:", i); // 👈 LOG IMPORTANTE
+
+  setForm({
+    id: i.id,
+    nombre: i.nombre,
+    stock: i.stock,
+    unidadMedida: i.unidadMedida,
+    precio: i.precio,
+    documentId: i.documentId,
+  });
+
+  setShowForm(true);
+};
+
 
   const startNew = () => {
     console.log("➕ Nuevo ingrediente");

@@ -17,20 +17,44 @@ async function getIngredientId(documentId: string) {
   return json.data?.[0]?.id as number | undefined;
 }
 
-export async function PUT(
-  req: NextRequest,
-  context: { params: { id: string } }
-) {
-  const { id } = context.params;
+async function getIngredientIdByDocumentId(documentId: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${backend}/api/ingredientes?filters[documentId][$eq]=${documentId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const json = await res.json();
+    console.log("🔎 Resultado búsqueda por documentId:", json);
+
+    const ingrediente = json.data?.[0];
+    return ingrediente?.id || null;
+  } catch (error) {
+    console.error("❌ Error buscando por documentId:", error);
+    return null;
+  }
+}
+
+export async function PUT(req: NextRequest) {
   try {
     const body = await req.json();
     console.log("📥 PUT recibido body:", body);
-    console.log("🆔 Params:", id);
 
-    const ingredientId = await getIngredientId(id);
+    const { documentId, ingredienteName, Stock, unidadMedida, precio } = body;
 
-    if (!ingredientId) {
-      console.warn("⚠️ Ingrediente no encontrado:", id);
+    if (!documentId) {
+      console.warn("⚠️ Faltó documentId en el body");
+      return NextResponse.json({ error: "Faltó documentId" }, { status: 400 });
+    }
+
+    const strapiId = await getIngredientIdByDocumentId(documentId);
+
+    if (!strapiId) {
+      console.warn("⚠️ No se encontró ingrediente con documentId:", documentId);
       return NextResponse.json(
         { error: "Ingrediente no encontrado" },
         { status: 404 }
@@ -38,15 +62,16 @@ export async function PUT(
     }
 
     const data = {
-      ingredienteName: body.ingredienteName,
-      Stock: body.Stock,
-      unidadMedida: body.unidadMedida,
-      precio: body.precio,
+      ingredienteName,
+      Stock,
+      unidadMedida,
+      precio,
     };
 
     console.log("🛠️ Payload limpio para PUT:", data);
+    console.log("🔗 URL a actualizar:", `${backend}/api/ingredientes/${strapiId}`);
 
-    const res = await fetch(`${backend}/api/ingredientes/${ingredientId}`, {
+    const res = await fetch(`${backend}/api/ingredientes/${strapiId}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -56,7 +81,8 @@ export async function PUT(
     });
 
     const json = await res.json();
-    console.log("✅ Respuesta PUT:", json);
+    console.log("✅ Respuesta PUT desde Strapi:", json);
+
     return NextResponse.json(json, { status: res.status });
   } catch (error) {
     console.error("🔥 Error en PUT:", error);
