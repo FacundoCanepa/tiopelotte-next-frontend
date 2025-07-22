@@ -115,7 +115,7 @@ const fetchIngredientes = async () => {
   };
 
 const editIngrediente = (i: IngredientType) => {
-  console.log("✏️ Editando ingrediente:", i); // 👈 LOG IMPORTANTE
+  console.log("✏️ Editando ingrediente:", i);
 
   setForm({
     id: i.id,

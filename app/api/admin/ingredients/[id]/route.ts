@@ -3,75 +3,24 @@ import { NextRequest, NextResponse } from "next/server";
 const backend = process.env.NEXT_PUBLIC_BACKEND_URL!;
 const token = process.env.STRAPI_PEDIDOS_TOKEN!;
 
-async function getIngredientId(documentId: string) {
-  console.log("🔍 Buscando ingrediente con documentId:", documentId);
-  const search = await fetch(
-    `${backend}/api/ingredientes?filters[documentId][$eq]=${documentId}`,
-    {
-      headers: { Authorization: `Bearer ${token}` },
-    }
-  );
-
-  const json = await search.json();
-  console.log("🔎 Resultado búsqueda:", json);
-  return json.data?.[0]?.id as number | undefined;
-}
-
-async function getIngredientIdByDocumentId(documentId: string): Promise<string | null> {
-  try {
-    const res = await fetch(
-      `${backend}/api/ingredientes?filters[documentId][$eq]=${documentId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
-
-    const json = await res.json();
-    console.log("🔎 Resultado búsqueda por documentId:", json);
-
-    const ingrediente = json.data?.[0];
-    return ingrediente?.id || null;
-  } catch (error) {
-    console.error("❌ Error buscando por documentId:", error);
-    return null;
-  }
-}
-
-export async function PUT(req: NextRequest) {
+export async function PUT(
+  req: NextRequest,
+  context: { params: Promise<{ id: string }> }
+) {
+  const { id } = await context.params; 
   try {
     const body = await req.json();
     console.log("📥 PUT recibido body:", body);
-
-    const { documentId, ingredienteName, Stock, unidadMedida, precio } = body;
-
-    if (!documentId) {
-      console.warn("⚠️ Faltó documentId en el body");
-      return NextResponse.json({ error: "Faltó documentId" }, { status: 400 });
-    }
-
-    const strapiId = await getIngredientIdByDocumentId(documentId);
-
-    if (!strapiId) {
-      console.warn("⚠️ No se encontró ingrediente con documentId:", documentId);
-      return NextResponse.json(
-        { error: "Ingrediente no encontrado" },
-        { status: 404 }
-      );
-    }
+    console.log("🆔 Params (documentId):", id);
 
     const data = {
-      ingredienteName,
-      Stock,
-      unidadMedida,
-      precio,
+      ingredienteName: body.ingredienteName,
+      Stock: body.Stock,
+      unidadMedida: body.unidadMedida,
+      precio: body.precio,
     };
 
-    console.log("🛠️ Payload limpio para PUT:", data);
-    console.log("🔗 URL a actualizar:", `${backend}/api/ingredientes/${strapiId}`);
-
-    const res = await fetch(`${backend}/api/ingredientes/${strapiId}`, {
+    const res = await fetch(`${backend}/api/ingredientes/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -81,8 +30,7 @@ export async function PUT(req: NextRequest) {
     });
 
     const json = await res.json();
-    console.log("✅ Respuesta PUT desde Strapi:", json);
-
+    console.log("✅ Respuesta PUT:", json);
     return NextResponse.json(json, { status: res.status });
   } catch (error) {
     console.error("🔥 Error en PUT:", error);
@@ -95,26 +43,13 @@ export async function PUT(req: NextRequest) {
 
 export async function DELETE(
   req: NextRequest,
-  context: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
-  const { id } = context.params;
+  const { id } = await context.params;
   try {
     console.log("🗑️ DELETE recibido para:", id);
 
-    const ingredientId = await getIngredientId(id);
-
-    if (!ingredientId) {
-      console.warn(
-        "⚠️ Ingrediente no encontrado para eliminar:",
-        id
-      );
-      return NextResponse.json(
-        { error: "Ingrediente no encontrado" },
-        { status: 404 }
-      );
-    }
-
-    const res = await fetch(`${backend}/api/ingredientes/${ingredientId}`, {
+    const res = await fetch(`${backend}/api/ingredientes/${id}`, {
       method: "DELETE",
       headers: {
         Authorization: `Bearer ${token}`,
