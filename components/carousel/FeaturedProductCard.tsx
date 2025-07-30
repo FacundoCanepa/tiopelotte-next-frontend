@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { ProductType } from "@/types/product";
 import Button from "@/components/ui/Button";
 import { useCartStore } from "@/store/cart-store";
-import Image from "next/image";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 interface Props {
   product: ProductType;
@@ -48,10 +48,13 @@ const FeaturedProductCard = ({ product }: Props) => {
             if (window.innerWidth < 768) setExpanded(!expanded);
           }}
         >
-          <Image
+          <OptimizedImage
             src={product.img?.[0]?.url}
             alt={product.productName}
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+            quality={80}
+            placeholder="blur"
             className="object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-105"
           />
           {expanded && (

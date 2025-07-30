@@ -1,5 +1,6 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
+import { toast } from "sonner";
 
 export type CartItem = {
   product: {
@@ -55,6 +56,7 @@ export const useCartStore = create<CartStore>()(
       telefono: "",
 
       addToCart: (product, quantity) => {
+        try {
         const existing = get().cart.find((item) => item.product.id === product.id);
         if (existing) {
           const updatedCart = get().cart.map((item) =>
@@ -63,20 +65,37 @@ export const useCartStore = create<CartStore>()(
               : item
           );
           set({ cart: updatedCart });
+            toast.success(`${product.productName} actualizado en el carrito`);
         } else {
           set({ cart: [...get().cart, { product, quantity }] });
+            toast.success(`${product.productName} agregado al carrito`);
+        }
+        } catch (error) {
+          toast.error("Error al agregar producto al carrito");
         }
       },
 
       removeFromCart: (productId) => {
+        try {
+          const item = get().cart.find(item => item.product.id === productId);
         set({ cart: get().cart.filter((item) => item.product.id !== productId) });
+          if (item) {
+            toast.success(`${item.product.productName} eliminado del carrito`);
+          }
+        } catch (error) {
+          toast.error("Error al eliminar producto del carrito");
+        }
       },
 
       updateQuantity: (productId, quantity) => {
+        try {
         const updatedCart = get().cart.map((item) =>
           item.product.id === productId ? { ...item, quantity } : item
         );
         set({ cart: updatedCart });
+        } catch (error) {
+          toast.error("Error al actualizar cantidad");
+        }
       },
 
       clearCart: () =>
@@ -109,6 +128,17 @@ export const useCartStore = create<CartStore>()(
     }),
     {
       name: "cart-storage",
+      storage: createJSONStorage(() => localStorage),
+      partialize: (state) => ({
+        cart: state.cart,
+        tipoEntrega: state.tipoEntrega,
+        zona: state.zona,
+        direccion: state.direccion,
+        referencias: state.referencias,
+        tipoPago: state.tipoPago,
+        nombre: state.nombre,
+        telefono: state.telefono,
+      }),
     }
   )
 );

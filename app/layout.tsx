@@ -2,15 +2,75 @@ import type { Metadata } from "next";
 import "./globals.css";
 import Navbar from "@/components/layout/navbar";
 import { islandMoments, ebGaramond } from "@/lib/fonts/fonts";
-import Footer from "@/components/layout/footer";
-import WhatsAppButton from "@/components/ui/WhatsAppButton";
-import CartFloatButton from "@/components/ui/CartFloatButton";
 import { Toaster } from "sonner";
 import UserSessionLoader from "@/components/providers/UserSessionLoader";
+import dynamic from "next/dynamic";
+
+// Lazy loading de componentes no críticos
+const Footer = dynamic(() => import("@/components/layout/footer"), {
+  ssr: false,
+});
+
+const WhatsAppButton = dynamic(() => import("@/components/ui/WhatsAppButton"), {
+  ssr: false,
+});
+
+const CartFloatButton = dynamic(() => import("@/components/ui/CartFloatButton"), {
+  ssr: false,
+});
 
 export const metadata: Metadata = {
-  title: "Tio pelotte",
-  description: "Ecommerce tio pelotte",
+  title: "TÍO PELOTTE - Pastas Artesanales Frescas | La Plata",
+  description: "Descubrí las mejores pastas artesanales frescas de La Plata. Ravioles, sorrentinos, ñoquis y más. Envíos a domicilio en Abasto, Olmos, Los Hornos y Etcheverry.",
+  keywords: "pastas artesanales, pastas frescas, La Plata, ravioles, sorrentinos, ñoquis, envío domicilio",
+  authors: [{ name: "TÍO PELOTTE" }],
+  creator: "TÍO PELOTTE",
+  publisher: "TÍO PELOTTE",
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  metadataBase: new URL(process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://tiopelotte.com'),
+  alternates: {
+    canonical: '/',
+  },
+  openGraph: {
+    title: "TÍO PELOTTE - Pastas Artesanales Frescas",
+    description: "Las mejores pastas artesanales frescas de La Plata con envío a domicilio",
+    url: '/',
+    siteName: 'TÍO PELOTTE',
+    images: [
+      {
+        url: '/opengraph-image.jpg',
+        width: 1200,
+        height: 630,
+        alt: 'TÍO PELOTTE - Pastas Artesanales',
+      },
+    ],
+    locale: 'es_AR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: "TÍO PELOTTE - Pastas Artesanales Frescas",
+    description: "Las mejores pastas artesanales frescas de La Plata",
+    images: ['/opengraph-image.jpg'],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  verification: {
+    google: 'your-google-verification-code',
+  },
 };
 
 export default function RootLayout({
@@ -20,6 +80,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
+      <head>
+        <link rel="preconnect" href="https://loved-ducks-790a0f88b6.media.strapiapp.com" />
+        <link rel="dns-prefetch" href="https://loved-ducks-790a0f88b6.media.strapiapp.com" />
+        <link rel="preload" href="/favicon.ico" as="image" />
+      </head>
         <body className={`${islandMoments.variable} ${ebGaramond.variable} antialiased`}>
             <UserSessionLoader />
             <Navbar />

@@ -1,20 +1,9 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-
-
-
 @custom-variant dark (&:is(.dark *));
-/* @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-} */
-
 
 @theme inline {
-  
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -152,8 +141,73 @@
 body {
   overflow-y: scroll;
   scrollbar-width: none;   
+  scroll-behavior: smooth;
 }
 
 body::-webkit-scrollbar {
   display: none; 
+}
+
+/* Optimización de renderizado */
+* {
+  box-sizing: border-box;
+}
+
+/* Optimización de fuentes */
+.font-island {
+  font-display: swap;
+}
+
+.font-garamond {
+  font-display: swap;
+}
+
+/* Optimización de animaciones */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Optimización de imágenes */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Optimización de lazy loading */
+.lazy-load {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.lazy-load.loaded {
+  opacity: 1;
+}
+
+/* Optimización de contenido above the fold */
+.above-fold {
+  contain: layout style paint;
+}
+
+/* Optimización de scroll */
+.smooth-scroll {
+  scroll-behavior: smooth;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Optimización de transforms */
+.gpu-accelerated {
+  transform: translateZ(0);
+  will-change: transform;
+}
+
+/* Optimización de contenido crítico */
+.critical-content {
+  contain: layout;
 }
