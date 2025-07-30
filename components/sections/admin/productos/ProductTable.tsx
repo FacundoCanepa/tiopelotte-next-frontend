@@ -28,7 +28,19 @@ export default function ProductTable({ productos, onEdit, onDelete, orderBy, set
             <th className="p-3 text-center">Oferta</th>
             <th className="p-3 text-center">Destacado</th>
             <th className="p-3 text-center">Activo</th>
-            <th className="p-3 text-left">Últ. stock</th>
+            <th
+            className="p-3 text-left cursor-pointer"
+            onClick={() =>
+              setOrderBy({
+                field: "updatedAt",
+                direction: orderBy.field === "updatedAt" && orderBy.direction === "asc" ? "desc" : "asc",
+              })
+            }
+          >
+            Últ. stock
+            <ArrowUpDown className="inline h-3 w-3 ml-1" />
+          </th>
+
             <th className="p-3 text-center">Acciones</th>
           </tr>
         </thead>
@@ -51,7 +63,7 @@ export default function ProductTable({ productos, onEdit, onDelete, orderBy, set
               <td className="p-3 text-center">{p.isOffer && <Check className="h-4 w-4 text-green-600" />}</td>
               <td className="p-3 text-center">{p.isFeatured && <Star className="h-4 w-4 text-yellow-500" />}</td>
               <td className="p-3 text-center">{p.active ? <Check className="h-4 w-4 text-green-600" /> : null}</td>
-              <td className="p-3 text-xs text-gray-500">{p.stockUpdatedAt ? new Date(p.stockUpdatedAt).toLocaleString("es-AR") : "-"}</td>
+              <td className="p-3 text-xs text-gray-500">{p.updatedAt ? new Date(p.updatedAt).toLocaleString("es-AR") : "-"}</td>
               <td className="p-3 text-center flex justify-center gap-3">
                 <button onClick={() => onEdit(p)} className="text-[#8B4513] hover:text-[#5A3E1B] transition">
                   <Pencil className="h-4 w-4" />

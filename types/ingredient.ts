@@ -6,4 +6,5 @@ export type IngredientType = {
   unidadMedida: string;
   precio: number;
   stockUpdatedAt?: string | null;
+  updatedAt?: string | 322; 
 };

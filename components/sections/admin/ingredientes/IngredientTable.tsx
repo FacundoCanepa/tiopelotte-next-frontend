@@ -26,7 +26,21 @@ export default function IngredientTable({ ingredientes, onEdit, onDelete, orderB
             <th className="p-3 text-left cursor-pointer" onClick={() => setOrderBy({ field: "precio", direction: orderBy.direction === "asc" ? "desc" : "asc" })}>
               Precio <ArrowUpDown className="inline h-3 w-3 ml-1" />
             </th>
-            <th className="p-3 text-left">Actualizado</th>
+            <th
+  className="p-3 text-left cursor-pointer"
+  onClick={() =>
+    setOrderBy({
+      field: "updatedAt",
+      direction:
+        orderBy.field === "updatedAt" && orderBy.direction === "asc"
+          ? "desc"
+          : "asc",
+    })
+  }
+>
+  Actualizado <ArrowUpDown className="inline h-3 w-3 ml-1" />
+</th>
+
             <th className="p-3 text-center">Acciones</th>
           </tr>
         </thead>
@@ -43,7 +57,7 @@ export default function IngredientTable({ ingredientes, onEdit, onDelete, orderB
               </td>
               <td className="p-3 font-semibold">${i.precio.toLocaleString("es-AR")}</td>
               <td className="p-3 text-xs text-gray-500">
-                {i.stockUpdatedAt ? new Date(i.stockUpdatedAt).toLocaleString("es-AR") : "-"}
+                {i.updatedAt ? new Date(i.updatedAt).toLocaleString("es-AR") : "-"}
               </td>
               <td className="p-3 text-center flex justify-center gap-3">
                 <button onClick={() => onEdit(i)} className="text-[#8B4513] hover:text-[#5A3E1B] transition">

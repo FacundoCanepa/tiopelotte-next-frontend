@@ -43,9 +43,9 @@ const fetchIngredientes = async () => {
       unidadMedida: i.unidadMedida,
       precio: i.precio,
       stockUpdatedAt: i.stockUpdatedAt,
+      updatedAt: i.updatedAt, 
     }));
 
-    console.log("📦 Ingredientes cargados:", ingredientes); // 👈 LOG IMPORTANTE
 
     setIngredientes(ingredientes);
   } catch (error) {
