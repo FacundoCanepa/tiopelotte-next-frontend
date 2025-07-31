@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Copy, Loader2 } from "lucide-react";
 import { toast } from "sonner";
+/*
  * Tabla de pedidos optimizada para el dashboard administrativo
  * 
  * Mejoras implementadas:
@@ -17,7 +18,7 @@ import { toast } from "sonner";
 "use client";
 
 import { useState } from "react";
-import { Copy, Loader2, Eye, Phone, MapPin, CreditCard } from "lucide-react";
+import { Copy, Loader2, Eye, Phone, MapPin, CreditCard, Package } from "lucide-react";
 import { toast } from "sonner";
 
 interface Pedido {
@@ -217,68 +218,6 @@ export default function PedidosTable({ pedidos }: Props) {
           <p className="text-sm text-[#5A3E1B] mt-1">Ajustá los filtros para ver más resultados</p>
         </div>
       )}
-    </div>
-  );
-}
-          <tr>
-            <th className="p-2 text-left">Fecha</th>
-            <th className="p-2 text-left">Cliente</th>
-            <th className="p-2 text-left">Total</th>
-            <th className="p-2 text-left">Pago</th>
-            <th className="p-2 text-left">Entrega</th>
-            <th className="p-2 text-left">Estado</th>
-            <th className="p-2 text-left">Teléfono</th>
-          </tr>
-        </thead>
-        <tbody>
-          {pedidos.map((p) => {
-            const fecha = new Date(p.createdAt).toLocaleDateString("es-AR");
-            const total = `$${p.total.toLocaleString("es-AR")}`;
-            const linkWhatsApp = `https://wa.me/54${p.telefono}`;
-
-            return (
-              <tr key={p.id} className="border-b last:border-none hover:bg-[#FFF8EC]">
-                <td className="p-2 whitespace-nowrap">{fecha}</td>
-                <td className="p-2 whitespace-nowrap capitalize">{p.nombre}</td>
-                <td className="p-2 whitespace-nowrap">{total}</td>
-                <td className="p-2 whitespace-nowrap capitalize">{p.tipoPago}</td>
-                <td className="p-2 whitespace-nowrap capitalize">{p.tipoEntrega}</td>
-                <td className="p-2 whitespace-nowrap">
-                  <select
-                    className="border rounded-md px-2 py-1 bg-white"
-                    value={p.estado}
-                    onChange={(e) => actualizarEstado(p.documentId, e.target.value)}
-                  >
-                    <option value="Pendiente">Pendiente</option>
-                    <option value="En camino">En camino</option>
-                    <option value="Entregado">Entregado</option>
-                    <option value="Cancelado">Cancelado</option>
-                  </select>
-                  {loadingId === p.documentId && (
-                    <Loader2 className="inline ml-2 w-4 h-4 animate-spin" />
-                  )}
-                </td>
-                <td className="p-2 whitespace-nowrap flex items-center gap-2">
-                  <a
-                    href={linkWhatsApp}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-green-600 underline"
-                  >
-                    {p.telefono}
-                  </a>
-                  <button
-                    onClick={() => copiar(p.telefono)}
-                    className="text-[#8B4513] hover:text-black"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </button>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
     </div>
   );
 }
