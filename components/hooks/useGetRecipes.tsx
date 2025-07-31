@@ -13,19 +13,22 @@ export function useGetRecipes() {
     const result = Array.isArray(json.data)
       ? json.data.map((item: any) => ({
           id: item.id,
-          titulo: item.titulo,
-          slug: item.slug,
-          descripcion: item.descripcion,
-          tiempo: item.tiempo,
-          porciones: item.porciones,
-          preparacion: item.preparacion,
-          img: item.img || null,
+          titulo: item.attributes?.titulo || item.titulo,
+          slug: item.attributes?.slug || item.slug,
+          descripcion: item.attributes?.descripcion || item.descripcion,
+          tiempo: item.attributes?.tiempo || item.tiempo,
+          porciones: item.attributes?.porciones || item.porciones,
+          preparacion: item.attributes?.preparacion || item.preparacion,
+          img: item.attributes?.img || item.img || null,
           products:
-            item.products?.map((prod: any) => ({
+            (item.attributes?.products?.data || item.products)?.map((prod: any) => ({
               id: prod.id,
-              productName: prod.productName,
-              slug: prod.slug,
-              img: prod.img ? (Array.isArray(prod.img) ? prod.img : [prod.img]) : [],
+              productName: prod.attributes?.productName || prod.productName,
+              slug: prod.attributes?.slug || prod.slug,
+              img: (prod.attributes?.img || prod.img) ? 
+                   (Array.isArray(prod.attributes?.img || prod.img) ? 
+                    (prod.attributes?.img || prod.img) : 
+                    [prod.attributes?.img || prod.img]) : [],
             })) || [],
         }))
       : [];
