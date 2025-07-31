@@ -55,12 +55,21 @@ export default function CheckoutPage() {
   const [showToast, setShowToast] = useState(false);
 
   useEffect(() => {
-    if (!user) return;
-    setNombre(user.username ?? "");
-    setTelefono(user.telefono ?? "");
-    setZona(user.zona ?? "");
-    setDireccion(user.direccion ?? "");
-    setReferencias(user.referencias ?? "");
+    if (user && user.username && nombre === "") {
+      setNombre(user.username);
+    }
+    if (user && user.telefono && telefono === "") {
+      setTelefono(user.telefono);
+    }
+    if (user && user.zona && zona === "") {
+      setZona(user.zona);
+    }
+    if (user && user.direccion && direccion === "") {
+      setDireccion(user.direccion);
+    }
+    if (user && user.referencias && referencias === "") {
+      setReferencias(user.referencias);
+    }
   }, [user]);
 
   const totalProductos = getTotalPrice();
@@ -133,13 +142,13 @@ export default function CheckoutPage() {
     nombre && telefono && zona && direccion && tipoPago && !nombreError && !telefonoError;
 
   const validarNombre = (value: string) => {
-    const valido = /^[^\d]*$/.test(value);
+    const valido = value.trim().length > 0 && /^[^\d]*$/.test(value);
     setNombreError(!valido);
     setNombre(value);
   };
 
   const validarTelefono = (value: string) => {
-    const valido = /^[0-9]+$/.test(value);
+    const valido = value.trim().length > 0 && /^[0-9]+$/.test(value);
     setTelefonoError(!valido);
     setTelefono(value);
   };

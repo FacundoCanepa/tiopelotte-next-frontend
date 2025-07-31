@@ -13,6 +13,7 @@
 
 import { useState, useEffect } from "react";
 import { X, Download, Smartphone } from "lucide-react";
+import { toast } from "sonner";
 
 interface BeforeInstallPromptEvent extends Event {
   readonly platforms: string[];

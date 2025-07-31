@@ -14,12 +14,12 @@ export default function AdministradorGuard({ children }: { children: React.React
     if (!isSessionChecked) return;
     if (!user || !jwt) {
       router.replace("/login");
-    } else if (user.role !== "Administrador") {
+    } else if (user.role !== "Administrador" && user.role !== "administrador") {
       router.replace("/admin");
     }
   }, [isSessionChecked, user, jwt, router]);
 
-  const hasAccess = user && jwt && user.role === "Administrador";
+  const hasAccess = user && jwt && (user.role === "Administrador" || user.role === "administrador");
 
   if (!isSessionChecked || !hasAccess) {
     return (

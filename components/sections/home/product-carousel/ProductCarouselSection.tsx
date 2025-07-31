@@ -52,7 +52,7 @@ const ProductCarouselSection = ({
         </div>
 
         <div className="mt-4">
-          {loading && <SkeletonCarousel count={4} />}
+          {loading && <SkeletonSchema count={4} />}
           {!loading && error && (
             <p className="text-center text-stone-500">{error}</p>
           )}

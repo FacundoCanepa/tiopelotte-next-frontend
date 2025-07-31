@@ -40,7 +40,11 @@ const CategoryHome = () => {
           <SkeletonCategory />
         ) : categories.length === 0 ? (
           <div className="w-full flex items-center justify-center text-[#8B4513]">
-            <p>No hay categorías disponibles en este momento.</p>
+            <div className="text-center space-y-4 py-16">
+              <div className="text-4xl">🍝</div>
+              <p className="text-lg font-garamond italic">No hay categorías disponibles en este momento.</p>
+              <p className="text-sm text-stone-600">Estamos preparando nuevas delicias para vos.</p>
+            </div>
           </div>
         ) : (
           categories.map((category) => {

@@ -402,8 +402,6 @@ const ProductosSection = () => {
                   <ProductGridCard 
                     key={product.id} 
                     product={product} 
-                    priority={index < 4} // Priorizar las primeras 4 imágenes
-                    layout={view}
                   />
                 ))}
               </div>

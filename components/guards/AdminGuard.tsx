@@ -14,13 +14,13 @@ export default function AdminGuard({ children }: { children: React.ReactNode }) 
     if (!isSessionChecked) return;
     if (!user || !jwt) {
       router.replace("/login");
-    } else if (user.role !== "Administrador" && user.role !== "Empleado") {
+    } else if (user.role !== "Administrador" && user.role !== "Empleado" && user.role !== "administrador" && user.role !== "empleado") {
       router.replace("/");
     }
   }, [isSessionChecked, user, jwt, router]);
 
   const hasAccess =
-    user && jwt && (user.role === "Administrador" || user.role === "Empleado");
+    user && jwt && (user.role === "Administrador" || user.role === "Empleado" || user.role === "administrador" || user.role === "empleado");
 
   if (!isSessionChecked || !hasAccess) {
     return (

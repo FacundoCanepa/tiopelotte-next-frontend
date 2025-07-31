@@ -14,6 +14,7 @@ import {
   Minus,
   Plus,
 } from "lucide-react";
+import { useCartStore } from "@/store/cart-store";
 import SimilarProductsCarousel from "./SimilarProductsCarousel";
 
 interface Props {
@@ -21,6 +22,7 @@ interface Props {
 }
 
 const ProductDetail = ({ product }: Props) => {
+  const addToCart = useCartStore((state) => state.addToCart);
 
   const unidad = product.unidadMedida?.trim().toLowerCase();
   const isKg = unidad === "kg";
@@ -150,7 +152,10 @@ const ProductDetail = ({ product }: Props) => {
           </div>
 
           {/* Botón agregar al carrito */}
-          <button className="mt-4 inline-flex items-center gap-2 justify-center px-6 py-3 bg-[#D16A45] hover:bg-[#b45733] text-white text-base font-semibold rounded-xl shadow transition-transform hover:scale-105 cursor-pointer">
+          <button 
+            onClick={() => addToCart(product, cantidad)}
+            className="mt-4 inline-flex items-center gap-2 justify-center px-6 py-3 bg-[#D16A45] hover:bg-[#b45733] text-white text-base font-semibold rounded-xl shadow transition-transform hover:scale-105 cursor-pointer"
+          >
             <ShoppingCart className="w-5 h-5" />
             Agregar al carrito
           </button>

@@ -30,6 +30,9 @@ interface FetchOptions extends RequestInit {
   transform?: (data: any) => any;
 }
 
+// Cache simple para evitar requests duplicados
+const requestCache = new Map<string, Promise<any>>();
+
 // Helper para errores específicos de Strapi
 function parseError(error: any, response?: Response): string {
   // Errores de red
@@ -96,6 +99,25 @@ export function useFetch<T>(
   const fetchData = useCallback(async (attempt = 1): Promise<void> => {
     if (!url) return;
 
+    // Evitar requests duplicados para la misma URL
+    const cacheKey = `${url}-${JSON.stringify(fetchOptions)}`;
+    if (requestCache.has(cacheKey)) {
+      try {
+        const cachedData = await requestCache.get(cacheKey);
+        if (mountedRef.current) {
+          setState({
+            data: cachedData as T,
+            loading: false,
+            error: ""
+          });
+        }
+        return;
+      } catch (error) {
+        // Si falla el cache, continuar con request normal
+        requestCache.delete(cacheKey);
+      }
+    }
+
     try {
       // Actualizar loading state solo en el primer intento
       if (attempt === 1 && mountedRef.current) {
@@ -110,7 +132,7 @@ export function useFetch<T>(
         abortControllerRef.current?.abort();
       }, timeout);
 
-      const response = await fetch(url, {
+      const fetchPromise = fetch(url, {
         ...fetchOptions,
         signal: abortControllerRef.current.signal,
         headers: {
@@ -119,9 +141,14 @@ export function useFetch<T>(
         },
       });
 
+      // Agregar al cache
+      requestCache.set(cacheKey, fetchPromise.then(r => r.json()));
+      const response = await fetchPromise;
+
       clearTimeout(timeoutId);
 
       if (!response.ok) {
+        requestCache.delete(cacheKey);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -133,11 +160,16 @@ export function useFetch<T>(
           loading: false,
           error: ""
         });
+        
+        console.log(`✅ Datos cargados exitosamente desde: ${url}`);
       }
 
     } catch (error: any) {
+      requestCache.delete(cacheKey);
+      
       // No intentar retry si fue cancelado por el usuario
       if (error.name === 'AbortError') {
+        console.log(`🚫 Request cancelado: ${url}`);
         return;
       }
 
@@ -145,6 +177,8 @@ export function useFetch<T>(
       if (attempt < retries) {
         // Backoff exponencial: 1s, 2s, 4s...
         const delay = retryDelay * Math.pow(2, attempt - 1);
+        
+        console.warn(`⚠️ Reintentando request (${attempt}/${retries}) en ${delay}ms: ${url}`);
         
         setTimeout(() => {
           if (mountedRef.current) {
@@ -157,6 +191,7 @@ export function useFetch<T>(
       // Si se agotaron los reintentos, mostrar error
       if (mountedRef.current) {
         const errorMessage = parseError(error);
+        console.error(`❌ Error final en fetch: ${url}`, error);
         setState({
           data: null,
           loading: false,

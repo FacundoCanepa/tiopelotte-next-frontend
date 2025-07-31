@@ -34,4 +34,34 @@ const SkeletonSchema = ({ count }: SkeletonSchemaProps) => {
   );
 };
 
+export function SkeletonCarousel({ count }: { count: number }) {
+  return (
+    <div className="flex overflow-x-auto gap-4 px-2">
+      {Array.from({ length: count }).map((_, index) => (
+        <div
+          key={index}
+          className="min-w-[280px] bg-white/30 backdrop-blur-2xl rounded-xl shadow-md flex flex-col h-full p-4 gap-4"
+        >
+          {/* Imagen */}
+          <div className="relative w-full h-[17rem] overflow-hidden rounded-xl">
+            <Skeleton className="absolute inset-0 w-full h-full rounded-xl" />
+          </div>
+
+          {/* Título */}
+          <Skeleton className="h-5 w-3/4 rounded" />
+
+          {/* Descripción */}
+          <Skeleton className="h-4 w-full rounded" />
+          <Skeleton className="h-4 w-5/6 rounded" />
+
+          {/* Botón */}
+          <div className="mt-auto">
+            <Skeleton className="h-10 w-[70%] rounded-full mx-auto" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 export default SkeletonSchema;

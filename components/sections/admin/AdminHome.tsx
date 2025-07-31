@@ -5,7 +5,7 @@ import AdminCard from "./AdminCard";
 
 export default function AdminHome() {
   const user = useUserStore((s) => s.user);
-  const isAdmin = user?.role === "Administrador";
+  const isAdmin = user?.role === "Administrador" || user?.role === "administrador";
 
   return (
     <div className="space-y-8 bg-[#FBE6D4] min-h-screen p-6">

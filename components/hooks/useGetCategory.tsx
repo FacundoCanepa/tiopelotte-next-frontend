@@ -4,7 +4,10 @@ import type { Category } from "@/types/category";
 export function useGetCategory() {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/categories?populate=*`;
   
-  const { data, loading, error } = useFetch<any>(url);
+  const { data, loading, error } = useFetch<any>(url, {
+    cacheKey: 'categories',
+    cacheTTL: 600000 // 10 minutos
+  });
   
   // Simplificado: manejar estructura de Strapi
   let categories = [];
@@ -25,6 +28,8 @@ export function useGetCategory() {
       description: item.description,
       mainImage: item.mainImage || { url: '/placeholder.jpg' }
     }));
+  } else if (data && !loading) {
+    console.warn('⚠️ Estructura de datos inesperada en useGetCategory:', data);
   }
   
   return { 

@@ -10,9 +10,11 @@ import Image from "next/image";
 
 interface Props {
   product: ProductType;
+  priority?: boolean;
+  layout?: 'grid' | 'list';
 }
 
-const ProductGridCard = ({ product }: Props) => {
+const ProductGridCard = ({ product, priority = false, layout = 'grid' }: Props) => {
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
 
