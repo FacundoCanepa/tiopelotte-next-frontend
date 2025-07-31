@@ -169,9 +169,7 @@ export default function AdminHome() {
           </a>
         </div>
       </div>
-    </div>
-  );
-}
+      <div>
         {isAdmin && (
           <AdminCard href="/admin/dashboard" title="📊 Dashboard Económico" icon={<BarChart2 className="h-8 w-8" />} />
         )}
