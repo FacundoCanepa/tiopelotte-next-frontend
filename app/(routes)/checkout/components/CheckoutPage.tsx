@@ -15,6 +15,7 @@ const CheckoutDeliveryMap = dynamic(() => import("./CheckoutDeliveryMap"), { ssr
 import CheckoutPaymentMethod from "./CheckoutPaymentMethod";
 import MercadoPagoButton from "./MercadoPagoButton";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
+import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics";
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -46,6 +47,7 @@ export default function CheckoutPage() {
   const setTelefono = useCartStore((state) => state.setTelefono);
 
   const user = useUserStore((state) => state.user);
+  const { trackBeginCheckout } = useGoogleAnalytics();
 
   const [error, setError] = useState("");
   const [nombreError, setNombreError] = useState(false);
@@ -70,6 +72,19 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     setTotal(totalGeneral);
+    
+    // Track begin checkout when cart changes
+    if (cart.length > 0) {
+      const items = cart.map(item => ({
+        item_id: item.product.id.toString(),
+        item_name: item.product.productName,
+        category: "Pastas",
+        quantity: item.quantity,
+        price: item.product.price,
+      }));
+      
+      trackBeginCheckout(items, totalGeneral);
+    }
   }, [totalGeneral]);
     const handleConfirmRetiro = async () => {
 

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
+import { useGoogleAnalytics } from "@/hooks/useGoogleAnalytics";
 
 export type CartItem = {
   product: {
@@ -58,6 +59,22 @@ export const useCartStore = create<CartStore>()(
       addToCart: (product, quantity) => {
         try {
         const existing = get().cart.find((item) => item.product.id === product.id);
+        
+        // Track add to cart event
+        if (typeof window !== "undefined" && window.gtag) {
+          window.gtag("event", "add_to_cart", {
+            currency: "ARS",
+            value: product.price * quantity,
+            items: [{
+              item_id: product.id.toString(),
+              item_name: product.productName,
+              category: "Pastas",
+              quantity: quantity,
+              price: product.price,
+            }],
+          });
+        }
+        
         if (existing) {
           const updatedCart = get().cart.map((item) =>
             item.product.id === product.id
@@ -78,6 +95,22 @@ export const useCartStore = create<CartStore>()(
       removeFromCart: (productId) => {
         try {
           const item = get().cart.find(item => item.product.id === productId);
+          
+          // Track remove from cart event
+          if (item && typeof window !== "undefined" && window.gtag) {
+            window.gtag("event", "remove_from_cart", {
+              currency: "ARS",
+              value: item.product.price * item.quantity,
+              items: [{
+                item_id: item.product.id.toString(),
+                item_name: item.product.productName,
+                category: "Pastas",
+                quantity: item.quantity,
+                price: item.product.price,
+              }],
+            });
+          }
+          
         set({ cart: get().cart.filter((item) => item.product.id !== productId) });
           if (item) {
             toast.success(`${item.product.productName} eliminado del carrito`);

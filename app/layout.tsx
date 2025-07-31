@@ -7,6 +7,7 @@ import UserSessionLoader from "@/components/providers/UserSessionLoader";
 import Footer from "@/components/layout/footer";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import CartFloatButton from "@/components/ui/CartFloatButton";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 
 export const metadata: Metadata = {
   title: "TÍO PELOTTE - Pastas Artesanales Frescas | La Plata",
@@ -64,9 +65,12 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
     <html lang="es">
       <body className={`${islandMoments.variable} ${ebGaramond.variable} antialiased`}>
+        {gaId && <GoogleAnalytics measurementId={gaId} />}
         <UserSessionLoader />
         <Navbar />
         {children}
