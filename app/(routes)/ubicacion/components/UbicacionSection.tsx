@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import {
   Map,
   MapPin,
@@ -16,43 +15,39 @@ import SectionHeader from "@/components/ui/SectionHeader";
 import dynamic from "next/dynamic";
 const DeliveryMap = dynamic(() => import("./DeliveryMap"), { ssr: false });
 
-const floatAnimation = {
-  animate: { y: [0, -10, 0] },
-  transition: { duration: 6, repeat: Infinity, ease: "easeInOut" },
-};
 
 const UbicacionSection = () => {
   return (
     <section className="relative text-[#8B4513] pt-24 pb-32 px-4 md:px-10">
       {/* Fondo decorativo con íconos flotantes */}
       <div className="absolute inset-0 opacity-10 pointer-events-none z-0">
-        <motion.div className="absolute top-10 left-10 rotate-12" {...floatAnimation}>
+        <div className="absolute top-10 left-10 rotate-12">
           <MapPin className="w-24 h-24" />
-        </motion.div>
-        <motion.div className="absolute top-1/3 right-10 -rotate-12" {...floatAnimation}>
+        </div>
+        <div className="absolute top-1/3 right-10 -rotate-12">
           <Soup className="w-16 h-16" />
-        </motion.div>
-        <motion.div className="absolute bottom-20 left-1/4 rotate-45" {...floatAnimation}>
+        </div>
+        <div className="absolute bottom-20 left-1/4 rotate-45">
           <ChefHat className="w-32 h-32" />
-        </motion.div>
-        <motion.div className="absolute bottom-8 right-1/4 -rotate-45" {...floatAnimation}>
+        </div>
+        <div className="absolute bottom-8 right-1/4 -rotate-45">
           <UtensilsCrossed className="w-20 h-20" />
-        </motion.div>
-        <motion.div className="absolute top-1/2 left-[5%] rotate-6" {...floatAnimation}>
+        </div>
+        <div className="absolute top-1/2 left-[5%] rotate-6">
           <Locate className="w-28 h-28" />
-        </motion.div>
-        <motion.div className="absolute top-[65%] right-[5%] -rotate-6" {...floatAnimation}>
+        </div>
+        <div className="absolute top-[65%] right-[5%] -rotate-6">
           <Map className="w-24 h-24" />
-        </motion.div>
-        <motion.div className="absolute top-10 right-1/4 rotate-[15deg]" {...floatAnimation}>
+        </div>
+        <div className="absolute top-10 right-1/4 rotate-[15deg]">
           <ShoppingBasket className="w-20 h-20" />
-        </motion.div>
-        <motion.div className="absolute bottom-[20%] left-6 -rotate-[15deg]" {...floatAnimation}>
+        </div>
+        <div className="absolute bottom-[20%] left-6 -rotate-[15deg]">
           <Truck className="w-24 h-24" />
-        </motion.div>
-        <motion.div className="absolute bottom-[10%] right-10 rotate-[60deg]" {...floatAnimation}>
+        </div>
+        <div className="absolute bottom-[10%] right-10 rotate-[60deg]">
           <ShoppingCart className="w-16 h-16" />
-        </motion.div>
+        </div>
       </div>
 
       <div className="relative z-10 max-w-5xl mx-auto text-center">
@@ -61,30 +56,22 @@ const UbicacionSection = () => {
           subtitle="Donde llegan nuestras pastas frescas"
         />
 
-        <motion.p
-          className="text-[#6B4A2C] max-w-xl mx-auto text-base md:text-lg mt-6 leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+        <p
+          className="text-[#6B4A2C] max-w-xl mx-auto text-base md:text-lg mt-6 leading-relaxed animate-in slide-in-from-bottom-8 duration-800"
         >
           Podés retirarlas en nuestra fábrica ubicada en{" "}
           <strong>Av. 197 e/ 43 y 44, Olmos</strong>, o pedir desde la web
           para entrega a domicilio en zonas seleccionadas como Etcheverry, Miralagos,
           Haras del Sur, Campo de Roca y más.
-        </motion.p>
+        </p>
 
         <div className="mt-16">
           <DeliveryMap />
         </div>
 
         {/* Bloque "Cómo llegar" */}
-        <motion.div
-          className="mt-12 flex flex-col md:flex-row items-center justify-center gap-4 bg-[#FBE6D4] px-6 py-5 rounded-xl shadow-md border border-[#8B4513]"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          viewport={{ once: true }}
+        <div
+          className="mt-12 flex flex-col md:flex-row items-center justify-center gap-4 bg-[#FBE6D4] px-6 py-5 rounded-xl shadow-md border border-[#8B4513] animate-in slide-in-from-bottom-8 duration-800"
         >
           <MapPin className="w-8 h-8 text-[#8B4513]" />
           <p className="text-[#6B4A2C] text-center md:text-left">
@@ -99,24 +86,18 @@ const UbicacionSection = () => {
           >
             Cómo llegar
           </a>
-        </motion.div>
+        </div>
 
-        <motion.p
-          className="text-sm italic text-[#6B4A2C] mt-6"
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          viewport={{ once: true }}
+        <p
+          className="text-sm italic text-[#6B4A2C] mt-6 animate-in slide-in-from-bottom-8 duration-800"
+          style={{ animationDelay: '0.2s' }}
         >
           Si tu zona no figura, consultanos por WhatsApp para coordinar entregas especiales.
-        </motion.p>
-        <motion.div
-  className="mt-4 flex justify-center"
-  initial={{ opacity: 0, y: 10 }}
-  whileInView={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.5, delay: 0.3 }}
-  viewport={{ once: true }}
->
+        </p>
+        <div
+          className="mt-4 flex justify-center animate-in slide-in-from-bottom-8 duration-800"
+          style={{ animationDelay: '0.3s' }}
+        >
   <a
     href="https://wa.me/5492213086600?text=Hola%20T%C3%ADo%20Pelotte%2C%20quiero%20saber%20si%20los%20pedidos%20llegan%20hasta%3A"
     target="_blank"
@@ -139,7 +120,7 @@ const UbicacionSection = () => {
     </svg>
     Escribinos por WhatsApp
   </a>
-</motion.div>
+        </div>
 
       </div>
     </section>

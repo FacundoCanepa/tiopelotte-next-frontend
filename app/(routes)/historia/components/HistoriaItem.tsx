@@ -1,7 +1,6 @@
 // components/sections/historia/HistoriaItem.tsx
 "use client";
 
-import { motion } from "framer-motion";
 import HistoriaCarousel from "./HistoriaCarousel";
 
 interface Props {
@@ -16,14 +15,10 @@ interface Props {
 
 const HistoriaItem = ({ year, title, description, note, images, iconColor, reversed = false }: Props) => {
   return (
-    <motion.div
+    <div
       className={`relative flex flex-col md:flex-row ${
         reversed ? "md:flex-row-reverse" : ""
-      } items-center gap-10`}
-      initial={{ opacity: 0, y: 30 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      viewport={{ once: true }}
+      } items-center gap-10 animate-in slide-in-from-bottom-8 duration-800`}
     >
       {/* Carrusel de imagenes */}
       <div className="w-full md:w-1/2">
@@ -40,7 +35,7 @@ const HistoriaItem = ({ year, title, description, note, images, iconColor, rever
         </p>
         <p className="text-sm italic" style={{ color: iconColor }}>{note}</p>
       </div>
-    </motion.div>
+    </div>
   );
 };
 

@@ -120,6 +120,7 @@ export function useFetch<T>(
       const cachedData = apiCache.get(finalCacheKey);
       if (cachedData && attempt === 1) {
         if (mountedRef.current) {
+          console.log(`✅ Cache hit para: ${url}`);
           setState({
             data: transform ? transform(cachedData) : cachedData,
             loading: false,
@@ -176,16 +177,19 @@ export function useFetch<T>(
       inflightRequests.delete(finalCacheKey);
 
       if (!response.ok) {
+        console.error(`❌ HTTP Error ${response.status} para: ${url}`);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
       const json = await response.json();
+      console.log(`✅ Data fetched para: ${url}`, json);
 
       // Guardar en cache
       apiCache.set(finalCacheKey, json, cacheTTL);
 
       // Aplicar transformación si existe
       const finalData = transform ? transform(json) : json;
+      console.log(`✅ Data transformada:`, finalData);
 
       if (mountedRef.current) {
         setState({
@@ -204,14 +208,14 @@ export function useFetch<T>(
         return;
       }
 
-      console.error(`❌ Error en fetch (intento ${attempt}/${retries}):`, error);
+      console.error(`❌ Error en fetch (intento ${attempt}/${retries}) para ${url}:`, error);
 
       // Intentar retry si quedan intentos
       if (attempt < retries) {
         // Backoff exponencial: 1s, 2s, 4s...
         const delay = retryDelay * Math.pow(2, attempt - 1);
         
-        console.log(`🔄 Reintentando en ${delay}ms...`);
+        console.log(`🔄 Reintentando en ${delay}ms para: ${url}`);
         
         setTimeout(() => {
           if (mountedRef.current) {
@@ -224,6 +228,7 @@ export function useFetch<T>(
       // Si se agotaron los reintentos, mostrar error
       if (mountedRef.current) {
         const errorMessage = parseError(error);
+        console.error(`❌ Error final para ${url}:`, errorMessage);
         setState({
           data: null,
           loading: false,

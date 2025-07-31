@@ -1,6 +1,5 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useGetRecipes } from "@/components/hooks/useGetRecipes";
 import Button from "@/components/ui/button";
 import Link from "next/link";
@@ -27,14 +26,12 @@ const RecetasSection = () => {
         ) : (
           <div className="flex flex-col gap-16">
             {recipes.map((receta, index) => (
-              <motion.div
+              <div
                 key={receta.id}
-                className={`flex flex-col-reverse lg:flex-row ${
+                className={`flex flex-col-reverse lg:flex-row animate-in slide-in-from-bottom-8 duration-800 ${
                   index % 2 === 0 ? "lg:flex-row" : "lg:flex-row-reverse"
                 } bg-white/30 backdrop-blur-md rounded-xl shadow-md overflow-hidden`}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.6, delay: index * 0.1 }}
+                style={{ animationDelay: `${index * 0.1}s` }}
               >
                 <div className="w-full lg:w-1/2 p-6 flex flex-col justify-center">
                   <h3 className="text-2xl md:text-3xl font-semibold text-[#8B4513] mb-4">
@@ -69,7 +66,7 @@ const RecetasSection = () => {
                     sizes="(max-width: 768px) 100vw, 50vw"
                   />
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         )}
