@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 
 /**
  * Botón flotante del carrito optimizado
- * Micro-interactions sutiles sin framer-motion
+ * Componente cliente para manejo de estado
  */
 export default function CartFloatButton() {
   const { cart } = useCartStore();
@@ -17,12 +17,10 @@ export default function CartFloatButton() {
 
   if (["/cart", "/checkout"].includes(pathname) || itemCount === 0) return null;
 
-
   return (
     <button
       onClick={() => router.push("/cart")}
-      className="fixed bottom-24 right-5 z-50 p-4 rounded-full bg-white/90 backdrop-blur-sm text-[#8B4513] shadow-xl hover:bg-[#FFD966] transition-all duration-300 ease-out hover:scale-110 active:scale-95 flex items-center justify-center cursor-pointer group animate-in slide-in-from-bottom-4 fill-mode-both"
-      style={{ animationDelay: '1.2s', animationDuration: '0.6s' }}
+      className="fixed bottom-24 right-5 z-50 p-4 rounded-full bg-white/90 backdrop-blur-sm text-[#8B4513] shadow-xl hover:bg-[#FFD966] transition-all duration-300 ease-out hover:scale-110 active:scale-95 flex items-center justify-center cursor-pointer group"
       aria-label="Ir al carrito"
     >
       <div className="relative">

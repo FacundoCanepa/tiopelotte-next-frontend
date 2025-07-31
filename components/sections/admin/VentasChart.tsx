@@ -1,41 +1,6 @@
-/**
- * Gráfico de ventas profesional optimizado para dashboard
- * 
- * Mejoras implementadas:
- * - Diseño visual más atractivo con gradientes
- * - Tooltips personalizados con formato argentino
- * - Animaciones suaves al cargar
- * - Responsive design mejorado
- * - Colores coherentes con la marca
- */
-
 "use client";
 
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Tooltip,
-  Legend,
-  Filler,
-} from "chart.js";
-import { Line } from "react-chartjs-2";
-import { useEffect } from "react";
-
-// Registrar componentes de Chart.js
-ChartJS.register(
-  CategoryScale, 
-  LinearScale, 
-  BarElement, 
-  LineElement, 
-  PointElement, 
-  Tooltip, 
-  Legend, 
-  Filler
-);
+import { useEffect, useState } from "react";
 
 interface Props {
   labels: string[];
@@ -43,118 +8,158 @@ interface Props {
 }
 
 export default function VentasChart({ labels, values }: Props) {
-  // Configurar Chart.js para evitar errores de hidratación
+  const [ChartComponent, setChartComponent] = useState<any>(null);
+
   useEffect(() => {
-    ChartJS.defaults.responsive = true;
-    ChartJS.defaults.maintainAspectRatio = false;
-  }, []);
+    // Importar Chart.js solo en el cliente
+    const loadChart = async () => {
+      try {
+        const {
+          Chart as ChartJS,
+          CategoryScale,
+          LinearScale,
+          BarElement,
+          LineElement,
+          PointElement,
+          Tooltip,
+          Legend,
+          Filler,
+        } = await import("chart.js");
+        
+        const { Line } = await import("react-chartjs-2");
 
-  const data = {
-    labels,
-    datasets: [
-      {
-        label: "Ventas Mensuales",
-        data: values,
-        borderColor: "#D16A45",
-        backgroundColor: "rgba(209, 106, 69, 0.1)",
-        borderWidth: 3,
-        fill: true,
-        tension: 0.4,
-        pointBackgroundColor: "#D16A45",
-        pointBorderColor: "#ffffff",
-        pointBorderWidth: 2,
-        pointRadius: 6,
-        pointHoverRadius: 8,
-      },
-    ],
-  };
+        // Registrar componentes de Chart.js
+        ChartJS.register(
+          CategoryScale, 
+          LinearScale, 
+          BarElement, 
+          LineElement, 
+          PointElement, 
+          Tooltip, 
+          Legend, 
+          Filler
+        );
 
-  const options = {
-    responsive: true,
-    maintainAspectRatio: false,
-    interaction: {
-      intersect: false,
-      mode: 'index' as const,
-    },
-    layout: {
-      padding: 20,
-    },
-    plugins: {
-      legend: { 
-        display: true,
-        position: 'top' as const,
-        labels: {
-          color: "#5A3E1B",
-          font: { 
-            family: "EB Garamond", 
-            size: 14,
-            weight: 600
+        ChartJS.defaults.responsive = true;
+        ChartJS.defaults.maintainAspectRatio = false;
+
+        const data = {
+          labels,
+          datasets: [
+            {
+              label: "Ventas Mensuales",
+              data: values,
+              borderColor: "#D16A45",
+              backgroundColor: "rgba(209, 106, 69, 0.1)",
+              borderWidth: 3,
+              fill: true,
+              tension: 0.4,
+              pointBackgroundColor: "#D16A45",
+              pointBorderColor: "#ffffff",
+              pointBorderWidth: 2,
+              pointRadius: 6,
+              pointHoverRadius: 8,
+            },
+          ],
+        };
+
+        const options = {
+          responsive: true,
+          maintainAspectRatio: false,
+          interaction: {
+            intersect: false,
+            mode: 'index' as const,
           },
-          usePointStyle: true,
-          pointStyle: 'circle',
-        }
-      },
-      tooltip: {
-        backgroundColor: "#5A3E1B",
-        titleColor: "#FFF8EC",
-        bodyColor: "#FFF8EC",
-        cornerRadius: 12,
-        padding: 16,
-        titleFont: {
-          family: "EB Garamond",
-          size: 16,
-          weight: 600
-        },
-        bodyFont: {
-          family: "EB Garamond", 
-          size: 14
-        },
-        callbacks: {
-          label: function(context: any) {
-            return `Ventas: $${context.parsed.y.toLocaleString("es-AR")}`;
-          }
-        }
-      },
-    },
-    scales: {
-      x: {
-        grid: {
-          display: false,
-        },
-        ticks: {
-          color: "#5A3E1B",
-          font: { 
-            family: "EB Garamond", 
-            size: 13,
-            weight: 500
+          layout: {
+            padding: 20,
           },
-        },
-      },
-      y: {
-        beginAtZero: true,
-        grid: {
-          color: "rgba(90, 62, 27, 0.1)",
-          borderDash: [5, 5],
-        },
-        ticks: {
-          color: "#5A3E1B",
-          font: { 
-            family: "EB Garamond", 
-            size: 12,
-            weight: 500
+          plugins: {
+            legend: { 
+              display: true,
+              position: 'top' as const,
+              labels: {
+                color: "#5A3E1B",
+                font: { 
+                  family: "EB Garamond", 
+                  size: 14,
+                  weight: 600
+                },
+                usePointStyle: true,
+                pointStyle: 'circle',
+              }
+            },
+            tooltip: {
+              backgroundColor: "#5A3E1B",
+              titleColor: "#FFF8EC",
+              bodyColor: "#FFF8EC",
+              cornerRadius: 12,
+              padding: 16,
+              titleFont: {
+                family: "EB Garamond",
+                size: 16,
+                weight: 600
+              },
+              bodyFont: {
+                family: "EB Garamond", 
+                size: 14
+              },
+              callbacks: {
+                label: function(context: any) {
+                  return `Ventas: $${context.parsed.y.toLocaleString("es-AR")}`;
+                }
+              }
+            },
           },
-          callback: function(value: any) {
-            return `$${value.toLocaleString("es-AR")}`;
-          }
-        },
-      },
-    },
-    elements: {
-      point: {
-        hoverBorderWidth: 3,
+          scales: {
+            x: {
+              grid: {
+                display: false,
+              },
+              ticks: {
+                color: "#5A3E1B",
+                font: { 
+                  family: "EB Garamond", 
+                  size: 13,
+                  weight: 500
+                },
+              },
+            },
+            y: {
+              beginAtZero: true,
+              grid: {
+                color: "rgba(90, 62, 27, 0.1)",
+                borderDash: [5, 5],
+              },
+              ticks: {
+                color: "#5A3E1B",
+                font: { 
+                  family: "EB Garamond", 
+                  size: 12,
+                  weight: 500
+                },
+                callback: function(value: any) {
+                  return `$${value.toLocaleString("es-AR")}`;
+                }
+              },
+            },
+          },
+          elements: {
+            point: {
+              hoverBorderWidth: 3,
+            }
+          },
+        } as const;
+
+        setChartComponent(() => (
+          <Line options={options} data={data} />
+        ));
+      } catch (error) {
+        console.error("Error cargando Chart.js:", error);
       }
-    },
-  } as const;
+    };
+
+    loadChart();
+  }, [labels, values]);
 
   return (
     <div className="bg-white rounded-2xl shadow-lg border border-[#E6D2B5] p-6 h-[450px]">
@@ -177,7 +182,14 @@ export default function VentasChart({ labels, values }: Props) {
       </div>
 
       <div className="h-[320px]">
-        <Line options={options} data={data} />
+        {ChartComponent || (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center">
+              <div className="w-8 h-8 border-2 border-[#8B4513] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+              <p className="text-sm text-[#8B4513]">Cargando gráfico...</p>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,9 +1,7 @@
 "use client";
 
-import useEmblaCarousel from "embla-carousel-react";
+import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
-import dynamic from "next/dynamic";
 import type { ProductType } from "@/types/product";
 import FeaturedProductCard from "../carousel/FeaturedProductCard";
 
@@ -12,27 +10,41 @@ interface Props {
 }
 
 const ProductCarousel = ({ products }: Props) => {
-  const [emblaRef, emblaApi] = useEmblaCarousel(
-    {
-      align: "start",
-      slidesToScroll: 1,
-      containScroll: "trimSnaps",
-      dragFree: false,
-      loop: false,
-    },
-    []
-  );
-
-  const scrollPrev = useCallback(() => emblaApi?.scrollPrev(), [emblaApi]);
-  const scrollNext = useCallback(() => emblaApi?.scrollNext(), [emblaApi]);
-
+  const [emblaRef, setEmblaRef] = useState<any>(null);
+  const [emblaApi, setEmblaApi] = useState<any>(null);
   const [showButtons, setShowButtons] = useState(false);
+
+  useEffect(() => {
+    // Cargar Embla solo en el cliente
+    const loadEmbla = async () => {
+      try {
+        const useEmblaCarousel = (await import("embla-carousel-react")).default;
+        const [emblaRefResult, emblaApiResult] = useEmblaCarousel({
+          align: "start",
+          slidesToScroll: 1,
+          containScroll: "trimSnaps",
+          dragFree: false,
+          loop: false,
+        });
+        
+        setEmblaRef(emblaRefResult);
+        setEmblaApi(emblaApiResult);
+      } catch (error) {
+        console.error("Error cargando Embla:", error);
+      }
+    };
+
+    loadEmbla();
+  }, []);
 
   useEffect(() => {
     if (products && products.length > 4) {
       setShowButtons(true);
     }
   }, [products.length]);
+
+  const scrollPrev = () => emblaApi?.scrollPrev();
+  const scrollNext = () => emblaApi?.scrollNext();
 
   return (
     <div className="relative px-2 sm:px-4 md:px-8">

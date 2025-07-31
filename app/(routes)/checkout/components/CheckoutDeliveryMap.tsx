@@ -1,47 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import dynamic from "next/dynamic";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
 import CheckoutForm from "./CheckoutForm";
-
-// Importar componentes de react-leaflet con SSR deshabilitado
-const MapContainer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { 
-    ssr: false,
-    loading: () => (
-      <div className="h-[400px] w-full bg-gray-200 rounded-xl flex items-center justify-center border-4 border-[#FBE6D4] shadow-lg">
-        <p className="text-gray-600">Cargando mapa...</p>
-      </div>
-    )
-  }
-);
-
-const TileLayer = dynamic(
-  () => import("react-leaflet").then((mod) => mod.TileLayer),
-  { ssr: false }
-);
-
-const Polygon = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Polygon),
-  { ssr: false }
-);
-
-const Tooltip = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Tooltip),
-  { ssr: false }
-);
-
-const Marker = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Marker),
-  { ssr: false }
-);
-
-const Popup = dynamic(
-  () => import("react-leaflet").then((mod) => mod.Popup),
-  { ssr: false }
-);
 
 const CheckoutDeliveryMap = ({
   tipoEntrega,
@@ -60,12 +21,75 @@ const CheckoutDeliveryMap = ({
   referencias: string;
   setReferencias: (val: string) => void;
 }) => {
+  const [MapComponents, setMapComponents] = useState<any>(null);
   const [isClient, setIsClient] = useState(false);
 
-  // Verificar si estamos en el cliente
-  if (typeof window !== "undefined" && !isClient) {
+  useEffect(() => {
     setIsClient(true);
-  }
+    
+    // Cargar componentes de Leaflet solo en el cliente
+    const loadMapComponents = async () => {
+      try {
+        const [
+          { MapContainer },
+          { TileLayer },
+          { Polygon },
+          { Tooltip },
+          { Marker },
+          { Popup }
+        ] = await Promise.all([
+          import("react-leaflet").then((mod) => ({ MapContainer: mod.MapContainer })),
+          import("react-leaflet").then((mod) => ({ TileLayer: mod.TileLayer })),
+          import("react-leaflet").then((mod) => ({ Polygon: mod.Polygon })),
+          import("react-leaflet").then((mod) => ({ Tooltip: mod.Tooltip })),
+          import("react-leaflet").then((mod) => ({ Marker: mod.Marker })),
+          import("react-leaflet").then((mod) => ({ Popup: mod.Popup }))
+        ]);
+
+        // Crear icono
+        const L = await import("leaflet");
+        const icon = L.icon({
+          iconUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png",
+          iconSize: [25, 41],
+          iconAnchor: [12, 41],
+        });
+
+        const localPosition: [number, number] = [-34.99517, -58.04874];
+
+        setMapComponents(() => (
+          <MapContainer
+            center={[-35.02, -58.1]}
+            zoom={12}
+            scrollWheelZoom={true}
+            style={{ height: "100%", width: "100%" }}
+          >
+            <TileLayer
+              attribution='&copy; <a href="https://www.jawg.io">Jawg</a>'
+              url="https://{s}.tile.jawg.io/sunny/{z}/{x}/{y}.png?access-token=4MSVRrDpN6DB4eM9p3oKlH6d6HLhyBfgWG70l7dfIshQbY5VN6SiirFBGkiiSKmY"
+            />
+            {zonas.map((zona, i) => (
+              <Polygon
+                key={i}
+                positions={zona.coords}
+                pathOptions={{ color: zona.color, fillOpacity: 0.5 }}
+              >
+                <Tooltip sticky>{`${zona.nombre} – ${zona.precio}`}</Tooltip>
+              </Polygon>
+            ))}
+            <Marker position={localPosition} icon={icon}>
+              <Popup>
+                Tío Pelotte<br /> Av. 197 e/ 43 y 44, Abasto
+              </Popup>
+            </Marker>
+          </MapContainer>
+        ));
+      } catch (error) {
+        console.error("Error cargando mapa:", error);
+      }
+    };
+
+    loadMapComponents();
+  }, []);
 
   if (!isClient) {
     return (
@@ -94,51 +118,19 @@ const CheckoutDeliveryMap = ({
     );
   }
 
-  const localPosition: [number, number] = [-34.99517, -58.04874];
-
-  // Crear icono solo en el cliente
-  const createIcon = () => {
-    if (typeof window !== "undefined") {
-      const L = require("leaflet");
-      return L.icon({
-        iconUrl: "https://unpkg.com/leaflet@1.9.3/dist/images/marker-icon.png",
-        iconSize: [25, 41],
-        iconAnchor: [12, 41],
-      });
-    }
-    return null;
-  };
-
   return (
     <div className="flex flex-col md:flex-row gap-6">
       <div className="md:w-1/2 w-full">
         <h3 className="text-lg font-semibold text-[#5A3E1B] mb-2">Zonas de entrega</h3>
         <div className="rounded-xl overflow-hidden border-4 border-[#FBE6D4] shadow-lg h-[300px] md:h-[400px] z-0 relative">
-          <MapContainer
-            center={[-35.02, -58.1]}
-            zoom={12}
-            scrollWheelZoom={true}
-            style={{ height: "100%", width: "100%" }}
-          >
-            <TileLayer
-              attribution='&copy; <a href="https://www.jawg.io">Jawg</a>'
-              url="https://{s}.tile.jawg.io/sunny/{z}/{x}/{y}.png?access-token=4MSVRrDpN6DB4eM9p3oKlH6d6HLhyBfgWG70l7dfIshQbY5VN6SiirFBGkiiSKmY"
-            />
-            {zonas.map((zona, i) => (
-              <Polygon
-                key={i}
-                positions={zona.coords}
-                pathOptions={{ color: zona.color, fillOpacity: 0.5 }}
-              >
-                <Tooltip sticky>{`${zona.nombre} – ${zona.precio}`}</Tooltip>
-              </Polygon>
-            ))}
-            <Marker position={localPosition} icon={createIcon()}>
-              <Popup>
-                Tío Pelotte<br /> Av. 197 e/ 43 y 44, Abasto
-              </Popup>
-            </Marker>
-          </MapContainer>
+          {MapComponents || (
+            <div className="h-full w-full bg-gray-200 flex items-center justify-center">
+              <div className="text-center">
+                <div className="w-8 h-8 border-2 border-[#8B4513] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
+                <p className="text-gray-600">Cargando mapa...</p>
+              </div>
+            </div>
+          )}
         </div>
         <p className="text-xs text-[#8B4513] mt-2 italic">
           Seleccioná tu zona abajo para calcular el envío.

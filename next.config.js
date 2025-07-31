@@ -2,12 +2,12 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Configuración para compatibilidad con Next.js 15
+  // Configuración para Next.js 15 optimizada
   experimental: {
-    optimizePackageImports: ['lucide-react', 'chart.js', 'react-chartjs-2']
+    optimizePackageImports: ['lucide-react']
   },
   
-  // Configuración de paquetes externos para componentes del servidor
+  // Paquetes externos para SSR (movido de experimental)
   serverExternalPackages: ['leaflet', 'react-leaflet'],
   
   // Optimización de imágenes
@@ -94,7 +94,7 @@ const nextConfig = {
     return config;
   },
 
-  // Configuración específica para desarrollo
+  // Configuración específica para desarrollo - corregido para Next.js 15
   devIndicators: {
     position: 'bottom-right',
   },
@@ -115,9 +115,6 @@ const nextConfig = {
       },
     ];
   },
-
-  // Configuración para evitar errores de workStore
-  transpilePackages: [],
 };
 
 module.exports = nextConfig;

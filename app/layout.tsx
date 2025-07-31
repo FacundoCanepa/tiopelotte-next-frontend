@@ -2,15 +2,12 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { islandMoments, ebGaramond } from "@/lib/fonts/fonts";
 import { Toaster } from "sonner";
-import dynamic from "next/dynamic";
-
-// Componentes que requieren hidratación en el cliente
-const Navbar = dynamic(() => import("@/components/layout/navbar"), { ssr: true });
-const UserSessionLoader = dynamic(() => import("@/components/providers/UserSessionLoader"), { ssr: false });
-const Footer = dynamic(() => import("@/components/layout/footer"), { ssr: true });
-const WhatsAppButton = dynamic(() => import("@/components/ui/WhatsAppButton"), { ssr: false });
-const CartFloatButton = dynamic(() => import("@/components/ui/CartFloatButton"), { ssr: false });
-const ScrollToTop = dynamic(() => import("@/components/ui/ScrollToTop"), { ssr: false });
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
+import UserSessionLoader from "@/components/providers/UserSessionLoader";
+import WhatsAppButton from "@/components/ui/WhatsAppButton";
+import CartFloatButton from "@/components/ui/CartFloatButton";
+import ScrollToTop from "@/components/ui/ScrollToTop";
 
 // SEO optimizado para Argentina
 export const metadata: Metadata = {
