@@ -315,6 +315,8 @@ export function LoadingDots({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   );
 }
 
+import { useEffect } from "react";
+
 /**
  * Contador animado para números
  */

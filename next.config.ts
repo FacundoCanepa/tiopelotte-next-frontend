@@ -5,15 +5,7 @@ const nextConfig = {
   // Configuración para compatibilidad con Next.js 15
   experimental: {
     optimizePackageImports: ['lucide-react'],
-    turbo: {
-      rules: {
-        '*.svg': ['@svgr/webpack'],
-      },
-    },
   },
-  
-  // Output standalone para mejor compatibilidad con Vercel
-  output: 'standalone',
   
   // Optimización de imágenes
   images: {
@@ -24,13 +16,18 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'loved-ducks-790a0f88b6.strapiapp.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60 * 60 * 24 * 30, // 30 días
     dangerouslyAllowSVG: false,
-    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 
   // Optimización de compilación
@@ -88,26 +85,6 @@ const nextConfig = {
         dns: false,
         child_process: false,
         tls: false,
-      };
-    }
-
-    // Optimización de bundle splitting
-    if (!dev && !isServer) {
-      config.optimization.splitChunks = {
-        chunks: 'all',
-        cacheGroups: {
-          vendor: {
-            test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
-          },
-          common: {
-            name: 'common',
-            minChunks: 2,
-            chunks: 'all',
-            enforce: true,
-          },
-        },
       };
     }
 

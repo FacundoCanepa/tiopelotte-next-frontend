@@ -5,9 +5,19 @@ import type { ProductType } from "@/types/product";
 
 export function useGetProductByName(name: string) {
   const base = process.env.NEXT_PUBLIC_BACKEND_URL;
-  const url = base
-    ? `${base}/api/products?filters[productName][$eq]=${name}&populate=*`
+  const url = base && name
+    ? `${base}/api/products?filters[productName][$eq]=${encodeURIComponent(name)}&populate=*`
     : undefined;
-  const { data, loading, error } = useFetch<ProductType[]>(url);
-  return { product: data?.data?.[0] || data?.[0] || null, loading, error };
+    
+  const { data, loading, error } = useFetch<any>(url);
+  
+  // Obtener el primer producto de la respuesta
+  let product = null;
+  if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
+    product = data.data[0];
+  } else if (Array.isArray(data) && data.length > 0) {
+    product = data[0];
+  }
+  
+  return { product, loading, error };
 }

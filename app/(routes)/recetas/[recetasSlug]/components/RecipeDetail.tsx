@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { RecetaType } from "@/types/receta";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
 import { Loader2, AlertCircle } from "lucide-react";
@@ -78,22 +77,16 @@ export default function RecipeDetail({ slug }: Props) {
 
   return (
     <section className="px-6 py-16 lg:px-32 max-w-screen-xl mx-auto text-[#5C3D2E]">
-      <motion.h1
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6 }}
-        className="text-4xl sm:text-5xl font-extrabold mb-6 text-center tracking-tight"
+      <h1
+        className="text-4xl sm:text-5xl font-extrabold mb-6 text-center tracking-tight animate-in slide-in-from-bottom-8 duration-800"
       >
         {receta.titulo}
-      </motion.h1>
+      </h1>
 
       <div className="grid lg:grid-cols-2 gap-10 items-center mb-14">
         {receta.img?.url && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.3, duration: 0.5 }}
-            className="relative h-[300px] w-full rounded-xl overflow-hidden shadow-xl"
+          <div
+            className="relative h-[300px] w-full rounded-xl overflow-hidden shadow-xl animate-in slide-in-from-left-8 duration-800"
           >
             <Image
               src={receta.img.url}
@@ -101,7 +94,7 @@ export default function RecipeDetail({ slug }: Props) {
               fill
               className="object-cover object-center"
             />
-          </motion.div>
+          </div>
         )}
 
         <div className="space-y-4">
@@ -120,11 +113,8 @@ export default function RecipeDetail({ slug }: Props) {
       </div>
 
       {receta.preparacion && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6 }}
-          className="bg-[#FFF3E0] border-l-4 border-[#D16A45] px-6 py-10 sm:px-10 sm:py-12 rounded-2xl shadow-inner mb-16"
+        <div
+          className="bg-[#FFF3E0] border-l-4 border-[#D16A45] px-6 py-10 sm:px-10 sm:py-12 rounded-2xl shadow-inner mb-16 animate-in slide-in-from-bottom-8 duration-800"
         >
           <h2 className="text-2xl sm:text-3xl font-bold mb-6 text-[#8B4513]">
             🧑‍🍳 Preparación paso a paso
@@ -132,7 +122,7 @@ export default function RecipeDetail({ slug }: Props) {
           <p className="whitespace-pre-line leading-8 text-lg tracking-wide">
             {receta.preparacion}
           </p>
-        </motion.div>
+        </div>
       )}
 
       {receta.products.length > 0 && (
