@@ -10,6 +10,7 @@ import {
  * - Responsive design mejorado
  * - Colores coherentes con la marca
  */
+}
 
 "use client";
 

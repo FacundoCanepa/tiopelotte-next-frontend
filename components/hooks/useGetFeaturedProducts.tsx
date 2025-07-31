@@ -97,6 +97,7 @@ export function useFetch<T>(
     timeout = 10000,
     cacheKey,
     cacheTTL = 5 * 60 * 1000, // 5 minutos por defecto
+  }
   const { data, loading, error } = useFetch<any>(url);
   
   const products = Array.isArray(data?.data) ? data.data : [];
