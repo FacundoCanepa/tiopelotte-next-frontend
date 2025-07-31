@@ -12,7 +12,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 /**
  * Botón con micro-interactions optimizadas
@@ -314,8 +314,6 @@ export function LoadingDots({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
     </div>
   );
 }
-
-import { useEffect, useState } from "react";
 
 /**
  * Contador animado para números
