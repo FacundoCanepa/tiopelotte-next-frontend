@@ -14,7 +14,14 @@ const nextConfig = {
   
   // Optimización de imágenes
   images: {
-    domains: ["loved-ducks-790a0f88b6.media.strapiapp.com"],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'loved-ducks-790a0f88b6.media.strapiapp.com',
+        port: '',
+        pathname: '/**',
+      },
+    ],
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
@@ -33,8 +40,7 @@ const nextConfig = {
 
   // Configuración experimental para mejor rendimiento
   experimental: {
-    optimizeCss: true,
-    optimizePackageImports: ['lucide-react', 'framer-motion'],
+    optimizePackageImports: ['lucide-react'],
   },
 
   // Configuración de headers para caché
