@@ -1,6 +1,96 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
+/* Animaciones CSS personalizadas para reemplazar framer-motion */
+@keyframes slide-in-from-top {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-bottom {
+  from {
+    opacity: 0;
+    transform: translateY(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slide-in-from-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slide-in-from-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-in {
+  animation-fill-mode: both;
+}
+
+.slide-in-from-top-2 {
+  animation: slide-in-from-top 0.3s ease-out;
+}
+
+.slide-in-from-bottom-8 {
+  animation: slide-in-from-bottom 0.8s ease-out;
+}
+
+.slide-in-from-left-8 {
+  animation: slide-in-from-left 0.8s ease-out;
+}
+
+.slide-in-from-right-8 {
+  animation: slide-in-from-right 0.8s ease-out;
+}
+
+.duration-300 {
+  animation-duration: 0.3s;
+}
+
+.duration-800 {
+  animation-duration: 0.8s;
+}
+
+.ease-out {
+  animation-timing-function: ease-out;
+}
+
+/* Respeto por preferencia de movimiento reducido */
+@media (prefers-reduced-motion: reduce) {
+  .animate-in,
+  .slide-in-from-top-2,
+  .slide-in-from-bottom-8,
+  .slide-in-from-left-8,
+  .slide-in-from-right-8 {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+}
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
