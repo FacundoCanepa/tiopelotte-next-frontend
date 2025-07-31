@@ -5,9 +5,9 @@ import { useRouter } from "next/navigation";
 import { ZoomIn, ZoomOut } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductType } from "@/types/product";
-import Button from "@/components/ui/button";
+import { InteractiveButton } from "@/components/ui/animations/MicroInteractions";
 import { useCartStore } from "@/store/cart-store";
-import Image from "next/image";
+import OptimizedImage from "@/components/ui/OptimizedImage";
 
 interface Props {
   product: ProductType;
@@ -48,12 +48,13 @@ const FeaturedProductCard = ({ product }: Props) => {
             if (window.innerWidth < 768) setExpanded(!expanded);
           }}
         >
-          <Image
+          <OptimizedImage
             src={product.img?.[0]?.url || "/placeholder.jpg"}
             alt={product.productName}
             fill
-            className="object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-105"
+            className="object-cover object-center"
             priority={false}
+            sizes="(max-width: 768px) 100vw, 300px"
           />
           {expanded && (
             <div className="absolute top-2 right-2 md:hidden">
@@ -103,19 +104,20 @@ const FeaturedProductCard = ({ product }: Props) => {
         </div>
 
         {/* Botones */}
-        <Button
+        <InteractiveButton
           onClick={() => addToCart(product, quantity)}
-          className="bg-[#FFD966] text-[#8B4513] hover:bg-[#6B8E23] mt-2 cursor-pointer"
+          variant="secondary"
+          className="mt-2"
         >
           Añadir al carrito
-        </Button>
-        <Button
+        </InteractiveButton>
+        <InteractiveButton
           onClick={() => router.push(`/productos/${product.slug}`)}
           variant="outline"
-          className="border border-[#8B4513] text-[#8B4513] hover:bg-[#FFD966] mt-1 cursor-pointer"
+          className="mt-1"
         >
           Ver más
-        </Button>
+        </InteractiveButton>
       </CardContent>
     </Card>
   );

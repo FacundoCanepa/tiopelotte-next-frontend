@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Loader2, Mail, Lock } from "lucide-react";
+import { Mail, Lock } from "lucide-react";
 import { useUserStore } from "@/store/user-store";
+import FormField from "@/components/ui/forms/FormField";
+import { InteractiveButton } from "@/components/ui/animations/MicroInteractions";
 
 export default function LoginForm() {
   const router = useRouter();
@@ -13,6 +15,35 @@ export default function LoginForm() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
+  // Validaciones en tiempo real
+  const validateEmail = (email: string) => {
+    if (!email) {
+      setEmailError("El email es requerido");
+      return false;
+    }
+    if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError("Formato de email inválido");
+      return false;
+    }
+    setEmailError("");
+    return true;
+  };
+
+  const validatePassword = (password: string) => {
+    if (!password) {
+      setPasswordError("La contraseña es requerida");
+      return false;
+    }
+    if (password.length < 6) {
+      setPasswordError("La contraseña debe tener al menos 6 caracteres");
+      return false;
+    }
+    setPasswordError("");
+    return true;
+  };
 
   const traducirError = (mensaje: string) => {
     if (mensaje.includes("Invalid identifier or password")) {
@@ -28,6 +59,14 @@ export default function LoginForm() {
   };
 
   const handleLogin = async () => {
+    // Validar antes de enviar
+    const isEmailValid = validateEmail(email);
+    const isPasswordValid = validatePassword(password);
+    
+    if (!isEmailValid || !isPasswordValid) {
+      return;
+    }
+
     setLoading(true);
     setError("");
 
@@ -63,38 +102,43 @@ export default function LoginForm() {
       </h2>
 
       <div className="space-y-4">
-        <div className="flex items-center gap-2 border-b border-gray-300">
-          <Mail className="w-5 h-5 text-gray-500" />
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full py-2 outline-none"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-        </div>
+        <FormField
+          label="Email"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          onBlur={() => validateEmail(email)}
+          error={emailError}
+          icon={<Mail size={20} />}
+          placeholder="tu@email.com"
+          required
+        />
 
-        <div className="flex items-center gap-2 border-b border-gray-300">
-          <Lock className="w-5 h-5 text-gray-500" />
-          <input
-            type="password"
-            placeholder="Contraseña"
-            className="w-full py-2 outline-none"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
-        </div>
+        <FormField
+          label="Contraseña"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          onBlur={() => validatePassword(password)}
+          error={passwordError}
+          icon={<Lock size={20} />}
+          placeholder="Tu contraseña"
+          showPasswordToggle
+          required
+        />
       </div>
 
       {error && <p className="text-red-500 text-sm text-center">{error}</p>}
 
-      <button
+      <InteractiveButton
         onClick={handleLogin}
-        className="w-full py-2 bg-[#8B4513] text-white rounded-lg hover:bg-[#6e3911] transition-colors flex justify-center items-center"
+        variant="primary"
+        className="w-full"
+        loading={loading}
         disabled={loading}
       >
-        {loading ? <Loader2 className="animate-spin h-5 w-5" /> : "Ingresar"}
-      </button>
+        {loading ? "Iniciando sesión..." : "Ingresar"}
+      </InteractiveButton>
 
       <p className="text-sm text-center text-stone-700">
         ¿Olvidaste tu contraseña?{" "}

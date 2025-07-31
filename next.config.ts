@@ -12,6 +12,11 @@ const nextConfig = {
   // Output standalone for better Vercel compatibility
   output: 'standalone',
   
+  // PWA y Service Worker
+  experimental: {
+    optimizePackageImports: ['lucide-react'],
+  },
+  
   // Optimización de imágenes
   images: {
     remotePatterns: [

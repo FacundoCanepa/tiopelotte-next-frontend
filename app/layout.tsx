@@ -10,6 +10,7 @@ import CartFloatButton from "@/components/ui/CartFloatButton";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import StructuredData from "@/components/seo/StructuredData";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import PWAPrompt from "@/components/pwa/PWAPrompt";
 
 // SEO optimizado para Argentina con palabras clave específicas del rubro
 export const metadata: Metadata = {
@@ -288,6 +289,7 @@ export default function RootLayout({
         <aside role="complementary" aria-label="Acciones rápidas">
           <CartFloatButton />
           <WhatsAppButton />
+          <PWAPrompt />
         </aside>
       </body>
     </html>
