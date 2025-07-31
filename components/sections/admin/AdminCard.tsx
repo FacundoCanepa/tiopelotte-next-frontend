@@ -1,4 +1,7 @@
+"use client";
 
+import Link from "next/link";
+import { ReactNode } from "react";
 
 /**
  * Tarjeta administrativa mejorada para navegación del panel
@@ -8,10 +11,8 @@
  * - Animaciones hover suaves
  * - Badges opcionales para roles
  * - Descripciones informativas
-"use client";
-import Link from "next/link";
-import { ReactNode } from "react";
  * - Colores temáticos personalizables
+ */
 interface Props {
   href: string;
   title: string;
@@ -20,7 +21,7 @@ interface Props {
   color?: string;
   badge?: string;
 }
- */
+
 export default function AdminCard({ 
   href, 
   title, 
