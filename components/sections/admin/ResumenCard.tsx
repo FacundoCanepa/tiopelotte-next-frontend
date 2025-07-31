@@ -1,4 +1,6 @@
+"use client";
 
+import { ReactNode } from "react";
 
 /**
  * Tarjeta de resumen mejorada para el dashboard administrativo
@@ -8,9 +10,9 @@
  * - Iconos con colores temáticos
  * - Subtítulos informativos opcionales
  * - Animaciones hover suaves
-"use client";
-import { ReactNode } from "react";
  * - Responsive design optimizado
+ */
+
 interface Props {
   title: string;
   value: string | number;
@@ -19,7 +21,7 @@ interface Props {
   color?: string;
   trend?: "up" | "down" | "neutral";
 }
- */
+
 export default function ResumenCard({ 
   title, 
   value, 
