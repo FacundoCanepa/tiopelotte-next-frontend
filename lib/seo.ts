@@ -67,7 +67,7 @@ export function generateProductMetadata(product: any): Metadata {
     openGraph: {
       title,
       description,
-      type: 'product',
+      type: 'website',
       url: `${SITE_CONFIG.url}/productos/${product.slug}`,
       images: [
         {
