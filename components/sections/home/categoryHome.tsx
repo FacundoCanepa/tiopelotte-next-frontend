@@ -8,12 +8,12 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 const CategoryHome = () => {
-  const { loading, result } = useGetCategory() as ResponseType;
+  const { loading, result } = useGetCategory();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const router = useRouter();
 
   // Validación para asegurar que result sea un array
-  const categories = Array.isArray(result) ? result : [];
+  const categories = Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
 
   const handleClick = (categoryId: string, slug: string) => {
     if (window.innerWidth < 1024) {

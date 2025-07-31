@@ -1,7 +1,6 @@
-// components/AnimatedSection.tsx
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 type AnimatedSectionProps = {
   children: React.ReactNode;
@@ -14,25 +13,40 @@ const AnimatedSection = ({
   className = "",
   direction = "up",
 }: AnimatedSectionProps) => {
-  const variants = {
-    up: { opacity: 0, y: 100, x: 0 },
-    left: { opacity: 0, y: 0, x: -100 },
-    right: { opacity: 0, y: 0, x: 100 },
+  const [isVisible, setIsVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsVisible(true);
+          observer.unobserve(entry.target);
+        }
+      },
+      { threshold: 0.3 }
+    );
+
+    if (ref.current) {
+      observer.observe(ref.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  const animationClass = {
+    up: isVisible ? "animate-in slide-in-from-bottom-8 duration-800" : "opacity-0 translate-y-8",
+    left: isVisible ? "animate-in slide-in-from-left-8 duration-800" : "opacity-0 -translate-x-8",
+    right: isVisible ? "animate-in slide-in-from-right-8 duration-800" : "opacity-0 translate-x-8",
   };
 
   return (
-    <motion.div
-      initial={variants[direction]}
-      whileInView={{ opacity: 1, y: 0, x: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{
-        duration: 0.8,
-        ease: [0.25, 0.46, 0.45, 0.94],
-      }}
-      className={className}
+    <div
+      ref={ref}
+      className={`transition-all duration-800 ease-out ${animationClass[direction]} ${className}`}
     >
       {children}
-    </motion.div>
+    </div>
   );
 };
 

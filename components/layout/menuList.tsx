@@ -1,6 +1,5 @@
 "use client";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
 import {
   Home,
   MapPin,
@@ -27,16 +26,6 @@ const links = [
   { text: "Consultar pedido", href: "/consultarPedido", icon: Logs },
 ];
 
-const menuVariants = {
-  hidden: { opacity: 0, y: -20 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.25, ease: "easeOut" },
-  },
-  exit: { opacity: 0, y: -10, transition: { duration: 0.2, ease: "easeIn" } },
-};
-
 const MenuList = ({ isOpen, closeMenu }: MenuListProps) => {
   const router = useRouter();
   const user = useUserStore((state) => state.user);
@@ -50,14 +39,13 @@ const MenuList = ({ isOpen, closeMenu }: MenuListProps) => {
   };
 
   return (
-    <AnimatePresence>
+    <>
       {isOpen && (
-        <motion.nav
-          initial="hidden"
-          animate="visible"
-          exit="exit"
-          variants={menuVariants}
-          className="absolute top-full left-0 w-full bg-[#FFD28C]/90 backdrop-blur-md z-30 py-6 shadow-md rounded-b-3xl md:left-1/2 md:-translate-x-1/2 md:w-[50vw]"
+        <nav
+          className={`
+            absolute top-full left-0 w-full bg-[#FFD28C]/90 backdrop-blur-md z-30 py-6 shadow-md rounded-b-3xl md:left-1/2 md:-translate-x-1/2 md:w-[50vw]
+            animate-in slide-in-from-top-2 duration-300 ease-out
+          `}
         >
           <ul className="flex flex-col items-start font-garamond text-[4.5vw] sm:text-base md:text-lg text-stone-800 px-6 gap-4 lg:justify-center">
 
@@ -73,9 +61,9 @@ const MenuList = ({ isOpen, closeMenu }: MenuListProps) => {
 
             ))}
           </ul>
-        </motion.nav>
+        </nav>
       )}
-    </AnimatePresence>
+    </>
   );
 };
 
