@@ -80,11 +80,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="es">
-      <head>
-        <link rel="preconnect" href="https://loved-ducks-790a0f88b6.media.strapiapp.com" />
-        <link rel="dns-prefetch" href="https://loved-ducks-790a0f88b6.media.strapiapp.com" />
-        <link rel="preload" href="/favicon.ico" as="image" />
-      </head>
+      <link rel="preconnect" href="https://loved-ducks-790a0f88b6.media.strapiapp.com" />
+      <link rel="dns-prefetch" href="https://loved-ducks-790a0f88b6.media.strapiapp.com" />
+      <link rel="preload" href="/favicon.ico" as="image" />
         <body className={`${islandMoments.variable} ${ebGaramond.variable} antialiased`}>
             <UserSessionLoader />
             <Navbar />
