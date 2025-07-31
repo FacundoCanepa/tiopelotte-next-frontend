@@ -1,4 +1,3 @@
-"use client";
 import { Metadata } from "next";
 import HistoriaSection from "./components/HistoriaSection";
 
