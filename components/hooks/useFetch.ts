@@ -88,7 +88,8 @@ function parseError(error: any, response?: Response): string {
  */
 export function useFetch<T>(
   url?: string,
-  options: FetchOptions = {}
+  options: FetchOptions = {},
+  transform?: (data: any) => T
 ): FetchState<T> {
   const {
     retries = 3,
@@ -96,7 +97,6 @@ export function useFetch<T>(
     timeout = 10000,
     cacheKey,
     cacheTTL = 5 * 60 * 1000, // 5 minutos por defecto
-    transform,
     ...fetchOptions
   } = options;
 
@@ -182,14 +182,12 @@ export function useFetch<T>(
       }
 
       const json = await response.json();
-      console.log(`✅ Data fetched para: ${url}`, json);
 
       // Guardar en cache
       apiCache.set(finalCacheKey, json, cacheTTL);
 
       // Aplicar transformación si existe
       const finalData = transform ? transform(json) : json;
-      console.log(`✅ Data transformada:`, finalData);
 
       if (mountedRef.current) {
         setState({
@@ -228,7 +226,6 @@ export function useFetch<T>(
       // Si se agotaron los reintentos, mostrar error
       if (mountedRef.current) {
         const errorMessage = parseError(error);
-        console.error(`❌ Error final para ${url}:`, errorMessage);
         setState({
           data: null,
           loading: false,

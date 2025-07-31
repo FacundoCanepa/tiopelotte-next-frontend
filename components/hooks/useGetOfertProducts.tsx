@@ -4,17 +4,13 @@ import type { ProductType } from "@/types/product";
 export function useGetOfferProducts() {
   const url = `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/products?filters[isOffer][$eq]=true&filters[active][$eq]=true&populate=*`;
   
-  console.log('🔍 Fetching offer products from:', url);
+  const { data, loading, error } = useFetch<any>(url);
   
-  const { data, loading, error } = useFetch<ProductType[]>(url, undefined, (json) =>
-    {
-      console.log('📦 Offer products raw data:', json);
-      const result = json && json.data && Array.isArray(json.data) ? json.data : [];
-      console.log('✅ Offer products transformed:', result);
-      return result;
-    }
-  );
+  const products = Array.isArray(data?.data) ? data.data : [];
   
-  console.log('🎯 Offer products final result:', { data, loading, error });
-  return { loading, result: data || [], error };
+  return { 
+    loading, 
+    result: products, 
+    error 
+  };
 }
