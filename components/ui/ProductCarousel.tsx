@@ -17,7 +17,7 @@ const ProductCarousel = ({ products }: Props) => {
       slidesToScroll: 1,
       containScroll: "trimSnaps",
       dragFree: false,
-      loop: true,
+      loop: false,
     },
     []
   );
@@ -28,16 +28,16 @@ const ProductCarousel = ({ products }: Props) => {
   const [showButtons, setShowButtons] = useState(false);
 
   useEffect(() => {
-    if (products.length > 4) {
+    if (products && products.length > 4) {
       setShowButtons(true);
     }
-  }, [products]);
+  }, [products.length]);
 
   return (
     <div className="relative px-2 sm:px-4 md:px-8">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
-          {products.map((product) => (
+          {products && products.map((product) => (
             <div
               key={product.id}
               className="
