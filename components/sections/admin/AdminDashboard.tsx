@@ -12,8 +12,8 @@
 
 "use client";
 
-import BestSellingProducts from "./BestSellingProducts";
 import { useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import {
   Loader2,
   DollarSign,
@@ -34,8 +34,19 @@ import {
   RefreshCw,
 } from "lucide-react";
 import ResumenCard from "./ResumenCard";
-import VentasChart from "./VentasChart";
 import PedidosTable from "./PedidosTable";
+
+// Componentes que requieren Chart.js (solo en cliente)
+const VentasChart = dynamic(() => import("./VentasChart"), { 
+  ssr: false,
+  loading: () => (
+    <div className="bg-white rounded-2xl shadow-lg border border-[#E6D2B5] p-6 h-[450px] flex items-center justify-center">
+      <Loader2 className="h-8 w-8 animate-spin text-[#8B4513]" />
+    </div>
+  )
+});
+
+const BestSellingProducts = dynamic(() => import("./BestSellingProducts"), { ssr: false });
 
 interface Pedido {
   id: number;

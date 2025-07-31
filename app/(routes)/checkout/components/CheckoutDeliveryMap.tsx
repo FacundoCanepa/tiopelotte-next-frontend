@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { zonas } from "@/app/(routes)/ubicacion/components/zonas";
 import CheckoutForm from "./CheckoutForm";
@@ -8,7 +8,14 @@ import CheckoutForm from "./CheckoutForm";
 // Importar componentes de react-leaflet con SSR deshabilitado
 const MapContainer = dynamic(
   () => import("react-leaflet").then((mod) => mod.MapContainer),
-  { ssr: false }
+  { 
+    ssr: false,
+    loading: () => (
+      <div className="h-[400px] w-full bg-gray-200 rounded-xl flex items-center justify-center border-4 border-[#FBE6D4] shadow-lg">
+        <p className="text-gray-600">Cargando mapa...</p>
+      </div>
+    )
+  }
 );
 
 const TileLayer = dynamic(

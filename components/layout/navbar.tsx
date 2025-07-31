@@ -1,12 +1,15 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
 import { Menu, X, ShoppingCart, UserRound } from "lucide-react";
-import { useToggleMenu } from "../hooks/useMenuToggle";
-import MenuList from "./menuList";
 import { useUserStore } from "@/store/user-store";
 import { useCartStore } from "@/store/cart-store";
 import Image from "next/image";
+import { useToggleMenu } from "../hooks/useMenuToggle";
+
+// Componente de menú con carga diferida
+const MenuList = dynamic(() => import("./menuList"), { ssr: false });
 
 export default function Navbar() {
   const router = useRouter();

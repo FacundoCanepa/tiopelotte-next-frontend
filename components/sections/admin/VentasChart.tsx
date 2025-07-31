@@ -1,6 +1,4 @@
-"use client";
-
-/*
+/**
  * Gráfico de ventas profesional optimizado para dashboard
  * 
  * Mejoras implementadas:
@@ -10,6 +8,8 @@
  * - Responsive design mejorado
  * - Colores coherentes con la marca
  */
+
+"use client";
 
 import {
   Chart as ChartJS,
@@ -23,7 +23,9 @@ import {
   Filler,
 } from "chart.js";
 import { Line } from "react-chartjs-2";
+import { useEffect } from "react";
 
+// Registrar componentes de Chart.js
 ChartJS.register(
   CategoryScale, 
   LinearScale, 
@@ -41,6 +43,12 @@ interface Props {
 }
 
 export default function VentasChart({ labels, values }: Props) {
+  // Configurar Chart.js para evitar errores de hidratación
+  useEffect(() => {
+    ChartJS.defaults.responsive = true;
+    ChartJS.defaults.maintainAspectRatio = false;
+  }, []);
+
   const data = {
     labels,
     datasets: [

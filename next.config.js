@@ -4,7 +4,8 @@ const nextConfig = {
   
   // Configuración para compatibilidad con Next.js 15
   experimental: {
-    optimizePackageImports: ['lucide-react'],
+    optimizePackageImports: ['lucide-react', 'chart.js', 'react-chartjs-2'],
+    serverComponentsExternalPackages: ['leaflet', 'react-leaflet']
   },
   
   // Optimización de imágenes

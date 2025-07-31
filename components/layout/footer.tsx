@@ -1,6 +1,6 @@
 "use client";
-import { useRouter } from 'next/navigation';
 
+import { useRouter } from 'next/navigation';
 
 const Footer = () => {
   const router = useRouter();

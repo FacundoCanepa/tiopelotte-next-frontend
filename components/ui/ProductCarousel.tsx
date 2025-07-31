@@ -3,6 +3,7 @@
 import useEmblaCarousel from "embla-carousel-react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
+import dynamic from "next/dynamic";
 import type { ProductType } from "@/types/product";
 import FeaturedProductCard from "../carousel/FeaturedProductCard";
 
