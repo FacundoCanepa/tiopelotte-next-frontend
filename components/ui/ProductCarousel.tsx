@@ -61,7 +61,7 @@ const ProductCarousel = ({ products }: Props) => {
           <button
             onClick={scrollPrev}
             aria-label="Anterior"
-            className="cursor-pointer hidden lg:flex absolute left-[calc(-4rem)] top-1/2 -translate-y-1/2 z-30 bg-white p-2 rounded-full shadow hover:bg-[#6B8E23] hover:text-white transition"
+            className="cursor-pointer hidden lg:flex absolute left-[-3rem] top-1/2 -translate-y-1/2 z-30 bg-white p-2 rounded-full shadow hover:bg-[#6B8E23] hover:text-white transition"
           >
             <ChevronLeft size={24} />
           </button>
@@ -69,7 +69,7 @@ const ProductCarousel = ({ products }: Props) => {
           <button
             onClick={scrollNext}
             aria-label="Siguiente"
-            className="cursor-pointer hidden lg:flex absolute right-[calc(-4rem)] top-1/2 -translate-y-1/2 z-30 bg-white p-2 rounded-full shadow hover:bg-[#6B8E23] hover:text-white transition"
+            className="cursor-pointer hidden lg:flex absolute right-[-3rem] top-1/2 -translate-y-1/2 z-30 bg-white p-2 rounded-full shadow hover:bg-[#6B8E23] hover:text-white transition"
           >
             <ChevronRight size={24} />
           </button>

@@ -16,10 +16,6 @@ export default function Home() {
   const offerProducts = useGetOfferProducts();
   const dessertProducts = useGetDessertProducts();
 
-  // Debug para ver la estructura de datos
-  console.log("Featured products:", featuredProducts);
-  console.log("Offer products:", offerProducts);
-  console.log("Dessert products:", dessertProducts);
   return (
     <>
       <CaroseText />

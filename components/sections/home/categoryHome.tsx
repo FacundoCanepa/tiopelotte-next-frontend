@@ -12,6 +12,9 @@ const CategoryHome = () => {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const router = useRouter();
 
+  // Validación para asegurar que result sea un array
+  const categories = Array.isArray(result) ? result : [];
+
   const handleClick = (categoryId: string, slug: string) => {
     if (window.innerWidth < 1024) {
       if (expandedId === categoryId) {
@@ -36,9 +39,12 @@ const CategoryHome = () => {
       <div className="flex overflow-x-auto rounded-xl h-[400px] lg:h-[400px]">
         {loading ? (
           <SkeletonCategory />
+        ) : categories.length === 0 ? (
+          <div className="w-full flex items-center justify-center text-[#8B4513]">
+            <p>No hay categorías disponibles en este momento.</p>
+          </div>
         ) : (
-          result &&
-          result.map((category) => {
+          categories.map((category) => {
             const isExpandedMobile = expandedId === category.id;
 
             return (

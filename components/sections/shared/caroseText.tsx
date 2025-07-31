@@ -59,7 +59,7 @@ const CaroseText = () => {
     <div
       role="region"
       aria-label="Carrusel de bienvenida"
-      className="w-full max-w-[100vw] mx-auto"
+      className="w-full mx-auto"
     >
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">

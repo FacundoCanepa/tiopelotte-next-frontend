@@ -31,6 +31,9 @@ const ProductCarouselSection = ({
   const { loading, result, error } = products;
   const router = useRouter();
 
+  // Validación para asegurar que result sea un array
+  const productList = Array.isArray(result) ? result : [];
+
   return (
     <div>
       <div className="w-full max-w-[90rem] mx-auto py-12 px-2 sm:px-4 lg:px-6">
@@ -53,8 +56,11 @@ const ProductCarouselSection = ({
           {!loading && error && (
             <p className="text-center text-stone-500">{error}</p>
           )}
-          {!loading && !error && result && (
-            <ProductCarousel products={result} />
+          {!loading && !error && productList.length > 0 && (
+            <ProductCarousel products={productList} />
+          )}
+          {!loading && !error && productList.length === 0 && (
+            <p className="text-center text-stone-500">No hay productos disponibles en este momento.</p>
           )}
         </div>
       </div>

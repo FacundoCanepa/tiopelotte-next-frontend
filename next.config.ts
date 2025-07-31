@@ -2,20 +2,18 @@
 const nextConfig = {
   reactStrictMode: true,
   
-  // Environment variable validation
-  env: {
-    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
-    NEXT_PUBLIC_MEDIA_URL: process.env.NEXT_PUBLIC_MEDIA_URL,
-    NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL,
-  },
-  
-  // Output standalone for better Vercel compatibility
-  output: 'standalone',
-  
-  // PWA y Service Worker
+  // Configuración para compatibilidad con Next.js 15
   experimental: {
     optimizePackageImports: ['lucide-react'],
+    turbo: {
+      rules: {
+        '*.svg': ['@svgr/webpack'],
+      },
+    },
   },
+  
+  // Output standalone para mejor compatibilidad con Vercel
+  output: 'standalone',
   
   // Optimización de imágenes
   images: {
@@ -43,12 +41,7 @@ const nextConfig = {
   // Disable x-powered-by header for security
   poweredByHeader: false,
 
-  // Configuración experimental para mejor rendimiento
-  experimental: {
-    optimizePackageImports: ['lucide-react'],
-  },
-
-  // Configuración de headers para caché
+  // Configuración de headers para caché y seguridad
   async headers() {
     return [
       {
@@ -86,15 +79,17 @@ const nextConfig = {
 
   // Configuración de webpack para optimización
   webpack: (config, { dev, isServer }) => {
-    // Add fallbacks for Node.js modules in client-side code
-    config.resolve.fallback = {
-      ...config.resolve.fallback,
-      fs: false,
-      net: false,
-      dns: false,
-      child_process: false,
-      tls: false,
-    };
+    // Fallbacks para módulos Node.js en código cliente
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        dns: false,
+        child_process: false,
+        tls: false,
+      };
+    }
 
     // Optimización de bundle splitting
     if (!dev && !isServer) {
@@ -116,16 +111,14 @@ const nextConfig = {
       };
     }
 
-    // Optimización de imports
-    config.resolve.alias = {
-      ...config.resolve.alias,
-      '@': require('path').resolve(__dirname),
-    };
-
     return config;
   },
 
-  devIndicators: false,
+  // Configuración específica para desarrollo
+  devIndicators: {
+    buildActivity: false,
+    buildActivityPosition: 'bottom-right',
+  },
   
   // Configuración de compresión
   compress: true,
@@ -143,6 +136,9 @@ const nextConfig = {
       },
     ];
   },
+
+  // Configuración para evitar errores de workStore
+  transpilePackages: [],
 };
 
 module.exports = nextConfig;

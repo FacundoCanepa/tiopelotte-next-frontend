@@ -29,7 +29,6 @@
     "clsx": "^2.1.1",
     "embla-carousel-autoplay": "^8.6.0",
     "embla-carousel-react": "^8.6.0",
-    "framer-motion": "^10.16.16",
     "leaflet": "^1.9.4",
     "lucide-react": "^0.506.0",
     "mercadopago": "^2.7.0",
