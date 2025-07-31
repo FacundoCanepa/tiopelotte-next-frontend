@@ -1,6 +1,6 @@
 "use client";
 
-import {
+/*
  * Gráfico de ventas profesional optimizado para dashboard
  * 
  * Mejoras implementadas:
@@ -10,9 +10,6 @@ import {
  * - Responsive design mejorado
  * - Colores coherentes con la marca
  */
-}
-
-"use client";
 
 import {
   Chart as ChartJS,

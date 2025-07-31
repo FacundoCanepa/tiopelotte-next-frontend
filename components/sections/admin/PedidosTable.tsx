@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
-import { Copy, Loader2 } from "lucide-react";
+import { Copy, Loader2, Eye, Phone, MapPin, CreditCard, Package } from "lucide-react";
 import { toast } from "sonner";
+
 /*
  * Tabla de pedidos optimizada para el dashboard administrativo
  * 
@@ -14,12 +15,6 @@ import { toast } from "sonner";
  * - Hover effects sutiles
  * - Iconografía descriptiva
  */
-
-"use client";
-
-import { useState } from "react";
-import { Copy, Loader2, Eye, Phone, MapPin, CreditCard, Package } from "lucide-react";
-import { toast } from "sonner";
 
 interface Pedido {
   id: number;
