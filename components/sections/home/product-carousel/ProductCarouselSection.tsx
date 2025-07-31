@@ -2,7 +2,7 @@
 
 import dynamic from "next/dynamic";
 const ProductCarousel = dynamic(() => import("@/components/ui/ProductCarousel"));
-import SkeletonCarousel from "@/components/ui/skeletonSchema";
+import SkeletonSchema from "@/components/ui/skeletonSchema";
 import { useRouter } from "next/navigation";
 import type { ProductType } from "@/types/product";
 import Button from "@/components/ui/button";
