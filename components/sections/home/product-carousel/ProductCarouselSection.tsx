@@ -6,7 +6,7 @@ const ProductCarousel = dynamic(() => import("@/components/ui/ProductCarousel"))
 import SkeletonCarousel from "@/components/ui/skeletonSchema";
 import { useRouter } from "next/navigation";
 import type { ProductType } from "@/types/product";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 
 interface ProductState {
   loading: boolean;

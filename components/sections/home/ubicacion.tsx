@@ -1,7 +1,7 @@
 "use client";
 
 import AnimatedSection from "../../ui/AnimatedWrapper";
-import Button from "../../ui/Button";
+import Button from "../../ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 

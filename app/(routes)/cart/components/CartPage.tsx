@@ -3,7 +3,7 @@
 import { useCartStore } from "@/store/cart-store";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import { Trash2 } from "lucide-react";
 
 const formatQuantity = (qty: number, unidad: string) => {

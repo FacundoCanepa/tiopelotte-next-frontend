@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { ZoomIn, ZoomOut } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { ProductType } from "@/types/product";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import { useCartStore } from "@/store/cart-store";
 import OptimizedImage from "@/components/ui/OptimizedImage";
 

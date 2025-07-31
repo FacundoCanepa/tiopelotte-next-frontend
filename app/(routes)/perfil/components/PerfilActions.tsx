@@ -2,7 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useUserStore } from "@/store/user-store";
-import Button from "@/components/ui/Button";
+import Button from "@/components/ui/button";
 import { ShoppingCart, LogOut } from "lucide-react";
 
 export default function PerfilActions() {
