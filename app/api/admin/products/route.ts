@@ -1,20 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiCall } from "@/lib/api";
 
 const backend = process.env.NEXT_PUBLIC_BACKEND_URL;
 const token = process.env.STRAPI_PEDIDOS_TOKEN;
 
+if (!backend || !token) {
+  throw new Error("Backend URL and Strapi token are required");
+}
+
 export async function GET() {
-  const res = await fetch(`${backend}/api/products?populate=*`, {
-    headers: { Authorization: `Bearer ${token}` },
-  });
-  const data = await res.json();
-  return NextResponse.json(data, { status: res.status });
+  try {
+    const result = await apiCall(`${backend}/api/products?populate=*`, {
+      method: "GET",
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    
+    if (result.error) {
+      return NextResponse.json(
+        { error: result.error }, 
+        { status: result.status }
+      );
+    }
+    
+    return NextResponse.json(result.data, { status: 200 });
+  } catch (err) {
+    console.error("Products GET error:", err);
+    return NextResponse.json(
+      { error: "Error al obtener productos" }, 
+      { status: 500 }
+    );
+  }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-
 
     const {
       id,
@@ -45,19 +65,27 @@ export async function POST(req: NextRequest) {
         : [],
     };
 
-    const res = await fetch(`${backend}/api/products`, {
+    const result = await apiCall(`${backend}/api/products`, {
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ data: cleanBody }),
     });
 
-    const json = await res.json();
-    return NextResponse.json(json, { status: res.status });
+    if (result.error) {
+      return NextResponse.json(
+        { error: result.error }, 
+        { status: result.status }
+      );
+    }
+    
+    return NextResponse.json(result.data, { status: 200 });
   } catch (err) {
     console.error("❌ Error interno al crear producto:", err);
-    return NextResponse.json({ error: "Error interno" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Error interno del servidor" }, 
+      { status: 500 }
+    );
   }
 }

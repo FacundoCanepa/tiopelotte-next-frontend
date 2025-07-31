@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { apiCall } from "@/lib/api";
 
 interface FetchState<T> {
   data: T | null;
@@ -34,25 +35,17 @@ export function useFetch<T>(
       return;
     }
 
-    // Cancelar request anterior si existe
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort();
-    }
-
-    abortControllerRef.current = new AbortController();
-    
     try {
       setLoading(true);
       setError("");
       
-      const res = await fetch(url, { 
-        ...options, 
-        signal: abortControllerRef.current.signal 
-      });
+      const result = await apiCall(url, options);
       
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      if (result.error) {
+        throw new Error(result.error);
+      }
       
-      const json = await res.json();
+      const json = result.data;
       
       // Guardar en cache
       cache.set(key, { data: json, timestamp: Date.now() });
@@ -60,13 +53,12 @@ export function useFetch<T>(
       const value = transform ? transform(json) : json.data ?? json;
       setData(value);
     } catch (err: any) {
-      if (err.name !== "AbortError") {
-        setError(err.message || "Error al cargar datos");
-      }
+      setError(err.message || "Error al cargar datos");
+      console.error("useFetch error:", err);
     } finally {
       setLoading(false);
     }
-  }, [url, options, transform, cacheKey]);
+  }, [url, JSON.stringify(options), transform, cacheKey]);
 
   useEffect(() => {
     fetchData();

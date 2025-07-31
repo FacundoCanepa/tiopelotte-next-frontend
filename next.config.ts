@@ -2,6 +2,16 @@
 const nextConfig = {
   reactStrictMode: true,
   
+  // Environment variable validation
+  env: {
+    NEXT_PUBLIC_BACKEND_URL: process.env.NEXT_PUBLIC_BACKEND_URL,
+    NEXT_PUBLIC_MEDIA_URL: process.env.NEXT_PUBLIC_MEDIA_URL,
+    NEXT_PUBLIC_FRONTEND_URL: process.env.NEXT_PUBLIC_FRONTEND_URL,
+  },
+  
+  // Output standalone for better Vercel compatibility
+  output: 'standalone',
+  
   // Optimización de imágenes
   images: {
     domains: ["loved-ducks-790a0f88b6.media.strapiapp.com"],
@@ -17,6 +27,9 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
+
+  // Disable x-powered-by header for security
+  poweredByHeader: false,
 
   // Configuración experimental para mejor rendimiento
   experimental: {
@@ -42,6 +55,10 @@ const nextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
           },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
         ],
       },
       {
@@ -58,6 +75,16 @@ const nextConfig = {
 
   // Configuración de webpack para optimización
   webpack: (config, { dev, isServer }) => {
+    // Add fallbacks for Node.js modules in client-side code
+    config.resolve.fallback = {
+      ...config.resolve.fallback,
+      fs: false,
+      net: false,
+      dns: false,
+      child_process: false,
+      tls: false,
+    };
+
     // Optimización de bundle splitting
     if (!dev && !isServer) {
       config.optimization.splitChunks = {

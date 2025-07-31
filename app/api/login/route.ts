@@ -1,43 +1,70 @@
 import { NextRequest, NextResponse } from "next/server";
+import { apiCall } from "@/lib/api";
 
 export async function POST(req: NextRequest) {
-  const { identifier, password } = await req.json();
-
   try {
-    // Login en Strapi
-    const resLogin = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/local`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier, password }),
-    });
+    const { identifier, password } = await req.json();
 
-    const loginData = await resLogin.json();
-
-    if (!resLogin.ok) {
-      return NextResponse.json({ error: loginData.error.message }, { status: 400 });
+    if (!identifier || !password) {
+      return NextResponse.json(
+        { error: "Email y contraseña son requeridos" }, 
+        { status: 400 }
+      );
     }
 
-    const jwt = loginData.jwt;
-    const userId = loginData.user.id;
+    // Login en Strapi
+    const loginResult = await apiCall(
+      `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/local`,
+      {
+        method: "POST",
+        body: JSON.stringify({ identifier, password }),
+      }
+    );
+
+    if (loginResult.error) {
+      return NextResponse.json(
+        { error: loginResult.error }, 
+        { status: loginResult.status }
+      );
+    }
+
+    const loginData = loginResult.data;
+    const jwt = loginData?.jwt;
+    const userId = loginData?.user?.id;
+
+    if (!jwt || !userId) {
+      return NextResponse.json(
+        { error: "Respuesta inválida del servidor" }, 
+        { status: 500 }
+      );
+    }
 
     // Traer usuario completo con rol
-    const resUser = await fetch(
+    const userResult = await apiCall(
       `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/users/${userId}?populate=role`,
       {
+        method: "GET",
         headers: {
           Authorization: `Bearer ${jwt}`,
         },
       }
     );
 
-    if (!resUser.ok) {
-      return NextResponse.json({ error: "No se pudo obtener el rol del usuario" }, { status: 400 });
+    if (userResult.error) {
+      return NextResponse.json(
+        { error: "No se pudo obtener el rol del usuario" }, 
+        { status: userResult.status }
+      );
     }
 
-    const user = await resUser.json();
+    const user = userResult.data;
 
-    return NextResponse.json({ jwt, user });
+    return NextResponse.json({ jwt, user }, { status: 200 });
   } catch (err) {
-    return NextResponse.json({ error: "Error interno del servidor" }, { status: 500 });
+    console.error("Login error:", err);
+    return NextResponse.json(
+      { error: "Error interno del servidor" }, 
+      { status: 500 }
+    );
   }
 }
