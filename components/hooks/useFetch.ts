@@ -1,14 +1,6 @@
 /**
- * Hook optimizado para fetching de datos con caché inteligente,
- * manejo de errores avanzado, y retry automático.
- * 
- * Optimizaciones incluidas:
- * - Cache inteligente con TTL
- * - Retry automático con backoff exponencial  
- * - Abort controller para cancelar requests
- * - Deduplicación de requests idénticos
- * - Manejo de errores específicos de Strapi
- * - Loading states optimizados
+ * Hook optimizado para fetching de datos con manejo de errores robusto
+ * Diseñado específicamente para producción en Vercel
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -26,15 +18,16 @@ interface FetchOptions extends RequestInit {
   timeout?: number;
   cacheKey?: string;
   cacheTTL?: number;
-  transform?: (data: any) => any;
 }
 
 // Cache simple para evitar requests duplicados
-const requestCache = new Map<string, Promise<any>>();
+const requestCache = new Map<string, { data: any; timestamp: number; ttl: number }>();
 
-// Helper para errores específicos de Strapi
+/**
+ * Parsea errores específicos de la aplicación
+ */
 function parseError(error: any, response?: Response): string {
-  // Errores de red
+  // Verificar conectividad
   if (typeof window !== 'undefined' && !navigator.onLine) {
     return "Sin conexión a internet. Verificá tu conexión.";
   }
@@ -56,35 +49,40 @@ function parseError(error: any, response?: Response): string {
         return "Error interno del servidor. Intentá nuevamente.";
       case 503:
         return "Servicio no disponible temporalmente.";
+      default:
+        return `Error del servidor (${response.status}). Intentá nuevamente.`;
     }
   }
   
-  // Errores específicos de Strapi
-  if (error?.message) {
-    if (error.message.includes('fetch')) {
-      return "Error de conexión. Verificá tu internet.";
-    }
-    if (error.message.includes('timeout')) {
-      return "La solicitud tardó demasiado. Intentá nuevamente.";
-    }
+  // Errores de red
+  if (error?.name === 'AbortError') {
+    return "Solicitud cancelada.";
+  }
+  
+  if (error?.message?.includes('fetch')) {
+    return "Error de conexión. Verificá tu internet.";
+  }
+  
+  if (error?.message?.includes('timeout')) {
+    return "La solicitud tardó demasiado. Intentá nuevamente.";
   }
   
   return error?.message || "Ocurrió un error inesperado.";
 }
 
 /**
- * Hook principal para fetching optimizado
+ * Hook principal para fetching optimizado y seguro
  */
 export function useFetch<T>(
   url?: string,
   options: FetchOptions = {},
 ): FetchState<T> {
   const {
-    retries = 3,
-    retryDelay = 500,
-    timeout = 8000,
+    retries = 2,
+    retryDelay = 1000,
+    timeout = 10000,
     cacheKey,
-    cacheTTL = 300000, // 5 minutos por defecto
+    cacheTTL = 300000, // 5 minutos
     ...fetchOptions
   } = options;
 
@@ -105,30 +103,31 @@ export function useFetch<T>(
 
     const requestKey = cacheKey || `${url}-${JSON.stringify(fetchOptions)}`;
     
-    // Verificar cache
-    if (requestCache.has(requestKey)) {
-      try {
-        const cachedData = await requestCache.get(requestKey);
-        if (mountedRef.current) {
-          setState({
-            data: cachedData as T,
-            loading: false,
-            error: ""
-          });
-        }
-        return;
-      } catch (error) {
-        requestCache.delete(requestKey);
+    // Verificar cache válido
+    const cached = requestCache.get(requestKey);
+    if (cached && Date.now() - cached.timestamp < cached.ttl) {
+      if (mountedRef.current) {
+        setState({
+          data: cached.data as T,
+          loading: false,
+          error: ""
+        });
       }
+      return;
     }
 
     try {
-      // Actualizar loading state solo en el primer intento
+      // Solo mostrar loading en el primer intento
       if (attempt === 1 && mountedRef.current) {
         setState(prev => ({ ...prev, loading: true, error: "" }));
       }
 
-      // Crear nuevo AbortController para este request
+      // Cancelar request anterior si existe
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+
+      // Crear nuevo AbortController
       abortControllerRef.current = new AbortController();
       
       // Configurar timeout
@@ -136,7 +135,7 @@ export function useFetch<T>(
         abortControllerRef.current?.abort();
       }, timeout);
 
-      const fetchPromise = fetch(url, {
+      const response = await fetch(url, {
         ...fetchOptions,
         signal: abortControllerRef.current.signal,
         headers: {
@@ -145,43 +144,38 @@ export function useFetch<T>(
         },
       });
 
-      // Agregar al cache
-      const responsePromise = fetchPromise.then(async r => {
-        if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
-        return r.json();
-      });
-      
-      requestCache.set(requestKey, responsePromise);
-      const response = await fetchPromise;
-
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        requestCache.delete(requestKey);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
-      const json = await response.json();
+      const data = await response.json();
+
+      // Guardar en cache
+      requestCache.set(requestKey, {
+        data,
+        timestamp: Date.now(),
+        ttl: cacheTTL
+      });
 
       if (mountedRef.current) {
         setState({
-          data: json as T,
+          data: data as T,
           loading: false,
           error: ""
         });
       }
 
     } catch (error: any) {
-      requestCache.delete(requestKey);
-      
-      // No intentar retry si fue cancelado por el usuario
-      if (error.name === 'AbortError') {
+      // No hacer retry si fue cancelado manualmente
+      if (error.name === 'AbortError' && mountedRef.current) {
         return;
       }
 
       // Intentar retry si quedan intentos
-      if (attempt < retries) {
-        const delay = retryDelay * Math.pow(2, attempt - 1);
+      if (attempt < retries && mountedRef.current) {
+        const delay = retryDelay * Math.pow(1.5, attempt - 1);
         
         setTimeout(() => {
           if (mountedRef.current) {
@@ -191,7 +185,7 @@ export function useFetch<T>(
         return;
       }
 
-      // Si se agotaron los reintentos, mostrar error
+      // Mostrar error final
       if (mountedRef.current) {
         const errorMessage = parseError(error);
         setState({
@@ -201,7 +195,7 @@ export function useFetch<T>(
         });
       }
     }
-  }, [url, retries, retryDelay, timeout, cacheKey, JSON.stringify(fetchOptions)]);
+  }, [url, retries, retryDelay, timeout, cacheKey, cacheTTL, JSON.stringify(fetchOptions)]);
 
   // Función para refetch manual
   const refetch = useCallback(() => {
@@ -210,7 +204,7 @@ export function useFetch<T>(
     fetchData(1);
   }, [fetchData, cacheKey, url, fetchOptions]);
 
-  // Effect principal
+  // Effect principal con cleanup mejorado
   useEffect(() => {
     mountedRef.current = true;
     fetchData();

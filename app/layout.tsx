@@ -8,8 +8,11 @@ import UserSessionLoader from "@/components/providers/UserSessionLoader";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import CartFloatButton from "@/components/ui/CartFloatButton";
 import ScrollToTop from "@/components/ui/ScrollToTop";
+import StructuredData from "@/components/seo/StructuredData";
+import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
+import PWAPrompt from "@/components/pwa/PWAPrompt";
 
-// SEO optimizado para Argentina
+// SEO optimizado para Argentina y negocio local
 export const metadata: Metadata = {
   title: {
     default: "TÍO PELOTTE - Pastas Artesanales Frescas | La Plata, Buenos Aires",
@@ -48,7 +51,7 @@ export const metadata: Metadata = {
     locale: 'es_AR',
     title: "TÍO PELOTTE - Pastas Artesanales Frescas | La Plata 🍝",
     description: "Desde 2008 haciendo las mejores pastas artesanales de La Plata. Ravioles, sorrentinos, ñoquis y más. ¡Envíos a domicilio! 📦🚚",
-    url: '/',
+    url: process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://tiopelotte.com',
     siteName: 'TÍO PELOTTE - Pastas Artesanales',
   },
   
@@ -65,6 +68,17 @@ export const metadata: Metadata = {
       'max-snippet': -1,
     },
   },
+
+  // Configuración adicional para PWA
+  manifest: '/manifest.json',
+  
+  // Configuración de viewport optimizada
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 5,
+    userScalable: true,
+  },
 };
 
 export default function RootLayout({
@@ -72,47 +86,88 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
   return (
     <html lang="es-AR" className="scroll-smooth">
       <head>
         <meta name="geo.region" content="AR-B" />
         <meta name="geo.placename" content="La Plata, Buenos Aires" />
         <meta name="theme-color" content="#FBE6D4" />
-        <link rel="manifest" href="/manifest.json" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
+        <link rel="apple-touch-icon" href="/icon-192.png" />
+        
+        {/* Preload de fuentes críticas */}
+        <link
+          rel="preload"
+          href="/_next/static/media/island-moments.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin=""
+        />
+        <link
+          rel="preload"
+          href="/_next/static/media/eb-garamond.woff2"
+          as="font"
+          type="font/woff2"
+          crossOrigin=""
+        />
       </head>
       
       <body 
         className={`${islandMoments.variable} ${ebGaramond.variable} antialiased`}
         suppressHydrationWarning={true}
       >
+        {/* Structured Data para SEO */}
+        <StructuredData />
+        
+        {/* Google Analytics si está configurado */}
+        {gaId && <GoogleAnalytics measurementId={gaId} />}
+        
+        {/* Cargador de sesión de usuario */}
         <UserSessionLoader />
         
+        {/* Navegación principal */}
         <nav role="navigation" aria-label="Navegación principal">
           <Navbar />
         </nav>
         
+        {/* Contenido principal */}
         <main id="main-content" role="main">
           {children}
         </main>
         
+        {/* Scroll automático al cambiar página */}
         <ScrollToTop />
         
+        {/* Sistema de notificaciones */}
         <Toaster 
           position="top-center" 
           richColors 
           closeButton 
           duration={4000}
+          toastOptions={{
+            style: {
+              background: '#FFF8EC',
+              color: '#5A3E1B',
+              border: '1px solid #E6D2B5',
+            },
+          }}
         />
         
+        {/* Footer */}
         <footer role="contentinfo">
           <Footer />
         </footer>
         
+        {/* Botones flotantes */}
         <aside role="complementary" aria-label="Acciones rápidas">
           <CartFloatButton />
           <WhatsAppButton />
         </aside>
+
+        {/* PWA Install Prompt */}
+        <PWAPrompt />
       </body>
     </html>
   );

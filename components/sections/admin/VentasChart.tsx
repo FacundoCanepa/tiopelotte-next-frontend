@@ -7,28 +7,41 @@ interface Props {
   values: number[];
 }
 
+/**
+ * Componente de gráfico optimizado para producción
+ * Carga Chart.js de forma asíncrona para evitar errores SSR
+ */
 export default function VentasChart({ labels, values }: Props) {
-  const [ChartComponent, setChartComponent] = useState<any>(null);
+  const [ChartComponent, setChartComponent] = useState<React.ComponentType | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string>("");
 
   useEffect(() => {
-    // Importar Chart.js solo en el cliente
     const loadChart = async () => {
       try {
-        const {
-          Chart as ChartJS,
-          CategoryScale,
-          LinearScale,
-          BarElement,
-          LineElement,
-          PointElement,
-          Tooltip,
-          Legend,
-          Filler,
-        } = await import("chart.js");
-        
-        const { Line } = await import("react-chartjs-2");
+        // Verificar que estamos en el cliente
+        if (typeof window === 'undefined') return;
 
-        // Registrar componentes de Chart.js
+        // Importar Chart.js y react-chartjs-2 dinámicamente
+        const [
+          {
+            Chart as ChartJS,
+            CategoryScale,
+            LinearScale,
+            BarElement,
+            LineElement,
+            PointElement,
+            Tooltip,
+            Legend,
+            Filler,
+          },
+          { Line }
+        ] = await Promise.all([
+          import("chart.js"),
+          import("react-chartjs-2")
+        ]);
+
+        // Registrar componentes necesarios
         ChartJS.register(
           CategoryScale, 
           LinearScale, 
@@ -40,8 +53,13 @@ export default function VentasChart({ labels, values }: Props) {
           Filler
         );
 
+        // Configurar defaults
         ChartJS.defaults.responsive = true;
         ChartJS.defaults.maintainAspectRatio = false;
+        ChartJS.defaults.font = {
+          family: 'EB Garamond, serif',
+          size: 14,
+        };
 
         const data = {
           labels,
@@ -59,6 +77,7 @@ export default function VentasChart({ labels, values }: Props) {
               pointBorderWidth: 2,
               pointRadius: 6,
               pointHoverRadius: 8,
+              pointHoverBackgroundColor: "#B8472E",
             },
           ],
         };
@@ -71,7 +90,12 @@ export default function VentasChart({ labels, values }: Props) {
             mode: 'index' as const,
           },
           layout: {
-            padding: 20,
+            padding: {
+              top: 20,
+              right: 20,
+              bottom: 20,
+              left: 20,
+            },
           },
           plugins: {
             legend: { 
@@ -80,32 +104,38 @@ export default function VentasChart({ labels, values }: Props) {
               labels: {
                 color: "#5A3E1B",
                 font: { 
-                  family: "EB Garamond", 
-                  size: 14,
-                  weight: 600
+                  family: "EB Garamond, serif", 
+                  size: 16,
+                  weight: '600'
                 },
                 usePointStyle: true,
                 pointStyle: 'circle',
+                padding: 20,
               }
             },
             tooltip: {
-              backgroundColor: "#5A3E1B",
+              backgroundColor: "rgba(90, 62, 27, 0.95)",
               titleColor: "#FFF8EC",
               bodyColor: "#FFF8EC",
+              borderColor: "#FFD966",
+              borderWidth: 1,
               cornerRadius: 12,
               padding: 16,
               titleFont: {
-                family: "EB Garamond",
+                family: "EB Garamond, serif",
                 size: 16,
-                weight: 600
+                weight: '600'
               },
               bodyFont: {
-                family: "EB Garamond", 
+                family: "EB Garamond, serif", 
                 size: 14
               },
               callbacks: {
                 label: function(context: any) {
                   return `Ventas: $${context.parsed.y.toLocaleString("es-AR")}`;
+                },
+                title: function(context: any) {
+                  return `Período: ${context[0].label}`;
                 }
               }
             },
@@ -118,11 +148,22 @@ export default function VentasChart({ labels, values }: Props) {
               ticks: {
                 color: "#5A3E1B",
                 font: { 
-                  family: "EB Garamond", 
+                  family: "EB Garamond, serif", 
                   size: 13,
-                  weight: 500
+                  weight: '500'
                 },
+                maxRotation: 45,
               },
+              title: {
+                display: true,
+                text: 'Período',
+                color: "#5A3E1B",
+                font: {
+                  family: "EB Garamond, serif",
+                  size: 14,
+                  weight: '600'
+                }
+              }
             },
             y: {
               beginAtZero: true,
@@ -133,32 +174,57 @@ export default function VentasChart({ labels, values }: Props) {
               ticks: {
                 color: "#5A3E1B",
                 font: { 
-                  family: "EB Garamond", 
+                  family: "EB Garamond, serif", 
                   size: 12,
-                  weight: 500
+                  weight: '500'
                 },
                 callback: function(value: any) {
-                  return `$${value.toLocaleString("es-AR")}`;
+                  return `$${Number(value).toLocaleString("es-AR")}`;
                 }
               },
+              title: {
+                display: true,
+                text: 'Ventas (ARS)',
+                color: "#5A3E1B",
+                font: {
+                  family: "EB Garamond, serif",
+                  size: 14,
+                  weight: '600'
+                }
+              }
             },
           },
           elements: {
             point: {
               hoverBorderWidth: 3,
+            },
+            line: {
+              borderCapStyle: 'round' as const,
+              borderJoinStyle: 'round' as const,
             }
           },
-        } as const;
+          animation: {
+            duration: 1000,
+            easing: 'easeInOutQuart' as const,
+          }
+        };
 
-        setChartComponent(() => (
+        // Crear componente del gráfico
+        const ChartComponentWrapper = () => (
           <Line options={options} data={data} />
-        ));
+        );
+
+        setChartComponent(() => ChartComponentWrapper);
       } catch (error) {
         console.error("Error cargando Chart.js:", error);
+        setError("No se pudo cargar el gráfico de ventas.");
+      } finally {
+        setIsLoading(false);
       }
     };
 
-    loadChart();
+    const timeoutId = setTimeout(loadChart, 100);
+    return () => clearTimeout(timeoutId);
   }, [labels, values]);
 
   return (
@@ -182,11 +248,27 @@ export default function VentasChart({ labels, values }: Props) {
       </div>
 
       <div className="h-[320px]">
-        {ChartComponent || (
+        {error ? (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-red-600">
+              <p className="font-semibold">⚠️ {error}</p>
+              <p className="text-sm mt-1">Los datos están disponibles en la tabla</p>
+            </div>
+          </div>
+        ) : isLoading ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
               <div className="w-8 h-8 border-2 border-[#8B4513] border-t-transparent rounded-full animate-spin mx-auto mb-2"></div>
               <p className="text-sm text-[#8B4513]">Cargando gráfico...</p>
+            </div>
+          </div>
+        ) : ChartComponent ? (
+          <ChartComponent />
+        ) : (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-center text-gray-600">
+              <p>📊 Gráfico no disponible</p>
+              <p className="text-sm mt-1">Consultá los datos en la tabla</p>
             </div>
           </div>
         )}
