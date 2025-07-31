@@ -18,7 +18,10 @@ const ProductGridCard = ({ product, priority = false, layout = 'grid' }: Props) 
   const router = useRouter();
   const addToCart = useCartStore((state) => state.addToCart);
 
-  if (!product?.productName) return null;
+  if (!product?.productName || !product?.id) {
+    console.warn('⚠️ ProductGridCard recibió un producto inválido:', product);
+    return null;
+  }
 
   const unidad = product.unidadMedida?.trim().toLowerCase() || "";
   const isByWeight = unidad === "kg";
@@ -36,6 +39,7 @@ const ProductGridCard = ({ product, priority = false, layout = 'grid' }: Props) 
   const formatQuantity = (qty: number) => {
     if (unidad === "unidad") return `${qty} Unidad`;
     if (unidad === "planchas") return `${qty} Planchas`;
+    if (unidad === "kg") return qty >= 1 ? `${qty} Kg` : `${qty * 1000} gr`;
     return `${qty}`;
   };
 
@@ -48,6 +52,9 @@ const ProductGridCard = ({ product, priority = false, layout = 'grid' }: Props) 
       ? " /planchas"
       : "";
 
+  const imageUrl = product.img?.[0]?.url || "/placeholder.jpg";
+  const price = product.price || 0;
+
   return (
     <Card className="bg-[#FFF4E3] border-none rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-all duration-300 h-full">
       <CardContent className="flex flex-col justify-between h-full p-4">
@@ -58,11 +65,12 @@ const ProductGridCard = ({ product, priority = false, layout = 'grid' }: Props) 
             </span>
           )}
           <Image
-            src={product.img?.[0]?.url || "/placeholder.jpg"}
+            src={imageUrl}
             alt={product.productName}
             width={300}
             height={300}
             className="w-full h-full object-cover object-center hover:scale-105 transition-transform duration-500"
+            priority={priority}
           />
         </div>
 
@@ -73,11 +81,11 @@ const ProductGridCard = ({ product, priority = false, layout = 'grid' }: Props) 
             </h3>
 
             <p className="text-sm text-stone-600 line-clamp-2">
-              {product.description}
+              {product.description || product.descriptionCorta}
             </p>
 
             <span className="text-[#D16A45] font-semibold text-base">
-              ${product.price.toLocaleString("es-AR")}
+              ${price.toLocaleString("es-AR")}
               <span className="text-sm text-stone-500">{displayUnit}</span>
             </span>
           </div>

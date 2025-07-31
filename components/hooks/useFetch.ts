@@ -12,7 +12,6 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
-// import { apiCache } from "@/lib/performance";
 
 interface FetchState<T> {
   data: T | null;
@@ -36,7 +35,7 @@ const requestCache = new Map<string, Promise<any>>();
 // Helper para errores específicos de Strapi
 function parseError(error: any, response?: Response): string {
   // Errores de red
-  if (!navigator.onLine) {
+  if (typeof window !== 'undefined' && !navigator.onLine) {
     return "Sin conexión a internet. Verificá tu conexión.";
   }
   
@@ -84,6 +83,8 @@ export function useFetch<T>(
     retries = 3,
     retryDelay = 500,
     timeout = 8000,
+    cacheKey,
+    cacheTTL = 300000, // 5 minutos por defecto
     ...fetchOptions
   } = options;
 
@@ -97,13 +98,17 @@ export function useFetch<T>(
   const mountedRef = useRef(true);
 
   const fetchData = useCallback(async (attempt = 1): Promise<void> => {
-    if (!url) return;
+    if (!url) {
+      setState({ data: null, loading: false, error: "" });
+      return;
+    }
 
-    // Evitar requests duplicados para la misma URL
-    const cacheKey = `${url}-${JSON.stringify(fetchOptions)}`;
-    if (requestCache.has(cacheKey)) {
+    const requestKey = cacheKey || `${url}-${JSON.stringify(fetchOptions)}`;
+    
+    // Verificar cache
+    if (requestCache.has(requestKey)) {
       try {
-        const cachedData = await requestCache.get(cacheKey);
+        const cachedData = await requestCache.get(requestKey);
         if (mountedRef.current) {
           setState({
             data: cachedData as T,
@@ -113,8 +118,7 @@ export function useFetch<T>(
         }
         return;
       } catch (error) {
-        // Si falla el cache, continuar con request normal
-        requestCache.delete(cacheKey);
+        requestCache.delete(requestKey);
       }
     }
 
@@ -142,13 +146,18 @@ export function useFetch<T>(
       });
 
       // Agregar al cache
-      requestCache.set(cacheKey, fetchPromise.then(r => r.json()));
+      const responsePromise = fetchPromise.then(async r => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}: ${r.statusText}`);
+        return r.json();
+      });
+      
+      requestCache.set(requestKey, responsePromise);
       const response = await fetchPromise;
 
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        requestCache.delete(cacheKey);
+        requestCache.delete(requestKey);
         throw new Error(`HTTP ${response.status}: ${response.statusText}`);
       }
 
@@ -160,25 +169,19 @@ export function useFetch<T>(
           loading: false,
           error: ""
         });
-        
-        console.log(`✅ Datos cargados exitosamente desde: ${url}`);
       }
 
     } catch (error: any) {
-      requestCache.delete(cacheKey);
+      requestCache.delete(requestKey);
       
       // No intentar retry si fue cancelado por el usuario
       if (error.name === 'AbortError') {
-        console.log(`🚫 Request cancelado: ${url}`);
         return;
       }
 
       // Intentar retry si quedan intentos
       if (attempt < retries) {
-        // Backoff exponencial: 1s, 2s, 4s...
         const delay = retryDelay * Math.pow(2, attempt - 1);
-        
-        console.warn(`⚠️ Reintentando request (${attempt}/${retries}) en ${delay}ms: ${url}`);
         
         setTimeout(() => {
           if (mountedRef.current) {
@@ -191,7 +194,6 @@ export function useFetch<T>(
       // Si se agotaron los reintentos, mostrar error
       if (mountedRef.current) {
         const errorMessage = parseError(error);
-        console.error(`❌ Error final en fetch: ${url}`, error);
         setState({
           data: null,
           loading: false,
@@ -199,12 +201,14 @@ export function useFetch<T>(
         });
       }
     }
-  }, [url, retries, retryDelay, timeout, JSON.stringify(fetchOptions)]);
+  }, [url, retries, retryDelay, timeout, cacheKey, JSON.stringify(fetchOptions)]);
 
   // Función para refetch manual
   const refetch = useCallback(() => {
+    const requestKey = cacheKey || `${url}-${JSON.stringify(fetchOptions)}`;
+    requestCache.delete(requestKey);
     fetchData(1);
-  }, [fetchData]);
+  }, [fetchData, cacheKey, url, fetchOptions]);
 
   // Effect principal
   useEffect(() => {
@@ -213,7 +217,6 @@ export function useFetch<T>(
     
     return () => {
       mountedRef.current = false;
-      // Cancelar request pendiente
       if (abortControllerRef.current) {
         abortControllerRef.current.abort();
       }

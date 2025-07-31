@@ -1,20 +1,11 @@
 /**
  * Hook optimizado para filtrado de productos con performance mejorada
- * 
- * Optimizaciones implementadas:
- * - Debounce en filtros para reducir re-renders
- * - Memoización de resultados filtrados
- * - Lazy loading de categorías
- * - Cache inteligente de filtros
- * - Paginación eficiente
- * - Estados de loading granulares
  */
 
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { ProductType } from "@/types/product";
 import { useGetAllProducts } from "./useGetAllProducts";
 import { useGetCategory } from "./useGetCategory";
-import { debounce } from "@/lib/performance";
 
 // Tipo para los filtros
 interface Filters {
@@ -29,13 +20,28 @@ interface Filters {
 // Configuración de paginación
 const ITEMS_PER_PAGE = 12;
 
+// Helper function para debounce
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null;
+  
+  return (...args: Parameters<T>) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
+
 /**
  * Hook principal para filtrado de productos optimizado
  */
 export function useFilteredProducts() {
   // Datos desde la API
-  const { result: allProducts = [], loading: loadingProducts } = useGetAllProducts();
-  const { result: categories = [], loading: loadingCategories } = useGetCategory();
+  const { result: allProducts = [], loading: loadingProducts, error: productsError, refetch: refetchProducts } = useGetAllProducts();
+  const { result: categories = [], loading: loadingCategories, error: categoriesError, refetch: refetchCategories } = useGetCategory();
 
   // Estados de filtros
   const [filters, setFilters] = useState<Filters>({
@@ -60,7 +66,7 @@ export function useFilteredProducts() {
 
     let result = [...allProducts];
 
-    // Filtro por búsqueda de texto (optimizado para búsquedas parciales)
+    // Filtro por búsqueda de texto
     if (filters.search.trim()) {
       const searchTerm = filters.search.toLowerCase().trim();
       result = result.filter((product) => {
@@ -104,7 +110,7 @@ export function useFilteredProducts() {
       result = result.filter((product) => product.price <= max);
     }
 
-    // Ordenamiento optimizado
+    // Ordenamiento
     if (filters.sort) {
       result.sort((a, b) => {
         switch (filters.sort) {
@@ -116,8 +122,6 @@ export function useFilteredProducts() {
             return a.productName.localeCompare(b.productName, 'es-AR');
           case "nameDesc":
             return b.productName.localeCompare(a.productName, 'es-AR');
-          case "newest":
-            return new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime();
           default:
             return 0;
         }
@@ -127,11 +131,11 @@ export function useFilteredProducts() {
     return result;
   }, [allProducts, filters]);
 
-  // Debounced filter update para mejor performance
+  // Debounced filter update
   const debouncedSetFilters = useMemo(
-    () => debounce((newFilters: Filters) => {
+    () => debounce(() => {
       setFilteredProducts(filterProducts);
-      setCurrentPage(1); // Reset a primera página cuando cambien filtros
+      setCurrentPage(1);
       setIsFiltering(false);
     }, 300),
     [filterProducts]
@@ -140,15 +144,10 @@ export function useFilteredProducts() {
   // Aplicar filtros con debounce
   useEffect(() => {
     setIsFiltering(true);
-    debouncedSetFilters(filters);
-    
-    // Cleanup function
-    return () => {
-      debouncedSetFilters.cancel();
-    };
+    debouncedSetFilters();
   }, [filters, debouncedSetFilters]);
 
-  // Productos paginados (memoizados para evitar re-cálculos)
+  // Productos paginados
   const paginatedProducts = useMemo(() => {
     const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
     const endIndex = startIndex + ITEMS_PER_PAGE;
@@ -164,25 +163,19 @@ export function useFilteredProducts() {
     hasPrevPage: currentPage > 1,
   }), [filteredProducts.length, currentPage]);
 
-  // Función optimizada para cambiar página
+  // Función para cambiar página
   const setPage = useCallback((page: number) => {
     const maxPage = Math.ceil(filteredProducts.length / ITEMS_PER_PAGE);
     const validPage = Math.max(1, Math.min(page, maxPage));
     setCurrentPage(validPage);
     
-    // Scroll suave al top de productos
+    // Scroll al top
     if (typeof window !== 'undefined') {
-      const productsSection = document.querySelector('[role="main"]');
-      if (productsSection) {
-        productsSection.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'start' 
-        });
-      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }, [filteredProducts.length]);
 
-  // Función optimizada para actualizar filtros
+  // Función para actualizar filtros
   const updateFilters = useCallback((updater: (prev: Filters) => Filters) => {
     setFilters(updater);
   }, []);
@@ -202,34 +195,13 @@ export function useFilteredProducts() {
 
   // Loading state general
   const loading = loadingProducts || loadingCategories || isFiltering;
+  const error = productsError || categoriesError;
 
-  // Prefetch de páginas para mejor UX
-  useEffect(() => {
-    if (paginationInfo.hasNextPage && !loading) {
-      // Simular prefetch de siguiente página después de 2 segundos
-      const prefetchTimer = setTimeout(() => {
-        console.log(`🚀 Prefetching página ${currentPage + 1}`);
-        // Aquí se podría implementar prefetch real
-      }, 2000);
-      
-      return () => clearTimeout(prefetchTimer);
-    }
-  }, [paginationInfo.hasNextPage, loading, currentPage]);
-
-  // Analytics de filtros (para optimización futura)
-  useEffect(() => {
-    // Track filter usage para analytics
-    if (typeof window !== 'undefined' && window.gtag && filters.search) {
-      const searchTimer = setTimeout(() => {
-        window.gtag('event', 'search', {
-          search_term: filters.search,
-          results_count: filteredProducts.length
-        });
-      }, 1000);
-      
-      return () => clearTimeout(searchTimer);
-    }
-  }, [filters.search, filteredProducts.length]);
+  // Función de refetch para toda la data
+  const refetch = useCallback(() => {
+    refetchProducts();
+    refetchCategories();
+  }, [refetchProducts, refetchCategories]);
 
   return {
     // Productos y datos
@@ -257,54 +229,10 @@ export function useFilteredProducts() {
     loadingProducts,
     loadingCategories,
     isFiltering,
+    error,
     
     // Utilidades
     pagination: paginationInfo,
-  };
-}
-
-/**
- * Hook simplificado para búsqueda rápida
- */
-export function useProductSearch(initialQuery = '') {
-  const [query, setQuery] = useState(initialQuery);
-  const [results, setResults] = useState<ProductType[]>([]);
-  const [loading, setLoading] = useState(false);
-  
-  const { result: allProducts = [] } = useGetAllProducts();
-
-  // Debounced search para performance
-  const debouncedSearch = useMemo(
-    () => debounce((searchTerm: string) => {
-      if (!searchTerm.trim()) {
-        setResults([]);
-        setLoading(false);
-        return;
-      }
-
-      const filtered = allProducts.filter((product) =>
-        product.productName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        product.description?.toLowerCase().includes(searchTerm.toLowerCase())
-      );
-
-      setResults(filtered.slice(0, 10)); // Máximo 10 resultados
-      setLoading(false);
-    }, 300),
-    [allProducts]
-  );
-
-  useEffect(() => {
-    setLoading(true);
-    debouncedSearch(query);
-    
-    return () => debouncedSearch.cancel();
-  }, [query, debouncedSearch]);
-
-  return {
-    query,
-    setQuery,
-    results,
-    loading,
-    hasResults: results.length > 0
+    refetch,
   };
 }

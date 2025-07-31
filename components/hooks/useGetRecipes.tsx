@@ -5,10 +5,13 @@ export function useGetRecipes() {
   const base = process.env.NEXT_PUBLIC_BACKEND_URL;
   const url = base ? `${base}/api/recetas?populate=*` : undefined;
   
-  const { data, loading, error } = useFetch<any>(url);
+  const { data, loading, error, refetch } = useFetch<any>(url, {
+    cacheKey: 'recipes',
+    cacheTTL: 600000 // 10 minutos
+  });
   
-  // Simplificado: manejar estructura de Strapi sin transformaciones complejas
-  let recipes = [];
+  // Manejar estructura de respuesta de Strapi v4
+  let recipes: RecetaType[] = [];
   
   if (data?.data && Array.isArray(data.data)) {
     recipes = data.data.map((item: any) => ({
@@ -44,7 +47,14 @@ export function useGetRecipes() {
         img: Array.isArray(prod.img) ? prod.img : [prod.img].filter(Boolean),
       })) : [],
     }));
+  } else if (data && !loading && !error) {
+    console.warn('⚠️ Estructura de datos inesperada en useGetRecipes:', data);
   }
   
-  return { recipes, loading, error };
+  return { 
+    recipes, 
+    loading, 
+    error,
+    refetch
+  };
 }

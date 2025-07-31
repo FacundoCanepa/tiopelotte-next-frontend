@@ -1,14 +1,5 @@
 /**
  * Sección principal de productos optimizada para performance y UX
- * 
- * Optimizaciones implementadas:
- * - Lazy loading inteligente de filtros y productos
- * - Debounce en búsquedas para reducir API calls
- * - Virtual scrolling para listas grandes
- * - Estados de carga optimizados
- * - Filtros con URL sync para SEO
- * - Paginación con prefetch de páginas siguientes
- * - Responsive design mejorado
  */
 
 "use client";
@@ -17,10 +8,24 @@ import { useFilteredProducts } from "@/components/hooks/useFilteredProducts";
 import { SlidersHorizontal, ArrowUpDown, Grid3X3, List } from "lucide-react";
 import { useEffect, useState, useCallback, useMemo } from "react";
 import { useSearchParams, useRouter, usePathname } from "next/navigation";
-import { debounce } from "@/lib/performance";
 import ProductGridCard from "./ProductGridCard";
 import ProductosFilters from "../filters/ProductosFilters";
 import { ProductLoadingSpinner } from "@/components/ui/LoadingSpinner";
+
+// Helper function para debounce
+function debounce<T extends (...args: any[]) => any>(
+  func: T,
+  wait: number
+): (...args: Parameters<T>) => void {
+  let timeout: NodeJS.Timeout | null = null;
+  
+  return (...args: Parameters<T>) => {
+    if (timeout) {
+      clearTimeout(timeout);
+    }
+    timeout = setTimeout(() => func(...args), wait);
+  };
+}
 
 // Componente de layout toggle para vista grid/lista
 function ViewToggle({ view, setView }: { view: 'grid' | 'list', setView: (v: 'grid' | 'list') => void }) {
@@ -95,6 +100,10 @@ const ProductosSection = () => {
     setPage,
     totalPages,
     loading,
+    error,
+    categories,
+    clearFilters,
+    refetch
   } = useFilteredProducts();
 
   const { category, search, priceRange, onlyOffers, sort, unidad } = filters;
@@ -111,7 +120,7 @@ const ProductosSection = () => {
 
   // Sync inicial de filtros con URL params para SEO
   useEffect(() => {
-    const params = new URLSearchParams(searchParams);
+    const params = new URLSearchParams(searchParams.toString());
     const urlFilters: any = {};
     
     // Extraer filtros de la URL
@@ -129,7 +138,7 @@ const ProductosSection = () => {
     }
   }, [searchParams, setFilters, priceRange]);
 
-  // Debounced URL update para SEO y navegabilidad
+  // Debounced URL update para SEO
   const updateURL = useMemo(
     () => debounce((newFilters: any) => {
       const params = new URLSearchParams();
@@ -167,31 +176,29 @@ const ProductosSection = () => {
 
   // Handler para limpiar filtros
   const handleClearFilters = useCallback(() => {
-    setFilters({
-      search: "",
-      category: "",
-      sort: "",
-      onlyOffers: false,
-      unidad: "",
-      priceRange: ["", ""],
-    });
-    setPage(1);
-    
-    // Limpiar URL también
+    clearFilters();
     router.replace(pathname, { scroll: false });
-  }, [setFilters, setPage, router, pathname]);
+  }, [clearFilters, router, pathname]);
 
-  // Prefetch de página siguiente para mejor UX
-  useEffect(() => {
-    if (currentPage < totalPages && !loading) {
-      const nextPageTimer = setTimeout(() => {
-        // Simular carga de siguiente página en background
-        console.log(`🚀 Prefetching página ${currentPage + 1}`);
-      }, 2000);
-      
-      return () => clearTimeout(nextPageTimer);
-    }
-  }, [currentPage, totalPages, loading]);
+  // Mostrar error si hay problemas con la API
+  if (error && !loading) {
+    return (
+      <section className="bg-[#FBE6D4] px-2 sm:px-6 md:px-10 py-20 max-w-screen-2xl mx-auto">
+        <div className="text-center space-y-6">
+          <h1 className="text-[#8B4513] text-3xl sm:text-4xl lg:text-5xl font-garamond italic">
+            Error al cargar productos
+          </h1>
+          <p className="text-stone-600 text-lg">{error}</p>
+          <button
+            onClick={refetch}
+            className="px-6 py-3 bg-[#FFD966] text-[#8B4513] rounded-xl hover:bg-[#F5C741] transition-all shadow-sm font-semibold"
+          >
+            Intentar nuevamente
+          </button>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section className="bg-[#FBE6D4] px-2 sm:px-6 md:px-10 py-20 max-w-screen-2xl mx-auto">
@@ -398,15 +405,16 @@ const ProductosSection = () => {
                 role="main"
                 aria-label={`${products.length} productos encontrados`}
               >
-                {products.map((product, index) => (
+                {products.map((product) => (
                   <ProductGridCard 
                     key={product.id} 
                     product={product} 
+                    layout={view}
                   />
                 ))}
               </div>
 
-              {/* Paginación mejorada con información contextual */}
+              {/* Paginación mejorada */}
               {totalPages > 1 && (
                 <nav 
                   className="flex flex-col sm:flex-row justify-center items-center gap-4 mt-12"

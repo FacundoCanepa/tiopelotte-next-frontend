@@ -36,7 +36,7 @@ const ProductosFilters = ({
   unidad = "",
   setUnidad = () => {},
 }: Props) => {
-  const { loading, result } = useGetCategory()
+  const { loading, result, error } = useGetCategory()
 
   return (
     <div className="flex flex-col gap-4 animate-fade-in">
@@ -45,9 +45,12 @@ const ProductosFilters = ({
         value={selected}
         onChange={(e) => setSelected(e.target.value)}
         className="px-4 py-2 bg-[#FFF4E3] text-[#8B4513] border border-[#E6D2B5] rounded-xl shadow-sm text-sm cursor-pointer transition-all"
+        disabled={loading}
       >
-        <option value="" className="cursor-pointer">Todas las categorías</option>
-        {!loading &&
+        <option value="" className="cursor-pointer">
+          {loading ? "Cargando categorías..." : "Todas las categorías"}
+        </option>
+        {!loading && !error &&
           Array.isArray(result) &&
           result.map((cat: any) => (
             <option key={cat.id} value={cat.slug} className="cursor-pointer">

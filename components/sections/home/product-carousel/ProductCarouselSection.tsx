@@ -11,6 +11,7 @@ interface ProductState {
   loading: boolean;
   result: ProductType[] | null;
   error: string;
+  refetch?: () => void;
 }
 
 interface Props {
@@ -28,7 +29,7 @@ const ProductCarouselSection = ({
   buttonHref,
   products,
 }: Props) => {
-  const { loading, result, error } = products;
+  const { loading, result, error, refetch } = products;
   const router = useRouter();
 
   // Validación para asegurar que result sea un array
@@ -54,7 +55,17 @@ const ProductCarouselSection = ({
         <div className="mt-4">
           {loading && <SkeletonSchema count={4} />}
           {!loading && error && (
-            <p className="text-center text-stone-500">{error}</p>
+            <div className="text-center space-y-4 py-12">
+              <p className="text-stone-500 text-lg">{error}</p>
+              {refetch && (
+                <button
+                  onClick={refetch}
+                  className="px-4 py-2 bg-[#FFD966] text-[#8B4513] rounded-lg hover:bg-[#F5C741] transition-all"
+                >
+                  Intentar nuevamente
+                </button>
+              )}
+            </div>
           )}
           {!loading && !error && productList.length > 0 && (
             <ProductCarousel products={productList} />

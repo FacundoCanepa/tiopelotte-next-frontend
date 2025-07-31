@@ -9,16 +9,26 @@ export function useGetProductByName(name: string) {
     ? `${base}/api/products?filters[productName][$eq]=${encodeURIComponent(name)}&populate=*`
     : undefined;
     
-  const { data, loading, error } = useFetch<any>(url);
+  const { data, loading, error, refetch } = useFetch<any>(url, {
+    cacheKey: `product-name-${name}`,
+    cacheTTL: 300000 // 5 minutos
+  });
   
-  // Simplificado: obtener el primer producto sin transformaciones complejas
-  let product = null;
+  // Manejar estructura de respuesta de Strapi v4
+  let product: ProductType | null = null;
   
   if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
     product = data.data[0];
   } else if (Array.isArray(data) && data.length > 0) {
     product = data[0];
+  } else if (data && !loading && !error) {
+    console.warn('⚠️ Producto no encontrado por nombre:', name, data);
   }
   
-  return { product, loading, error };
+  return { 
+    product, 
+    loading, 
+    error,
+    refetch
+  };
 }

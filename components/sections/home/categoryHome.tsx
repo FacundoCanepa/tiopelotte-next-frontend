@@ -7,7 +7,7 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 
 const CategoryHome = () => {
-  const { loading, result } = useGetCategory();
+  const { loading, result, error } = useGetCategory();
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const router = useRouter();
 
@@ -25,6 +25,24 @@ const CategoryHome = () => {
       router.push(`/productos?category=${slug}`);
     }
   };
+
+  // Estado de error
+  if (error) {
+    return (
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-center font-garamond text-[4vh] md:text-[6vh] sm:pb-1 italic tracking-wide">
+          ¿Qué te gustaría disfrutar hoy?
+        </h2>
+        <div className="w-full flex items-center justify-center text-[#8B4513] min-h-[400px]">
+          <div className="text-center space-y-4 py-16">
+            <div className="text-4xl">🍝</div>
+            <p className="text-lg font-garamond italic">Error al cargar las categorías.</p>
+            <p className="text-sm text-stone-600">Intentá recargar la página.</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -64,7 +82,7 @@ const CategoryHome = () => {
                 `}
               >
                 <Image
-                  src={`${category.mainImage.url}`}
+                  src={category.mainImage?.url || '/placeholder.jpg'}
                   alt={category.categoryNames}
                   fill
                   className="absolute inset-0 object-cover scale-110 group-hover:scale-100 transition-transform duration-500"
