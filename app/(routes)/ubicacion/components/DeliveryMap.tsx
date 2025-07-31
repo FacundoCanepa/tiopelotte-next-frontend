@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { zonas } from "./zonas"; 
+import { zonas } from "./zonas";
 
 const DeliveryMap = () => {
   const [isClient, setIsClient] = useState(false);
@@ -12,7 +12,7 @@ const DeliveryMap = () => {
     Promise.all([
       import("react-leaflet"),
       import("leaflet"),
-      import("leaflet/dist/leaflet.css"),
+      // import("leaflet/dist/leaflet.css"), // Comentado para evitar errores de CSS
     ]).then(([leaflet, L]) => {
       setComponents({
         MapContainer: leaflet.MapContainer,
@@ -26,7 +26,13 @@ const DeliveryMap = () => {
     });
   }, []);
 
-  if (!isClient || !components) return null;
+  if (!isClient || !components) {
+    return (
+      <div className="h-[500px] w-full bg-gray-200 rounded-xl flex items-center justify-center">
+        <p className="text-gray-600">Cargando mapa...</p>
+      </div>
+    );
+  }
 
   const {
     MapContainer,

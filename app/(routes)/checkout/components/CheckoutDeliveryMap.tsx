@@ -29,7 +29,7 @@ const CheckoutDeliveryMap = ({
     Promise.all([
       import("react-leaflet"),
       import("leaflet"),
-      import("leaflet/dist/leaflet.css"),
+      // import("leaflet/dist/leaflet.css"), // Comentado para evitar errores
     ]).then(([leaflet, L]) => {
       setComponents({
         MapContainer: leaflet.MapContainer,
@@ -43,7 +43,13 @@ const CheckoutDeliveryMap = ({
     });
   }, []);
 
-  if (!isClient || !components) return null;
+  if (!isClient || !components) {
+    return (
+      <div className="h-[400px] w-full bg-gray-200 rounded-xl flex items-center justify-center">
+        <p className="text-gray-600">Cargando mapa...</p>
+      </div>
+    );
+  }
 
   const {
     MapContainer,

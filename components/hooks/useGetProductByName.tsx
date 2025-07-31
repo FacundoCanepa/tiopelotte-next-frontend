@@ -11,8 +11,9 @@ export function useGetProductByName(name: string) {
     
   const { data, loading, error } = useFetch<any>(url);
   
-  // Obtener el primer producto de la respuesta
+  // Simplificado: obtener el primer producto sin transformaciones complejas
   let product = null;
+  
   if (data?.data && Array.isArray(data.data) && data.data.length > 0) {
     product = data.data[0];
   } else if (Array.isArray(data) && data.length > 0) {

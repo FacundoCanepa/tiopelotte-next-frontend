@@ -10,6 +10,7 @@
  * - Descripciones informativas
 "use client";
 import Link from "next/link";
+import Link from "next/link";
 import { ReactNode } from "react";
  * - Colores temáticos personalizables
 interface Props {

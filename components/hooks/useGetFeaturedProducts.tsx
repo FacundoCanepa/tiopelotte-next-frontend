@@ -6,8 +6,13 @@ export function useGetFeaturedProducts() {
   
   const { data, loading, error, refetch } = useFetch<any>(url);
   
-  // Transformar datos de Strapi de manera segura
-  const products = Array.isArray(data?.data) ? data.data : [];
+  // Simplificado: manejar ambas estructuras de Strapi sin transformaciones complejas
+  let products = [];
+  if (data?.data && Array.isArray(data.data)) {
+    products = data.data;
+  } else if (Array.isArray(data)) {
+    products = data;
+  }
   
   return {
     loading,

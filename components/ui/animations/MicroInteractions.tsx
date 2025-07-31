@@ -315,7 +315,7 @@ export function LoadingDots({ size = "md" }: { size?: "sm" | "md" | "lg" }) {
   );
 }
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 /**
  * Contador animado para números

@@ -6,7 +6,13 @@ export function useGetDessertProducts() {
   
   const { data, loading, error } = useFetch<any>(url);
   
-  const products = Array.isArray(data?.data) ? data.data : [];
+  // Simplificado: manejar ambas estructuras de Strapi
+  let products = [];
+  if (data?.data && Array.isArray(data.data)) {
+    products = data.data;
+  } else if (Array.isArray(data)) {
+    products = data;
+  }
   
   return { 
     loading, 

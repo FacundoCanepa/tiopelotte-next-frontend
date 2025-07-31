@@ -2,7 +2,6 @@
 
 import SkeletonCategory from "../../ui/SkeletonCategory";
 import { useGetCategory } from "@/components/hooks/useGetCategory";
-import { ResponseType } from "@/types/response";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -13,7 +12,7 @@ const CategoryHome = () => {
   const router = useRouter();
 
   // Validación para asegurar que result sea un array
-  const categories = Array.isArray(result?.data) ? result.data : Array.isArray(result) ? result : [];
+  const categories = Array.isArray(result) ? result : [];
 
   const handleClick = (categoryId: string, slug: string) => {
     if (window.innerWidth < 1024) {
