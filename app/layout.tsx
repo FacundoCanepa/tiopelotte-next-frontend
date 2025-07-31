@@ -4,6 +4,7 @@ import { islandMoments, ebGaramond } from "@/lib/fonts/fonts";
 import { Toaster } from "sonner";
 import Navbar from "@/components/layout/navbar";
 import Footer from "@/components/layout/footer";
+import QueryProvider from "@/lib/providers/QueryProvider";
 import UserSessionLoader from "@/components/providers/UserSessionLoader";
 import WhatsAppButton from "@/components/ui/WhatsAppButton";
 import CartFloatButton from "@/components/ui/CartFloatButton";
@@ -11,73 +12,52 @@ import ScrollToTop from "@/components/ui/ScrollToTop";
 import StructuredData from "@/components/seo/StructuredData";
 import GoogleAnalytics from "@/components/analytics/GoogleAnalytics";
 import PWAPrompt from "@/components/pwa/PWAPrompt";
+import ErrorBoundary from "@/components/ui/ErrorBoundary";
 
-// SEO optimizado para Argentina y negocio local
+// SEO optimizado para e-commerce
 export const metadata: Metadata = {
   title: {
-    default: "TÍO PELOTTE - Pastas Artesanales Frescas | La Plata, Buenos Aires",
-    template: "%s | TÍO PELOTTE - Pastas Artesanales"
+    default: "TÍO PELOTTE - Pastas Artesanales Frescas | E-commerce La Plata",
+    template: "%s | TÍO PELOTTE"
   },
-  description: "🍝 Las mejores pastas artesanales frescas de La Plata. Ravioles, sorrentinos, ñoquis, canelones y más. Envíos a domicilio en Abasto, Olmos, Los Hornos y Etcheverry. Desde 2008 amasando tradición.",
+  description: "🍝 E-commerce de pastas artesanales frescas en La Plata. Ravioles, sorrentinos, ñoquis y más. Envíos a domicilio. Comprá online las mejores pastas desde 2008.",
   keywords: [
-    "pastas artesanales La Plata",
-    "pastas frescas Buenos Aires", 
-    "ravioles artesanales",
-    "sorrentinos caseros",
-    "ñoquis frescos",
-    "pastas a domicilio La Plata",
-    "pastas caseras Abasto",
-    "ravioles Los Hornos",
-    "sorrentinos Olmos",
-    "pastas frescas Etcheverry",
-    "canelones artesanales",
-    "fideos caseros La Plata",
-    "pastas tradicionales argentinas",
-    "masa madre artesanal",
-    "recetas familiares",
-    "pasta fresca diaria",
-    "ingredientes naturales",
-    "delivery pastas La Plata",
-    "envío gratis pastas",
-    "pedidos online",
-    "Tío Pelotte"
+    "e-commerce pastas La Plata",
+    "comprar pastas online",
+    "delivery pastas artesanales",
+    "ravioles online La Plata",
+    "sorrentinos delivery",
+    "tienda online pastas",
+    "pastas frescas e-commerce",
+    "Tío Pelotte online"
   ].join(", "),
-  authors: [{ name: "TÍO PELOTTE", url: "https://tiopelotte.com" }],
-  creator: "TÍO PELOTTE - Pastas Artesanales",
-  publisher: "TÍO PELOTTE",
   
   openGraph: {
     type: 'website',
     locale: 'es_AR',
-    title: "TÍO PELOTTE - Pastas Artesanales Frescas | La Plata 🍝",
-    description: "Desde 2008 haciendo las mejores pastas artesanales de La Plata. Ravioles, sorrentinos, ñoquis y más. ¡Envíos a domicilio! 📦🚚",
-    url: process.env.NEXT_PUBLIC_FRONTEND_URL || 'https://tiopelotte.com',
-    siteName: 'TÍO PELOTTE - Pastas Artesanales',
+    title: "TÍO PELOTTE - E-commerce de Pastas Artesanales 🍝",
+    description: "Comprá online las mejores pastas artesanales de La Plata. Envíos a domicilio. Más de 15 años de tradición.",
+    url: process.env.NEXT_PUBLIC_FRONTEND_URL,
+    siteName: 'TÍO PELOTTE E-commerce',
   },
   
   robots: {
     index: true,
     follow: true,
-    nocache: false,
     googleBot: {
       index: true,
       follow: true,
-      noimageindex: false,
-      'max-video-preview': -1,
       'max-image-preview': 'large',
       'max-snippet': -1,
     },
   },
 
-  // Configuración adicional para PWA
   manifest: '/manifest.json',
   
-  // Configuración de viewport optimizada
   viewport: {
     width: 'device-width',
     initialScale: 1,
     maximumScale: 5,
-    userScalable: true,
   },
 };
 
@@ -96,78 +76,55 @@ export default function RootLayout({
         <meta name="theme-color" content="#FBE6D4" />
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="apple-touch-icon" href="/icon-192.png" />
-        
-        {/* Preload de fuentes críticas */}
-        <link
-          rel="preload"
-          href="/_next/static/media/island-moments.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin=""
-        />
-        <link
-          rel="preload"
-          href="/_next/static/media/eb-garamond.woff2"
-          as="font"
-          type="font/woff2"
-          crossOrigin=""
-        />
       </head>
       
       <body 
         className={`${islandMoments.variable} ${ebGaramond.variable} antialiased`}
         suppressHydrationWarning={true}
       >
-        {/* Structured Data para SEO */}
-        <StructuredData />
-        
-        {/* Google Analytics si está configurado */}
-        {gaId && <GoogleAnalytics measurementId={gaId} />}
-        
-        {/* Cargador de sesión de usuario */}
-        <UserSessionLoader />
-        
-        {/* Navegación principal */}
-        <nav role="navigation" aria-label="Navegación principal">
-          <Navbar />
-        </nav>
-        
-        {/* Contenido principal */}
-        <main id="main-content" role="main">
-          {children}
-        </main>
-        
-        {/* Scroll automático al cambiar página */}
-        <ScrollToTop />
-        
-        {/* Sistema de notificaciones */}
-        <Toaster 
-          position="top-center" 
-          richColors 
-          closeButton 
-          duration={4000}
-          toastOptions={{
-            style: {
-              background: '#FFF8EC',
-              color: '#5A3E1B',
-              border: '1px solid #E6D2B5',
-            },
-          }}
-        />
-        
-        {/* Footer */}
-        <footer role="contentinfo">
-          <Footer />
-        </footer>
-        
-        {/* Botones flotantes */}
-        <aside role="complementary" aria-label="Acciones rápidas">
-          <CartFloatButton />
-          <WhatsAppButton />
-        </aside>
-
-        {/* PWA Install Prompt */}
-        <PWAPrompt />
+        <ErrorBoundary>
+          {/* Providers */}
+          <QueryProvider>
+            {/* SEO y Analytics */}
+            <StructuredData />
+            {gaId && <GoogleAnalytics measurementId={gaId} />}
+            
+            {/* Session Management */}
+            <UserSessionLoader />
+            
+            {/* Layout principal */}
+            <div className="min-h-screen flex flex-col">
+              <Navbar />
+              
+              <main className="flex-1">
+                {children}
+              </main>
+              
+              <Footer />
+            </div>
+            
+            {/* Componentes flotantes */}
+            <ScrollToTop />
+            <CartFloatButton />
+            <WhatsAppButton />
+            <PWAPrompt />
+            
+            {/* Sistema de notificaciones */}
+            <Toaster 
+              position="top-center" 
+              richColors 
+              closeButton 
+              duration={4000}
+              toastOptions={{
+                style: {
+                  background: '#FFF8EC',
+                  color: '#5A3E1B',
+                  border: '1px solid #E6D2B5',
+                },
+              }}
+            />
+          </QueryProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

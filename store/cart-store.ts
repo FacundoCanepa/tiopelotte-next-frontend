@@ -1,420 +1,369 @@
 /**
- * Store del carrito optimizado con analytics de e-commerce y performance mejorada
- * 
- * Optimizaciones implementadas:
- * - Tracking completo de e-commerce con Google Analytics
- * - Estados de loading para mejor UX
- * - Validaciones de datos robustas
- * - Persistencia optimizada con error handling
- * - Funciones memorizadas para performance
- * - Notificaciones UX mejoradas
+ * Store del carrito optimizado para e-commerce con persistencia segura
+ * Incluye validaciones, analytics y manejo de errores robusto
  */
 
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { toast } from "sonner";
+import { ProductType } from "@/types/product";
 
-export type CartItem = {
-  product: {
-    id: number;
-    productName: string;
-    price: number;
-    img: any;
-    unidadMedida: string;
-    descriptionCorta?: string;
-    category?: {
-      categoryNames: string;
-    };
-  };
+export interface CartItem {
+  product: ProductType;
   quantity: number;
-};
+  addedAt: number;
+}
 
-export type CartStore = {
-  // Estados del carrito
-  cart: CartItem[];
+export interface CartStore {
+  // Estado del carrito
+  items: CartItem[];
   isLoading: boolean;
   lastUpdated: number;
 
-  // Estados del checkout
-  tipoEntrega: "domicilio" | "local" | null;
-  zona: string;
-  direccion: string;
-  referencias: string;
-  tipoPago: "mercado pago" | "efectivo" | "Elegís al momento de pagar";
-  total: number;
-  nombre: string;
-  telefono: string;
+  // Información de checkout
+  customerInfo: {
+    name: string;
+    phone: string;
+    email?: string;
+  };
+  
+  deliveryInfo: {
+    type: "delivery" | "pickup";
+    address?: string;
+    zone?: string;
+    notes?: string;
+  };
+  
+  paymentInfo: {
+    method: "mercadopago" | "cash" | "pending";
+  };
 
-  // Acciones del carrito con analytics
-  addToCart: (product: CartItem["product"], quantity: number) => void;
-  removeFromCart: (productId: number) => void;
+  // Acciones del carrito
+  addItem: (product: ProductType, quantity: number) => void;
+  removeItem: (productId: number) => void;
   updateQuantity: (productId: number, quantity: number) => void;
   clearCart: () => void;
 
-  // Acciones del checkout
-  setTipoEntrega: (tipo: "domicilio" | "local") => void;
-  setZona: (zona: string) => void;
-  setDireccion: (direccion: string) => void;
-  setReferencias: (referencias: string) => void;
-  setTipoPago: (tipo: "mercado pago" | "efectivo") => void;
-  setTotal: (total: number) => void;
-  setNombre: (nombre: string) => void;
-  setTelefono: (telefono: string) => void;
+  // Acciones de checkout
+  setCustomerInfo: (info: Partial<CartStore['customerInfo']>) => void;
+  setDeliveryInfo: (info: Partial<CartStore['deliveryInfo']>) => void;
+  setPaymentInfo: (info: Partial<CartStore['paymentInfo']>) => void;
 
-  // Funciones calculadas optimizadas
-  getTotalPrice: () => number;
+  // Getters
   getTotalItems: () => number;
-  getCartAnalyticsData: () => any[];
-  
-  // Utilidades
-  setLoading: (loading: boolean) => void;
+  getTotalPrice: () => number;
+  getCartSummary: () => {
+    totalItems: number;
+    totalPrice: number;
+    subtotal: number;
+    deliveryFee: number;
+  };
+
+  // Validaciones
   validateCart: () => boolean;
-};
+  validateCheckout: () => { isValid: boolean; errors: string[] };
+}
 
-/**
- * Helper para tracking de e-commerce con Google Analytics
- */
-const trackEcommerceEvent = (eventName: string, eventData: any) => {
-  try {
-    if (typeof window !== "undefined" && window.gtag) {
-      window.gtag("event", eventName, {
-        currency: "ARS",
-        ...eventData,
-      });
-      
-      console.log(`📊 GA Event: ${eventName}`, eventData);
-    }
-  } catch (error) {
-    console.warn("⚠️ Error tracking analytics:", error);
-  }
-};
-
-/**
- * Helper para formatear items para analytics
- */
-const formatItemForAnalytics = (item: CartItem, index?: number) => ({
-  item_id: item.product.id.toString(),
-  item_name: item.product.productName,
-  item_category: item.product.category?.categoryNames || "Pastas",
-  quantity: item.quantity,
-  price: item.product.price,
-  index: index || 0,
-});
+// Zonas de delivery con precios
+const DELIVERY_ZONES = {
+  "etcheverry-1": 1600,
+  "etcheverry-2": 1500,
+  "olmos": 1700,
+  "los-hornos-1": 2000,
+  "los-hornos-2": 2100,
+  "abasto": 3300,
+  // ... más zonas
+} as const;
 
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
-      // Estados iniciales
-      cart: [],
+      // Estado inicial
+      items: [],
       isLoading: false,
       lastUpdated: Date.now(),
-      tipoEntrega: "domicilio",
-      zona: "",
-      direccion: "",
-      referencias: "",
-      tipoPago: "mercado pago",
-      total: 0,
-      nombre: "",
-      telefono: "",
+      
+      customerInfo: {
+        name: "",
+        phone: "",
+        email: "",
+      },
+      
+      deliveryInfo: {
+        type: "delivery",
+        address: "",
+        zone: "",
+        notes: "",
+      },
+      
+      paymentInfo: {
+        method: "mercadopago",
+      },
 
-      /**
-       * Agregar producto al carrito con analytics completo
-       */
-      addToCart: (product, quantity) => {
+      // Agregar producto al carrito
+      addItem: (product, quantity) => {
         try {
           set({ isLoading: true });
           
-          const existing = get().cart.find((item) => item.product.id === product.id);
-          let updatedCart: CartItem[];
-          let isNewItem = false;
+          const currentItems = get().items;
+          const existingItem = currentItems.find(item => item.product.id === product.id);
           
-          if (existing) {
-            // Actualizar cantidad de producto existente
-            updatedCart = get().cart.map((item) =>
+          let newItems: CartItem[];
+          
+          if (existingItem) {
+            // Actualizar cantidad existente
+            newItems = currentItems.map(item =>
               item.product.id === product.id
                 ? { ...item, quantity: item.quantity + quantity }
                 : item
             );
             
-            toast.success(
-              `${product.productName} actualizado en el carrito`,
-              {
-                description: `Cantidad: ${existing.quantity + quantity} ${product.unidadMedida}`,
-                duration: 3000,
-              }
-            );
+            toast.success(`${product.productName} actualizado en el carrito`, {
+              description: `Nueva cantidad: ${existingItem.quantity + quantity}`,
+            });
           } else {
             // Agregar nuevo producto
-            isNewItem = true;
-            updatedCart = [...get().cart, { product, quantity }];
+            newItems = [...currentItems, {
+              product,
+              quantity,
+              addedAt: Date.now(),
+            }];
             
-            toast.success(
-              `¡${product.productName} agregado al carrito!`,
-              {
-                description: `${quantity} ${product.unidadMedida} por $${(product.price * quantity).toLocaleString('es-AR')}`,
-                duration: 3000,
-              }
-            );
+            toast.success(`${product.productName} agregado al carrito`, {
+              description: `${quantity} ${product.unidadMedida}`,
+            });
           }
 
-          // Actualizar estado
-          set({ 
-            cart: updatedCart, 
+          set({
+            items: newItems,
             lastUpdated: Date.now(),
-            isLoading: false 
+            isLoading: false,
           });
 
-          // Analytics: Add to Cart
-          trackEcommerceEvent("add_to_cart", {
-            value: product.price * quantity,
-            items: [formatItemForAnalytics({ product, quantity })],
-          });
-
-          // Analytics: View Cart si es nuevo item
-          if (isNewItem) {
-            trackEcommerceEvent("view_cart", {
-              value: get().getTotalPrice(),
-              items: get().getCartAnalyticsData(),
+          // Analytics
+          if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('event', 'add_to_cart', {
+              currency: 'ARS',
+              value: product.price * quantity,
+              items: [{
+                item_id: product.id.toString(),
+                item_name: product.productName,
+                category: product.category?.categoryNames || 'Pastas',
+                quantity: quantity,
+                price: product.price,
+              }],
             });
           }
 
         } catch (error) {
-          console.error("❌ Error agregando al carrito:", error);
-          toast.error("Error al agregar producto al carrito");
+          console.error('Error agregando al carrito:', error);
+          toast.error('Error al agregar producto al carrito');
           set({ isLoading: false });
         }
       },
 
-      /**
-       * Eliminar producto del carrito con analytics
-       */
-      removeFromCart: (productId) => {
+      // Eliminar producto del carrito
+      removeItem: (productId) => {
         try {
-          set({ isLoading: true });
+          const currentItems = get().items;
+          const item = currentItems.find(item => item.product.id === productId);
           
-          const item = get().cart.find(item => item.product.id === productId);
+          if (!item) return;
+
+          const newItems = currentItems.filter(item => item.product.id !== productId);
           
-          if (!item) {
-            set({ isLoading: false });
-            return;
+          set({
+            items: newItems,
+            lastUpdated: Date.now(),
+          });
+
+          toast.success(`${item.product.productName} eliminado del carrito`);
+
+          // Analytics
+          if (typeof window !== 'undefined' && window.gtag) {
+            window.gtag('event', 'remove_from_cart', {
+              currency: 'ARS',
+              value: item.product.price * item.quantity,
+              items: [{
+                item_id: item.product.id.toString(),
+                item_name: item.product.productName,
+                category: item.product.category?.categoryNames || 'Pastas',
+                quantity: item.quantity,
+                price: item.product.price,
+              }],
+            });
           }
 
-          // Actualizar carrito
-          const updatedCart = get().cart.filter((item) => item.product.id !== productId);
-          set({ 
-            cart: updatedCart, 
-            lastUpdated: Date.now(),
-            isLoading: false 
-          });
-
-          // Analytics: Remove from Cart
-          trackEcommerceEvent("remove_from_cart", {
-            value: item.product.price * item.quantity,
-            items: [formatItemForAnalytics(item)],
-          });
-
-          toast.success(
-            `${item.product.productName} eliminado del carrito`,
-            {
-              description: "Podés volver a agregarlo cuando quieras",
-              duration: 3000,
-            }
-          );
-
         } catch (error) {
-          console.error("❌ Error eliminando del carrito:", error);
-          toast.error("Error al eliminar producto del carrito");
-          set({ isLoading: false });
+          console.error('Error eliminando del carrito:', error);
+          toast.error('Error al eliminar producto');
         }
       },
 
-      /**
-       * Actualizar cantidad con validación mejorada
-       */
+      // Actualizar cantidad
       updateQuantity: (productId, quantity) => {
+        if (quantity <= 0) {
+          get().removeItem(productId);
+          return;
+        }
+
         try {
-          if (quantity <= 0) {
-            get().removeFromCart(productId);
-            return;
-          }
-
-          set({ isLoading: true });
-
-          const updatedCart = get().cart.map((item) =>
-            item.product.id === productId ? { ...item, quantity } : item
+          const newItems = get().items.map(item =>
+            item.product.id === productId
+              ? { ...item, quantity }
+              : item
           );
 
-          set({ 
-            cart: updatedCart, 
+          set({
+            items: newItems,
             lastUpdated: Date.now(),
-            isLoading: false 
           });
 
         } catch (error) {
-          console.error("❌ Error actualizando cantidad:", error);
-          toast.error("Error al actualizar cantidad");
-          set({ isLoading: false });
+          console.error('Error actualizando cantidad:', error);
+          toast.error('Error al actualizar cantidad');
         }
       },
 
-      /**
-       * Limpiar carrito con confirmación
-       */
+      // Limpiar carrito
       clearCart: () => {
-        const currentCart = get().cart;
-        
         set({
-          cart: [],
-          tipoEntrega: "domicilio",
-          zona: "",
-          direccion: "",
-          referencias: "",
-          tipoPago: "mercado pago",
-          total: 0,
-          nombre: "",
-          telefono: "",
+          items: [],
+          customerInfo: { name: "", phone: "", email: "" },
+          deliveryInfo: { type: "delivery", address: "", zone: "", notes: "" },
+          paymentInfo: { method: "mercadopago" },
           lastUpdated: Date.now(),
         });
-
-        // Analytics: Clear Cart
-        if (currentCart.length > 0) {
-          trackEcommerceEvent("remove_from_cart", {
-            value: get().getTotalPrice(),
-            items: currentCart.map(formatItemForAnalytics),
-          });
-        }
-
-        toast.success("Carrito vaciado", {
-          description: "Todos los productos fueron eliminados",
-          duration: 2000,
-        });
-      },
-
-      // Setters del checkout optimizados
-      setTipoEntrega: (tipo) => {
-        set({ tipoEntrega: tipo });
         
-        // Analytics: Shipping method selection
-        trackEcommerceEvent("add_shipping_info", {
-          shipping_tier: tipo,
-          value: get().getTotalPrice(),
-          items: get().getCartAnalyticsData(),
-        });
+        toast.success('Carrito vaciado');
       },
 
-      setZona: (zona) => set({ zona }),
-      setDireccion: (direccion) => set({ direccion }),
-      setReferencias: (referencias) => set({ referencias }),
-      
-      setTipoPago: (tipo) => {
-        set({ tipoPago: tipo });
-        
-        // Analytics: Payment method selection
-        trackEcommerceEvent("add_payment_info", {
-          payment_type: tipo,
-          value: get().getTotalPrice(),
-          items: get().getCartAnalyticsData(),
-        });
+      // Setters para checkout
+      setCustomerInfo: (info) => {
+        set(state => ({
+          customerInfo: { ...state.customerInfo, ...info }
+        }));
       },
 
-      setTotal: (total) => set({ total }),
-      setNombre: (nombre) => set({ nombre }),
-      setTelefono: (telefono) => set({ telefono }),
-      setLoading: (loading) => set({ isLoading: loading }),
-
-      /**
-       * Calcular precio total optimizado
-       */
-      getTotalPrice: () => {
-        try {
-          return get().cart.reduce((acc, item) => {
-            const itemTotal = item.quantity * item.product.price;
-            return acc + itemTotal;
-          }, 0);
-        } catch (error) {
-          console.error("❌ Error calculando precio total:", error);
-          return 0;
-        }
+      setDeliveryInfo: (info) => {
+        set(state => ({
+          deliveryInfo: { ...state.deliveryInfo, ...info }
+        }));
       },
 
-      /**
-       * Calcular total de items
-       */
+      setPaymentInfo: (info) => {
+        set(state => ({
+          paymentInfo: { ...state.paymentInfo, ...info }
+        }));
+      },
+
+      // Getters
       getTotalItems: () => {
-        try {
-          return get().cart.reduce((acc, item) => acc + item.quantity, 0);
-        } catch (error) {
-          console.error("❌ Error calculando total items:", error);
-          return 0;
-        }
+        return get().items.reduce((total, item) => total + item.quantity, 0);
       },
 
-      /**
-       * Obtener datos formateados para analytics
-       */
-      getCartAnalyticsData: () => {
-        try {
-          return get().cart.map((item, index) => formatItemForAnalytics(item, index));
-        } catch (error) {
-          console.error("❌ Error formateando datos analytics:", error);
-          return [];
-        }
+      getTotalPrice: () => {
+        return get().items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
       },
 
-      /**
-       * Validar integridad del carrito
-       */
+      getCartSummary: () => {
+        const items = get().items;
+        const deliveryInfo = get().deliveryInfo;
+        
+        const totalItems = items.reduce((total, item) => total + item.quantity, 0);
+        const subtotal = items.reduce((total, item) => total + (item.product.price * item.quantity), 0);
+        
+        let deliveryFee = 0;
+        if (deliveryInfo.type === "delivery" && deliveryInfo.zone) {
+          deliveryFee = DELIVERY_ZONES[deliveryInfo.zone as keyof typeof DELIVERY_ZONES] || 0;
+        }
+        
+        const totalPrice = subtotal + deliveryFee;
+
+        return {
+          totalItems,
+          totalPrice,
+          subtotal,
+          deliveryFee,
+        };
+      },
+
+      // Validar carrito
       validateCart: () => {
-        try {
-          const cart = get().cart;
-          
-          // Verificar que todos los items tengan datos válidos
-          const isValid = cart.every(item => 
+        const items = get().items;
+        
+        // Verificar que todos los items sean válidos
+        const isValid = items.every(item => 
+          item.product?.id &&
+          item.product?.productName &&
+          item.product?.price > 0 &&
+          item.quantity > 0
+        );
+
+        if (!isValid) {
+          // Limpiar items inválidos
+          const validItems = items.filter(item => 
             item.product?.id &&
             item.product?.productName &&
             item.product?.price > 0 &&
             item.quantity > 0
           );
-
-          if (!isValid) {
-            console.warn("⚠️ Carrito con datos inválidos detectado");
-            // Limpiar items inválidos
-            const validCart = cart.filter(item => 
-              item.product?.id &&
-              item.product?.productName &&
-              item.product?.price > 0 &&
-              item.quantity > 0
-            );
-            
-            set({ cart: validCart, lastUpdated: Date.now() });
-            
-            if (validCart.length !== cart.length) {
-              toast.warning("Se eliminaron algunos productos inválidos del carrito");
-            }
+          
+          set({ items: validItems });
+          
+          if (validItems.length !== items.length) {
+            toast.warning('Se eliminaron productos inválidos del carrito');
           }
-
-          return isValid;
-        } catch (error) {
-          console.error("❌ Error validando carrito:", error);
-          return false;
         }
+
+        return isValid;
+      },
+
+      // Validar checkout
+      validateCheckout: () => {
+        const { customerInfo, deliveryInfo, items } = get();
+        const errors: string[] = [];
+
+        // Validar carrito no vacío
+        if (items.length === 0) {
+          errors.push('El carrito está vacío');
+        }
+
+        // Validar información del cliente
+        if (!customerInfo.name.trim()) {
+          errors.push('El nombre es requerido');
+        }
+        
+        if (!customerInfo.phone.trim()) {
+          errors.push('El teléfono es requerido');
+        }
+
+        // Validar información de entrega
+        if (deliveryInfo.type === "delivery") {
+          if (!deliveryInfo.address?.trim()) {
+            errors.push('La dirección es requerida para delivery');
+          }
+          if (!deliveryInfo.zone) {
+            errors.push('La zona de entrega es requerida');
+          }
+        }
+
+        return {
+          isValid: errors.length === 0,
+          errors,
+        };
       },
     }),
     {
-      name: "cart-storage",
+      name: "tio-pelotte-cart",
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
-        cart: state.cart,
-        tipoEntrega: state.tipoEntrega,
-        zona: state.zona,
-        direccion: state.direccion,
-        referencias: state.referencias,
-        tipoPago: state.tipoPago,
-        nombre: state.nombre,
-        telefono: state.telefono,
+        items: state.items,
+        customerInfo: state.customerInfo,
+        deliveryInfo: state.deliveryInfo,
+        paymentInfo: state.paymentInfo,
         lastUpdated: state.lastUpdated,
       }),
-      // Manejar errores de hidratación
       onRehydrateStorage: () => (state) => {
         if (state) {
           // Validar carrito después de hidratar

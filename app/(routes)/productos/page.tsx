@@ -1,18 +1,16 @@
-import ProductosSection from "./components/ProductosSection";
+import { Metadata } from "next";
+import ProductsSection from "./components/ProductsSection";
 
-export const metadata = {
-  title: "Productos artesanales – TÍO PELOTTE",
-  description: "Descubrí nuestras pastas frescas y ofertas semanales. Comprá ravioles, sorrentinos, fideos y más.",
+export const metadata: Metadata = {
+  title: "Productos Artesanales | TÍO PELOTTE",
+  description: "Descubrí nuestra amplia selección de pastas artesanales frescas. Ravioles, sorrentinos, ñoquis, canelones y más. Envíos a domicilio en La Plata.",
   openGraph: {
-    title: "Productos artesanales – TÍO PELOTTE",
-    description: "Comprá pastas artesanales frescas con envío a domicilio.",
-    url: "https://tiopelotte.com/productos",
-    siteName: "TÍO PELOTTE",
-    locale: "es_AR",
+    title: "Productos Artesanales | TÍO PELOTTE",
+    description: "Pastas frescas hechas con amor y tradición. Comprá online con envío a domicilio.",
     type: "website",
   },
 };
 
-export default function ProductosPage() {
-  return <ProductosSection />;
+export default function ProductsPage() {
+  return <ProductsSection />;
 }

@@ -1,22 +1,17 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { ProductType } from "@/types/product";
+import ProductCard from "@/app/(routes)/productos/components/ProductCard";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { ProductType } from "@/types/product";
-import FeaturedProductCard from "../carousel/FeaturedProductCard";
 
 interface Props {
   products: ProductType[];
 }
 
-/**
- * Carrusel de productos optimizado para producción
- * Carga Embla Carousel de forma asíncrona
- */
-const ProductCarousel = ({ products }: Props) => {
+export default function ProductCarousel({ products }: Props) {
   const [emblaRef, setEmblaRef] = useState<any>(null);
   const [emblaApi, setEmblaApi] = useState<any>(null);
-  const [showButtons, setShowButtons] = useState(false);
   const [canScrollPrev, setCanScrollPrev] = useState(false);
   const [canScrollNext, setCanScrollNext] = useState(false);
   const [isClient, setIsClient] = useState(false);
@@ -35,7 +30,6 @@ const ProductCarousel = ({ products }: Props) => {
           containScroll: "trimSnaps",
           dragFree: false,
           loop: false,
-          skipSnaps: false,
         });
         
         setEmblaRef(emblaRefResult);
@@ -45,8 +39,7 @@ const ProductCarousel = ({ products }: Props) => {
       }
     };
 
-    const timeoutId = setTimeout(loadEmbla, 100);
-    return () => clearTimeout(timeoutId);
+    loadEmbla();
   }, []);
 
   useEffect(() => {
@@ -67,65 +60,42 @@ const ProductCarousel = ({ products }: Props) => {
     };
   }, [emblaApi]);
 
-  useEffect(() => {
-    if (products && products.length > 4) {
-      setShowButtons(true);
-    }
-  }, [products.length]);
-
   const scrollPrev = () => emblaApi?.scrollPrev();
   const scrollNext = () => emblaApi?.scrollNext();
 
-  // Fallback para cuando no hay Embla cargado
+  // Fallback grid si no hay carousel
   if (!isClient || !emblaRef) {
     return (
-      <div className="px-2 sm:px-4 md:px-8">
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {products?.slice(0, 4).map((product) => (
-            <div key={product.id} className="w-full">
-              <FeaturedProductCard product={product} />
-            </div>
-          ))}
-        </div>
-        {products?.length > 4 && (
-          <p className="text-center text-sm text-[#8B4513] mt-4 italic">
-            Cargando carrusel interactivo...
-          </p>
-        )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 px-4">
+        {products.slice(0, 4).map((product) => (
+          <ProductCard key={product.id} product={product} />
+        ))}
       </div>
     );
   }
 
   return (
-    <div className="relative px-2 sm:px-4 md:px-8">
+    <div className="relative">
       <div className="overflow-hidden" ref={emblaRef}>
         <div className="flex">
-          {products && products.map((product) => (
+          {products.map((product) => (
             <div
               key={product.id}
-              className="shrink-0 w-full sm:w-1/2 md:w-1/3 lg:w-1/4 px-2"
+              className="flex-[0_0_100%] sm:flex-[0_0_50%] md:flex-[0_0_33.333%] lg:flex-[0_0_25%] px-3"
             >
-              <FeaturedProductCard product={product} />
+              <ProductCard product={product} />
             </div>
           ))}
         </div>
       </div>
 
       {/* Botones de navegación */}
-      {showButtons && emblaApi && (
+      {products.length > 4 && emblaApi && (
         <>
           <button
             onClick={scrollPrev}
             disabled={!canScrollPrev}
-            aria-label="Producto anterior"
-            className={`
-              hidden lg:flex absolute left-[-3rem] top-1/2 -translate-y-1/2 z-30 
-              bg-white p-3 rounded-full shadow-lg transition-all duration-200
-              ${canScrollPrev 
-                ? 'hover:bg-[#6B8E23] hover:text-white cursor-pointer hover:scale-110' 
-                : 'opacity-50 cursor-not-allowed'
-              }
-            `}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronLeft size={24} />
           </button>
@@ -133,29 +103,12 @@ const ProductCarousel = ({ products }: Props) => {
           <button
             onClick={scrollNext}
             disabled={!canScrollNext}
-            aria-label="Producto siguiente"
-            className={`
-              hidden lg:flex absolute right-[-3rem] top-1/2 -translate-y-1/2 z-30 
-              bg-white p-3 rounded-full shadow-lg transition-all duration-200
-              ${canScrollNext 
-                ? 'hover:bg-[#6B8E23] hover:text-white cursor-pointer hover:scale-110' 
-                : 'opacity-50 cursor-not-allowed'
-              }
-            `}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-10 bg-white/90 hover:bg-white p-3 rounded-full shadow-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <ChevronRight size={24} />
           </button>
         </>
       )}
-
-      {/* Indicador móvil */}
-      <div className="lg:hidden flex justify-center mt-4">
-        <p className="text-sm text-[#8B4513] bg-white/60 px-3 py-1 rounded-full">
-          👈 Deslizá para ver más productos 👉
-        </p>
-      </div>
     </div>
   );
-};
-
-export default ProductCarousel;
+}

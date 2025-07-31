@@ -1,26 +1,17 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Configuración básica optimizada para Vercel
+  // Configuración básica optimizada para producción
   reactStrictMode: true,
   swcMinify: true,
+  poweredByHeader: false,
   
-  // Optimizaciones experimentales para Next.js 15
+  // Configuración experimental para Next.js 15
   experimental: {
-    optimizePackageImports: ['lucide-react', 'chart.js'],
-    turbo: {
-      rules: {
-        '*.svg': {
-          loaders: ['@svgr/webpack'],
-          as: '*.js',
-        },
-      },
-    },
+    optimizePackageImports: ['lucide-react', '@radix-ui/react-icons'],
+    serverComponentsExternalPackages: ['leaflet', 'react-leaflet'],
   },
   
-  // Paquetes externos para SSR - CRÍTICO para leaflet
-  serverExternalPackages: ['leaflet', 'react-leaflet'],
-  
-  // Configuración de imágenes optimizada
+  // Configuración de imágenes optimizada para Strapi
   images: {
     remotePatterns: [
       {
@@ -35,6 +26,12 @@ const nextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'images.unsplash.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
     formats: ['image/webp', 'image/avif'],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048],
@@ -43,16 +40,14 @@ const nextConfig = {
     dangerouslyAllowSVG: false,
   },
 
-  // Optimización de compilación para producción
+  // Optimización de compilación
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production' ? {
       exclude: ['error', 'warn']
     } : false,
   },
 
-  // Headers de seguridad para Vercel
-  poweredByHeader: false,
-  
+  // Headers de seguridad para producción
   async headers() {
     return [
       {
@@ -118,7 +113,7 @@ const nextConfig = {
   },
 
   // Configuración de webpack optimizada
-  webpack: (config, { dev, isServer, webpack }) => {
+  webpack: (config, { dev, isServer }) => {
     // Fallbacks para módulos Node.js en el cliente
     if (!isServer) {
       config.resolve.fallback = {
@@ -128,26 +123,17 @@ const nextConfig = {
         dns: false,
         child_process: false,
         tls: false,
-        crypto: false,
       };
     }
 
-    // Optimización para Chart.js
-    config.plugins.push(
-      new webpack.IgnorePlugin({
-        resourceRegExp: /^\.\/locale$/,
-        contextRegExp: /moment$/,
-      })
-    );
-
-    // Configuración para leaflet en SSR
+    // Optimización para leaflet
     config.module.rules.push({
       test: /\.js$/,
       include: /node_modules\/leaflet/,
       use: {
         loader: 'babel-loader',
         options: {
-          presets: ['@babel/preset-env'],
+          presets: ['next/babel'],
         },
       },
     });
@@ -157,19 +143,13 @@ const nextConfig = {
 
   // Configuración de output para Vercel
   output: 'standalone',
-  
-  // Configuración de compresión
   compress: true,
-  
-  // Configuración de trailing slash
   trailingSlash: false,
   
-  // Configuración de ESLint
+  // Configuración de ESLint y TypeScript
   eslint: {
     ignoreDuringBuilds: false,
   },
-  
-  // Configuración de TypeScript
   typescript: {
     ignoreBuildErrors: false,
   },

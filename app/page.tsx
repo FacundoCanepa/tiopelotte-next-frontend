@@ -1,48 +1,30 @@
-"use client";
+import { Suspense } from "react";
+import HeroSection from "@/components/sections/home/HeroSection";
+import FeaturedProducts from "@/components/sections/home/FeaturedProducts";
+import OfferProducts from "@/components/sections/home/OfferProducts";
+import CategoryShowcase from "@/components/sections/home/CategoryShowcase";
+import AboutSection from "@/components/sections/home/AboutSection";
+import LocationSection from "@/components/sections/home/LocationSection";
+import TestimonialsSection from "@/components/sections/home/TestimonialsSection";
+import { CarouselLoading } from "@/components/ui/LoadingStates";
 
-import CaroseText from "@/components/sections/shared/caroseText";
-import ProductCarouselSection from "@/components/sections/home/product-carousel/ProductCarouselSection";
-import NuestraHistoria from "@/components/sections/home/nuestraHistoria";
-import Ubicacion from "@/components/sections/home/ubicacion";
-import CommentsUser from "@/components/sections/home/commentsUsers";
-import CategoryHome from "@/components/sections/home/categoryHome";
-import RedesSociales from "@/components/sections/home/redesSociales";
-import { useGetFeaturedProducts } from "@/components/hooks/useGetFeaturedProducts";
-import { useGetOfferProducts } from "@/components/hooks/useGetOfertProducts";
-import { useGetDessertProducts } from "@/components/hooks/useGetDessertProducts";
-
-export default function Home() {
-  const featuredProducts = useGetFeaturedProducts();
-  const offerProducts = useGetOfferProducts();
-  const dessertProducts = useGetDessertProducts();
-
+export default function HomePage() {
   return (
     <>
-      <CaroseText />
+      <HeroSection />
       
-      <ProductCarouselSection
-        title="Nuestros recomendados"
-        subtitle="Pastas que enamoran"
-        products={featuredProducts}
-      />
+      <Suspense fallback={<CarouselLoading />}>
+        <FeaturedProducts />
+      </Suspense>
       
-      <ProductCarouselSection
-        title="Dulzura artesanal"
-        subtitle="Los más tentadores"
-        products={dessertProducts}
-      />
+      <Suspense fallback={<CarouselLoading />}>
+        <OfferProducts />
+      </Suspense>
       
-      <ProductCarouselSection
-        title="Ofertas semanales"
-        subtitle="Aprovechá estas promos"
-        products={offerProducts}
-      />
-      
-      <NuestraHistoria />
-      <Ubicacion />
-      <CommentsUser />
-      <CategoryHome />
-      <RedesSociales />
+      <CategoryShowcase />
+      <AboutSection />
+      <LocationSection />
+      <TestimonialsSection />
     </>
   );
 }
