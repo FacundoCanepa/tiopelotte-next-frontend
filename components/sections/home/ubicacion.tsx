@@ -1,6 +1,5 @@
 "use client";
 
-import AnimatedSection from "../../ui/AnimatedWrapper";
 import Button from "../../ui/button";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -9,7 +8,7 @@ const Ubicacion = () => {
   const router = useRouter();
 
   return (
-    <AnimatedSection className="relative py-16 overflow-hidden">
+    <div className="relative py-16 overflow-hidden">
       <Image
         src={`${process.env.NEXT_PUBLIC_MEDIA_URL}/photo_1723473620176_8d26dc6314cf_803f81fe52.jpg`}
         fill
@@ -93,7 +92,7 @@ const Ubicacion = () => {
           />
         </svg>
       </div>
-    </AnimatedSection>
+    </div>
   );
 };
 

@@ -2,12 +2,11 @@
 
 import { googleReviews } from "@/types/comments";
 import { Star } from "lucide-react";
-import AnimatedSection from "../../ui/AnimatedWrapper";
 import Image from "next/image";
 
 const CommentsUser = () => {
   return (
-    <AnimatedSection className="relative py-16 overflow-hidden">
+    <div className="relative py-16 overflow-hidden">
       {/* Imagen de fondo decorativa */}
       <Image
         src={`${process.env.NEXT_PUBLIC_MEDIA_URL}/photo_1465911817134_741b5e473a1b_732b198613.avif`}
@@ -76,7 +75,7 @@ const CommentsUser = () => {
           />
         </svg>
       </div>
-    </AnimatedSection>
+    </div>
   );
 };
 

@@ -1,6 +1,5 @@
 "use client";
 
-import AnimatedSection from "@/components/ui/AnimatedWrapper";
 import dynamic from "next/dynamic";
 const ProductCarousel = dynamic(() => import("@/components/ui/ProductCarousel"));
 import SkeletonCarousel from "@/components/ui/skeletonSchema";
@@ -33,7 +32,7 @@ const ProductCarouselSection = ({
   const router = useRouter();
 
   return (
-    <AnimatedSection>
+    <div>
       <div className="w-full max-w-[90rem] mx-auto py-12 px-2 sm:px-4 lg:px-6">
         <div className="text-center mb-6">
           <h3 className="font-garamond text-3xl md:text-5xl italic tracking-wide">
@@ -59,7 +58,7 @@ const ProductCarouselSection = ({
           )}
         </div>
       </div>
-    </AnimatedSection>
+    </div>
   );
 };
 

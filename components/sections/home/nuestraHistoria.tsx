@@ -1,6 +1,5 @@
 "use client";
 
-import AnimatedSection from "../../ui/AnimatedWrapper";
 import { useRouter } from "next/navigation";
 import Button from "../../ui/button";
 import Image from "next/image";
@@ -9,7 +8,7 @@ const NuestraHistoria = () => {
   const router = useRouter();
 
   return (
-    <AnimatedSection className="relative py-16 overflow-hidden">
+    <div className="relative py-16 overflow-hidden">
       {/* Imagen de fondo decorativa */}
       <Image
         src={`${process.env.NEXT_PUBLIC_MEDIA_URL}/premium_photo_1661962560564_220abc8b6bf2_f9f2261ff0.avif`}
@@ -58,7 +57,7 @@ const NuestraHistoria = () => {
           <path fill="#FBE6D4" d="M0,100 C480,0 960,100 1440,0 L1440,100 L0,100 Z" />
         </svg>
       </div>
-    </AnimatedSection>
+    </div>
   );
 };
 

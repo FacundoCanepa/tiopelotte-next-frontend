@@ -5,7 +5,6 @@ import Autoplay from "embla-carousel-autoplay";
 import { useRef } from "react";
 import { useRouter } from "next/navigation";
 import Button from "@/components/ui/button";
-import { motion } from "framer-motion";
 
 export const datacaroseltop = [
   {
@@ -74,34 +73,20 @@ const CaroseText = () => {
               >
                 <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-0" />
                 <div className="relative z-10 h-full w-full flex flex-col items-center justify-end text-center px-4 pt-8 pb-6 text-white">
-                  <motion.h2
-                    className="text-xl md:text-4xl font-garamond italic tracking-wide mb-1"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.2 }}
-                  >
+                  <h2 className="text-xl md:text-4xl font-garamond italic tracking-wide mb-1">
                     {title}
-                  </motion.h2>
-                  <motion.p
-                    className="text-sm md:text-lg font-garamond italic mb-2"
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.6, delay: 0.4 }}
-                  >
+                  </h2>
+                  <p className="text-sm md:text-lg font-garamond italic mb-2">
                     {description}
-                  </motion.p>
-                  <motion.div
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    transition={{ duration: 0.4, delay: 0.6 }}
-                  >
+                  </p>
+                  <div>
                     <Button
                       onClick={() => router.push(href)}
                       className="bg-white text-[#6B8E23] font-semibold tracking-wide mt-2"
                     >
                       {buttonLabel}
                     </Button>
-                  </motion.div>
+                  </div>
                 </div>
               </div>
             </div>
